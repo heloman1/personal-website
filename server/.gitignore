@@ -1,5 +1,10 @@
-ssl
+creds/*
+!creds/.gitkeep
 
+data/*
+!data/.gitkeep
+
+build
 # Taken from https://github.com/github/gitignore/blob/master/Node.gitignore
 # Logs
 logs
