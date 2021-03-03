@@ -3,6 +3,6 @@ import Login from "./serverDetails";
 
 let router = Router();
 
-router.use("/", Login);
+router.use("/backend", Login);
 
-export default Login;
+export default router;
