@@ -4,9 +4,6 @@ import Routes from "./routes";
 import server from "./server";
 const config = args();
 
-import firebaseAdmin from "./firebase";
-console.log(firebaseAdmin.name);
-
 let app = express();
 app.use(express.json());
 app.use(Routes);
