@@ -1,1 +1,13 @@
-<p>server-select works!</p>
+<div class="loading-container" *ngIf="serverData.length == 0">
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+
+<div class="grid">
+  <app-server-card
+    *ngFor="let server of serverData; index as i"
+    [id]="i"
+    [data]="server"
+    (buttonPressed)="toggleServer($event)"
+  >
+  </app-server-card>
+</div>

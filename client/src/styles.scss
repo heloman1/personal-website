@@ -1,4 +1,44 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@import "~@angular/material/theming";
+
+// For the font
+$config: mat-typography-config(
+  $font-family: "Fira Code, sans-serif",
+);
+@include mat-core($config);
+
+// Available color palettes: https://material.io/design/color/
+
+// For the theme
+$primary: mat-palette($mat-deep-purple, A800);
+$accent: mat-palette($mat-amber, A800);
+// The warn palette is optional (defaults to red).
+$theme: mat-dark-theme(
+  (
+    color: (
+      primary: $primary,
+      accent: $accent,
+      //warn: $warn,
+      //background: $background,,,,,,,,,,,,,,,,,
+    ),
+  )
+);
+
+@include angular-material-theme($theme);
+//Mixins get included here
+
+
+// These should(?) get mixin-ed?
+$background: map-get($theme, background);
+
+html,
+body {
+  height: 100%;
+  background-color: mat-color($background, background);
+  margin: 0;
+}
+
+.hidden {
+  display: none;
+}

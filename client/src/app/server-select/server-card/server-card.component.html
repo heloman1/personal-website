@@ -1,0 +1,20 @@
+<mat-card>
+  <mat-card-title>{{ data.server }}</mat-card-title>
+  <mat-card-content>Game: {{ data.game }}</mat-card-content>
+  <mat-card-content
+    >Status: {{ data.is_online ? "On" : "Off" }}</mat-card-content
+  >
+
+  <mat-card-actions>
+    <button
+      [ngClass]="{ green: !data.is_online, transition: true }"
+      [disabled]="!data.queryDone"
+      (click)="submit()"
+      [color]="data.is_online ? 'warn' : ''"
+      mat-flat-button
+    >
+      <app-power-icon></app-power-icon>
+      {{ data.is_online ? "Turn Off" : "Turn On" }}
+    </button>
+  </mat-card-actions>
+</mat-card>

@@ -1,4 +1,4 @@
-<mat-card>
+<mat-card class="login">
   <mat-card-title>Login</mat-card-title>
   <mat-form-field>
     <mat-label>Email</mat-label>
@@ -6,7 +6,9 @@
     <mat-error *ngIf="email.invalid">{{ getEmailErrorMessage() }}</mat-error>
   </mat-form-field>
   <mat-card-actions>
-    <button (click)="submit()" mat-button>Send Email</button>
+    <button (click)="submit()" color="primary" mat-flat-button>
+      Send Email
+    </button>
   </mat-card-actions>
   <mat-card-footer>
     <mat-card-content [ngClass]="feedbackMessageCSSClass">{{

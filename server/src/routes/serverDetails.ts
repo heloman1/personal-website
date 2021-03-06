@@ -22,8 +22,11 @@ let statusList: {
     server: string;
     is_online: boolean;
 }[];
-router.get("/server-status", async (req, res) => {
-    if (new Date().getTime() - lastCheck.getTime() > FIVE_MINUTES) {
+router.get("/servers-status", async (req, res) => {
+    if (
+        req.query.force !== undefined ||
+        new Date().getTime() - lastCheck.getTime() > FIVE_MINUTES
+    ) {
         const jsonList = (
             await exec(
                 `ssh gameserver@edward-server ./check_server_statuses.zsh`
@@ -38,10 +41,11 @@ router.get("/server-status", async (req, res) => {
                 details_string: string;
             } = JSON.parse(j);
             const [game, server] = data.server.split("/");
+
             return {
                 game: game,
                 server: server,
-                is_online: data.server.search("ONLINE") >= 0 ? true : false,
+                is_online: data.details_string.includes("ONLINE"),
             };
         });
         lastCheck = new Date();

@@ -1,3 +1,8 @@
-.hidden {
-    display: none;
+.login {
+  justify-content: center;
+  align-content: center;
+  display: grid;
+  padding-top: 2rem;
+  grid-template-columns: minmax(1rem, 25rem);
+  grid-gap: 10px;
 }
