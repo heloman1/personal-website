@@ -1,5 +1,5 @@
 import { Output, EventEmitter, Component, Input } from '@angular/core';
-import { ServerDataValue } from '../server-select.component';
+import { QueryParams, ServerDataValue } from '../server-select.component';
 
 @Component({
     selector: 'app-server-card',
@@ -7,11 +7,7 @@ import { ServerDataValue } from '../server-select.component';
     styleUrls: ['./server-card.component.scss'],
 })
 export class ServerCardComponent {
-    @Output() buttonPressed = new EventEmitter<{
-        game: string;
-        server: string;
-        command: 'start' | 'stop' | 'restart';
-    }>();
+    @Output() buttonPressed = new EventEmitter<QueryParams>();
     @Input() game = 'unset';
     @Input() server = 'unset';
     @Input() data: ServerDataValue = {

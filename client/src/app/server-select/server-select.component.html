@@ -1,4 +1,4 @@
-<div class="loading-container" *ngIf="serverNameList.length == 0">
+<div class="loading-container" *ngIf="(serverData | keyvalue)?.length == 0">
     <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
 </div>
 

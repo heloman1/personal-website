@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { LoginService } from 'src/app/services/firebase.service';
 
@@ -7,11 +7,10 @@ import { LoginService } from 'src/app/services/firebase.service';
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
     email = new FormControl('', {
         validators: [Validators.required, Validators.email],
     });
-    feedbackMessageCSSClass = 'hidden';
     feedbackMessage = '';
     constructor(private firebase_service: LoginService) {}
 
@@ -34,6 +33,4 @@ export class LoginComponent implements OnInit {
             }
         }
     }
-
-    ngOnInit(): void {}
 }
