@@ -4,24 +4,24 @@
 //
 //}
 .grid {
-  justify-content: center;
-  display: grid;
-  margin: 1rem;
-  grid-template-columns: minmax(1rem, 25rem) minmax(1rem, 25rem) minmax(
-      0.5rem,
-      25rem
-    );
-  grid-gap: 10px;
+    justify-content: center;
+    display: grid;
+    margin: 1rem;
+    grid-template-columns: minmax(1rem, 25rem) minmax(1rem, 25rem) minmax(
+            0.5rem,
+            25rem
+        );
+    grid-gap: 10px;
 }
 
 .loading-container {
-  display: flex;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
 }
 
 .title {
-  color: white;
-  text-align: center;
+    color: white;
+    text-align: center;
 }

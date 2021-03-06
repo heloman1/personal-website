@@ -20,28 +20,28 @@ import { ServerCardComponent } from './server-select/server-card/server-card.com
 import { PowerIconComponent } from './server-select/server-card/power-icon/power-icon.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    TestComponent,
-    ServerSelectComponent,
-    LoginComponent,
-    ServerCardComponent,
-    PowerIconComponent,
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatCardModule,
-    MatInputModule,
-    ReactiveFormsModule,
-    FormsModule,
-    HttpClientModule,
-    MatProgressSpinnerModule,
-  ],
-  providers: [LoginService, HttpClient],
-  bootstrap: [AppComponent],
+    declarations: [
+        AppComponent,
+        TestComponent,
+        ServerSelectComponent,
+        LoginComponent,
+        ServerCardComponent,
+        PowerIconComponent,
+    ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatCardModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        FormsModule,
+        HttpClientModule,
+        MatProgressSpinnerModule,
+    ],
+    providers: [LoginService, HttpClient],
+    bootstrap: [AppComponent],
 })
 export class AppModule {}

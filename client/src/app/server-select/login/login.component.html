@@ -1,18 +1,24 @@
 <mat-card class="login">
-  <mat-card-title>Login</mat-card-title>
-  <mat-form-field>
-    <mat-label>Email</mat-label>
-    <input matInput placeholder="ByAny@Means.Necessary" [formControl]="email" />
-    <mat-error *ngIf="email.invalid">{{ getEmailErrorMessage() }}</mat-error>
-  </mat-form-field>
-  <mat-card-actions>
-    <button (click)="submit()" color="primary" mat-flat-button>
-      Send Email
-    </button>
-  </mat-card-actions>
-  <mat-card-footer>
-    <mat-card-content [ngClass]="feedbackMessageCSSClass">{{
-      feedbackMessage
-    }}</mat-card-content>
-  </mat-card-footer>
+    <mat-card-title>Login</mat-card-title>
+    <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input
+            matInput
+            placeholder="ByAny@Means.Necessary"
+            [formControl]="email"
+        />
+        <mat-error *ngIf="email.invalid">{{
+            getEmailErrorMessage()
+        }}</mat-error>
+    </mat-form-field>
+    <mat-card-actions>
+        <button (click)="submit()" color="primary" mat-flat-button>
+            Send Email
+        </button>
+    </mat-card-actions>
+    <mat-card-footer>
+        <mat-card-content [ngClass]="feedbackMessageCSSClass">{{
+            feedbackMessage
+        }}</mat-card-content>
+    </mat-card-footer>
 </mat-card>
