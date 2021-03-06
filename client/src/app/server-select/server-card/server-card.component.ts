@@ -1,5 +1,4 @@
-import { HttpClient } from '@angular/common/http';
-import { Output, EventEmitter, Component, Input, OnInit } from '@angular/core';
+import { Output, EventEmitter, Component, Input } from '@angular/core';
 import { ServerDataValue } from '../server-select.component';
 
 @Component({
@@ -7,10 +6,11 @@ import { ServerDataValue } from '../server-select.component';
     templateUrl: './server-card.component.html',
     styleUrls: ['./server-card.component.scss'],
 })
-export class ServerCardComponent implements OnInit {
+export class ServerCardComponent {
     @Output() buttonPressed = new EventEmitter<{
         game: string;
         server: string;
+        command: 'start' | 'stop' | 'restart';
     }>();
     @Input() game = 'unset';
     @Input() server = 'unset';
@@ -19,13 +19,14 @@ export class ServerCardComponent implements OnInit {
         queryDone: false,
     };
 
-    constructor(private http: HttpClient) {}
+    constructor() {}
 
-    ngOnInit(): void {}
-
-    toggleButton() {}
     submit() {
-        this.buttonPressed.emit({ game: this.game, server: this.server });
+        this.buttonPressed.emit({
+            game: this.game,
+            server: this.server,
+            command: this.data.is_online ? 'stop' : 'start',
+        });
         //this.data.queryDone = false;
     }
 }

@@ -24,17 +24,39 @@ export class ServerSelectComponent implements OnInit {
     ) {}
     serverData: ServerData = {};
     serverNameList: string[] = [];
-    async toggleServer(server: { game: string; server: string }) {
-        //this.serverData[server_index].queryDone = false;
-        //this.serverData[server_index].queryDone = true;
-        this.serverData[server.game][server.server].queryDone = false;
+    async handleServerEvent(data: {
+        game: string;
+        server: string;
+        command: string;
+    }) {
+        // Disable card buttons
+        this.serverData[data.game][data.server].queryDone = false;
 
-        //pretend to do things
-        setTimeout(() => {
-            this.serverData[server.game][server.server].queryDone = true;
-            this.serverData[server.game][server.server].is_online = !this
-                .serverData[server.game][server.server].is_online;
-        }, 1000);
+        // Do the query
+        // TODO: Firebase auth required here
+        let res = await this.http
+            .post('/backend/server-command', null, {
+                params: data,
+                responseType: 'text',
+                observe: 'response',
+            })
+            .toPromise();
+
+        switch (res.status) {
+            case 200:
+                if (data.command === 'start' || data.command === 'restart') {
+                    this.serverData[data.game][data.server].is_online = true;
+                } else if (data.command === 'stop') {
+                    this.serverData[data.game][data.server].is_online = false;
+                }
+                break;
+            case 400:
+                break;
+            default:
+                break;
+        }
+
+        this.serverData[data.game][data.server].queryDone = true;
     }
 
     ngOnInit(): void {
@@ -43,7 +65,6 @@ export class ServerSelectComponent implements OnInit {
         });
         this.http.get('/backend/servers-status').subscribe({
             next: (data) => {
-                console.log(data);
                 this.serverData = data as ServerData;
                 this.serverNameList = [];
                 for (let game of Object.keys(this.serverData)) {
@@ -53,8 +74,6 @@ export class ServerSelectComponent implements OnInit {
                     }
                 }
                 this.serverNameList.sort();
-
-                console.log(this.serverData);
             },
         });
     }

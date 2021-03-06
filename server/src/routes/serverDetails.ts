@@ -14,7 +14,7 @@ let statusList: {
             is_online: boolean;
         };
     };
-};
+} = {};
 router.get("/servers-status", async (req, res) => {
     const conf = config.getConfig();
     if (
@@ -48,9 +48,40 @@ router.get("/servers-status", async (req, res) => {
     res.json(statusList);
 });
 
-router.get("/setServer", async (req, res) => {
+async function sendServerCommand(query: any) {
+    await shell(
+        `ssh gameserver@edward-server ./${query.game}/${query.server}/*server ${query.command}`
+    );
+}
+router.post("/server-command", async (req, res) => {
     //TODO: Firebase Auth REQUIRED Here
-    let server;
+
+    try {
+        const { command, game, server } = req.query;
+        if (game && server && command) {
+            let is_online;
+            switch (command) {
+                case "stop":
+                    await sendServerCommand(req.query);
+                    is_online = false;
+                    break;
+                case "start":
+                case "restart":
+                    await sendServerCommand(req.query);
+                    is_online = true;
+                    break;
+                default:
+                    res.sendStatus(400);
+                    return;
+            }
+            statusList[game as string][server as string].is_online = is_online;
+            res.sendStatus(200);
+            return;
+        }
+    } catch (err) {
+        console.log(err);
+    }
+    res.sendStatus(400);
 });
 
 export default router;

@@ -1,4 +1,4 @@
-<div class="loading-container" *ngIf="serverData == {}">
+<div class="loading-container" *ngIf="serverNameList.length == 0">
     <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
 </div>
 
@@ -10,7 +10,7 @@
             [game]="game.key"
             [server]="server.key"
             [data]="serverData[game.key][server.key]"
-            (buttonPressed)="toggleServer($event)"
+            (buttonPressed)="handleServerEvent($event)"
         >
         </app-server-card>
     </div>
