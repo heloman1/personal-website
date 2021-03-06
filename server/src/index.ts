@@ -2,7 +2,7 @@ import express from "express";
 import args from "./args";
 import Routes from "./routes";
 import server from "./server";
-const config = args();
+const config = args.generateConfig();
 
 let app = express();
 app.use(express.json());
