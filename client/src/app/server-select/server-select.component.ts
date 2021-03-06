@@ -2,11 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { LoginService } from 'src/app/services/firebase.service';
 
-export interface ServerData {
-  game: string;
-  server: string;
+export interface ServerDataValue {
   is_online: boolean;
   queryDone: boolean;
+}
+export interface ServerData {
+  [game: string]: {
+    [server: string]: ServerDataValue;
+  };
 }
 
 @Component({
@@ -19,18 +22,19 @@ export class ServerSelectComponent implements OnInit {
     private firebase_service: LoginService,
     private http: HttpClient
   ) {}
-  serverData: ServerData[] = [];
-
-  async toggleServer(server_index: number) {
+  serverData: ServerData = {};
+  serverNameList: string[] = [];
+  async toggleServer(server: { game: string; server: string }) {
     //this.serverData[server_index].queryDone = false;
     //this.serverData[server_index].queryDone = true;
-    this.serverData[server_index].queryDone = false;
+    this.serverData[server.game][server.server].queryDone = false;
 
     //pretend to do things
     setTimeout(() => {
-      this.serverData[server_index].queryDone = true;
-      this.serverData[server_index].is_online = !this.serverData[server_index]
-        .is_online;
+      this.serverData[server.game][server.server].queryDone = true;
+      this.serverData[server.game][server.server].is_online = !this.serverData[
+        server.game
+      ][server.server].is_online;
     }, 1000);
   }
 
@@ -40,18 +44,17 @@ export class ServerSelectComponent implements OnInit {
     });
     this.http.get('/backend/servers-status').subscribe({
       next: (data) => {
-        for (let d of data as any[]) {
-          d.queryDone = true;
-        }
-
-        this.serverData = data as ServerData[];
-        this.serverData.sort((a, b) => {
-          const c1 = a.game.localeCompare(b.game);
-          if (c1 == 0) {
-            return a.server.localeCompare(b.server);
+        console.log(data);
+        this.serverData = data as ServerData;
+        this.serverNameList = [];
+        for (let game of Object.keys(this.serverData)) {
+          for (let server of Object.keys(this.serverData[game])) {
+            this.serverData[game][server].queryDone = true;
+            this.serverNameList.push(server);
           }
-          return c1;
-        });
+        }
+        this.serverNameList.sort();
+
         console.log(this.serverData);
       },
     });

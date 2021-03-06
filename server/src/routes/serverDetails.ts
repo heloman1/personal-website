@@ -9,11 +9,12 @@ let lastCheck = new Date(0).getTime();
 let router = Router();
 
 let statusList: {
-    game: string;
-    server: string;
-    is_online: boolean;
-}[] = [];
-
+    [game: string]: {
+        [server: string]: {
+            is_online: boolean;
+        };
+    };
+};
 router.get("/servers-status", async (req, res) => {
     const conf = config.getConfig();
     if (
@@ -28,16 +29,17 @@ router.get("/servers-status", async (req, res) => {
             .trim()
             .split("\n");
 
-        statusList = jsonList.map((j) => {
+        statusList = {};
+        jsonList.forEach((j) => {
             let data: {
                 server: string;
                 details_string: string;
             } = JSON.parse(j);
             const [game, server] = data.server.split("/");
-
-            return {
-                game: game,
-                server: server,
+            if (statusList[game] === undefined) {
+                statusList[game] = {};
+            }
+            statusList[game][server] = {
                 is_online: data.details_string.includes("ONLINE"),
             };
         });

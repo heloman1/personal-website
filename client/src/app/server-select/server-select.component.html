@@ -1,13 +1,17 @@
-<div class="loading-container" *ngIf="serverData.length == 0">
+<div class="loading-container" *ngIf="serverData == {}">
   <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
 </div>
 
-<div class="grid">
-  <app-server-card
-    *ngFor="let server of serverData; index as i"
-    [id]="i"
-    [data]="server"
-    (buttonPressed)="toggleServer($event)"
-  >
-  </app-server-card>
+<div *ngFor="let game of serverData | keyvalue">
+  <h2 class="mat-typography title">{{ game.key | titlecase }}</h2>
+  <div class="grid">
+    <app-server-card
+      *ngFor="let server of game.value | keyvalue"
+      [game]="game.key"
+      [server]="server.key"
+      [data]="serverData[game.key][server.key]"
+      (buttonPressed)="toggleServer($event)"
+    >
+    </app-server-card>
+  </div>
 </div>
