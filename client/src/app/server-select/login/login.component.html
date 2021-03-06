@@ -8,7 +8,7 @@
             [formControl]="email"
         />
         <mat-error *ngIf="email.invalid">{{
-            getEmailErrorMessage()
+            emailInputMessage()
         }}</mat-error>
     </mat-form-field>
     <mat-card-actions>
