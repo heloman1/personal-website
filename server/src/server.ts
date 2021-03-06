@@ -1,12 +1,13 @@
 import https from "https";
 import http from "http";
 import fs from "fs";
-import { Config } from "./args";
+import config from "./config";
 import { Express } from "express";
 
-export default function startServer(app: Express, config: Config) {
+export default function startServer(app: Express) {
+    const conf = config.getConfig();
     let httpServer: https.Server | http.Server;
-    if (config.insecure) {
+    if (config.getConfig().insecure) {
         console.log("WARNING: NOT using HTTPS");
         httpServer = http.createServer(app);
     } else {
@@ -18,11 +19,11 @@ export default function startServer(app: Express, config: Config) {
         httpServer = https.createServer(credentials, app);
     }
 
-    httpServer.listen(config.port, () => {
+    httpServer.listen(conf.port, () => {
         console.log(
             `Listening on ${
-                config.insecure ? "http" : "https"
-            }://edwardgomez.dev:${config.port}`
+                conf.insecure ? "http" : "https"
+            }://edwardgomez.dev:${conf.port}`
         );
     });
 }

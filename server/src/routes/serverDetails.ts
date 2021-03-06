@@ -1,7 +1,7 @@
 import { Router } from "express";
 import child_process from "child_process";
 import { promisify } from "util";
-import args from "../args";
+import config from "../config";
 
 let shell = promisify(child_process.exec);
 const FIVE_MIN = 5 * 60 * 1000;
@@ -13,14 +13,16 @@ let statusList: {
     server: string;
     is_online: boolean;
 }[] = [];
+
 router.get("/servers-status", async (req, res) => {
+    const conf = config.getConfig();
     if (
         req.query.force !== undefined ||
         new Date().getTime() - lastCheck > FIVE_MIN
     ) {
         const jsonList = (
             await shell(
-                `ssh gameserver@edward-server ./check_server_statuses.zsh ${args.config}`
+                `ssh gameserver@edward-server ./check_server_statuses.zsh ${conf.gameList}`
             )
         ).stdout
             .trim()
@@ -46,7 +48,7 @@ router.get("/servers-status", async (req, res) => {
 
 router.get("/setServer", async (req, res) => {
     //TODO: Firebase Auth REQUIRED Here
-    let server
+    let server;
 });
 
 export default router;
