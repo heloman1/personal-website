@@ -1,13 +1,14 @@
+<div [ngClass]="doneLoading ? 'hidden' : 'loading-container'">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+
 <div class="floating-actions">
     <button (click)="getCardData()" color="accent" mat-raised-button>
         <app-refresh-icon></app-refresh-icon>
     </button>
-    <button color="accent" mat-raised-button>
+    <button (click)="signInOut()" color="accent" mat-raised-button>
         {{ signedIn ? "Sign Out" : "Sign In" }}
     </button>
-</div>
-<div [ngClass]="doneLoading ? 'hidden' : 'loading-container'">
-    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
 </div>
 
 <div *ngFor="let game of serverData | keyvalue">

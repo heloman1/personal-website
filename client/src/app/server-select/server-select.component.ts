@@ -2,7 +2,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { LoginService } from 'src/app/services/firebase.service';
 import { QueryParams, ServerData } from './types';
-
+import { Router } from '@angular/router';
 @Component({
     selector: 'app-server-select',
     templateUrl: './server-select.component.html',
@@ -11,7 +11,8 @@ import { QueryParams, ServerData } from './types';
 export class ServerSelectComponent implements OnInit {
     constructor(
         private firebase_service: LoginService,
-        private http: HttpClient
+        private http: HttpClient,
+        private router: Router
     ) {}
     serverData: ServerData = {};
     doneLoading = false;
@@ -50,6 +51,9 @@ export class ServerSelectComponent implements OnInit {
         // TODO: Firebase auth required here
         return await this.http
             .post('/backend/server-command', null, {
+                headers: {
+                    Authorization: `Bearer ${await this.firebase_service.firebase_auth.currentUser!.getIdToken()}`,
+                },
                 params: data,
                 responseType: 'text',
                 observe: 'response',
@@ -140,5 +144,15 @@ export class ServerSelectComponent implements OnInit {
         //    this.serverData[game][server].queryDone = false;
         //});
         this.doneLoading = true;
+    }
+
+    async signInOut() {
+        if (this.signedIn) {
+            if (await this.firebase_service.signOut()) {
+                window.location.reload();
+            }
+        } else {
+            this.router.navigateByUrl('/servers/login');
+        }
     }
 }

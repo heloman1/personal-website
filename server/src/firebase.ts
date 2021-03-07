@@ -12,7 +12,11 @@ declare global {
     }
 }
 
-export async function decodeJWTToken(req: Request, res: Response, next: NextFunction) {
+export async function decodeJWTToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
     if (req.headers.authorization?.startsWith("Bearer ")) {
         const token = req.headers.authorization.split("Bearer ")[1];
 
@@ -22,6 +26,8 @@ export async function decodeJWTToken(req: Request, res: Response, next: NextFunc
         } catch (err) {
             console.log(err);
         }
+    } else {
+        console.log("Auth missing");
     }
 
     next();
