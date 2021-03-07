@@ -12,6 +12,7 @@ export class ServerCardComponent {
     @Input() server = 'unset';
     @Input() data: ServerDataValue = {
         is_online: false,
+        port: -1,
         queryDone: false,
     };
 

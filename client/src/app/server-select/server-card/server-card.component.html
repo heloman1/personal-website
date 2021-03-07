@@ -3,6 +3,7 @@
     <mat-card-content
         >Status: {{ data.is_online ? "On" : "Off" }}</mat-card-content
     >
+    <mat-card-content>Port: {{ data.port }}</mat-card-content>
     <mat-card-actions>
         <button
             [ngClass]="{ green: !data.is_online, transition: true }"
