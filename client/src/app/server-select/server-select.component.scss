@@ -25,3 +25,13 @@
     color: white;
     text-align: center;
 }
+
+.floating-actions {
+    width: 99%;
+    position: fixed;
+    top: 5rem;
+    z-index: 1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}

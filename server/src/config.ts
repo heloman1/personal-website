@@ -1,9 +1,15 @@
+import fs from "fs";
 export default class Config {
     private static instance: Config;
 
     insecure: boolean;
     port: number;
     gameList: string[];
+    emailList: {
+        [email: string]: {
+            access_level: number;
+        };
+    };
 
     private constructor() {
         const insecure = process.argv[2] === "insecure" ? true : false;
@@ -19,7 +25,12 @@ export default class Config {
 
         this.insecure = insecure;
         this.port = port;
-        this.gameList = ["minecraft", "terraria", "7dtd", "starbound"];
+        this.gameList = JSON.parse(
+            fs.readFileSync("data/games.json").toString()
+        );
+        this.emailList = JSON.parse(
+            fs.readFileSync("data/emails.json").toString()
+        );
     }
 
     public static getConfig(): Config {

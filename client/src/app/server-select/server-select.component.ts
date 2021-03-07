@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { LoginService } from 'src/app/services/firebase.service';
 import { QueryParams, ServerData } from './types';
 
-
 @Component({
     selector: 'app-server-select',
     templateUrl: './server-select.component.html',
@@ -15,18 +14,22 @@ export class ServerSelectComponent implements OnInit {
         private http: HttpClient
     ) {}
     serverData: ServerData = {};
-
+    doneLoading = false;
+    signedIn = false;
     ngOnInit(): void {
         // Is the url a sign-in url?
-        this.firebase_service.tryCompleteSignIn().then(async (success) => {
-            if (success) {
-                // "Redirect" away from sign-in url
-                window.location.href = '/servers';
+        this.firebase_service.firebase_auth.onAuthStateChanged(async (user) => {
+            this.doneLoading = false;
+            if (user) {
+                this.signedIn = true;
+                // Load card data
+                this.getCardData(); // this will set done loading
+            } else {
+                this.signedIn = false;
+                console.log('You need to sign in');
+                this.doneLoading = true;
             }
         });
-
-        // Load card data
-        this.getCardData();
     }
 
     async handleCardEvent(query: QueryParams) {
@@ -117,10 +120,12 @@ export class ServerSelectComponent implements OnInit {
     }
 
     async getCardData() {
+        this.doneLoading = false;
+
         let data = (await this.http
             .get('/backend/servers-status', {
                 headers: {
-                    Authorization: `Bearer ${await this.firebase_service.user?.getIdToken()}`,
+                    Authorization: `Bearer ${await this.firebase_service.firebase_auth.currentUser!.getIdToken()}`,
                 },
             })
             .toPromise()) as ServerData;
@@ -134,5 +139,6 @@ export class ServerSelectComponent implements OnInit {
         //this.iterateServerKeys((game, server) => {
         //    this.serverData[game][server].queryDone = false;
         //});
+        this.doneLoading = true;
     }
 }

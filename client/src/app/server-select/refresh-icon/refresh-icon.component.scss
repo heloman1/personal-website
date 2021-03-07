@@ -1,0 +1,7 @@
+@mixin refresh-icon-theme($theme) {
+    $primary: map-get($theme, accent);
+    .refresh-icon {
+        vertical-align: middle;
+        fill: mat-color($primary, default-contrast);
+    }
+}

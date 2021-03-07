@@ -18,6 +18,7 @@ import { LoginService } from './services/firebase.service';
 import { LoginComponent } from './server-select/login/login.component';
 import { ServerCardComponent } from './server-select/server-card/server-card.component';
 import { PowerIconComponent } from './server-select/server-card/power-icon/power-icon.component';
+import { RefreshIconComponent } from './server-select/refresh-icon/refresh-icon.component';
 
 @NgModule({
     declarations: [
@@ -27,6 +28,7 @@ import { PowerIconComponent } from './server-select/server-card/power-icon/power
         LoginComponent,
         ServerCardComponent,
         PowerIconComponent,
+        RefreshIconComponent,
     ],
     imports: [
         BrowserModule,

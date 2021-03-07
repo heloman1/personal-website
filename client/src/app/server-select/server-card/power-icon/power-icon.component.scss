@@ -1,4 +1,7 @@
-svg {
-  vertical-align: middle;
-  fill: white;
+@mixin power-icon-theme($theme) {
+    $primary: map-get($theme, primary);
+    .power-icon {
+        vertical-align: middle;
+        fill: mat-color($primary, default-contrast);
+    }
 }

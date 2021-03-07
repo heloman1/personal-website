@@ -10,7 +10,7 @@ const firebaseConfig = {
 };
 
 var actionCodeSettings: _firebase.auth.ActionCodeSettings = {
-    url: 'http://localhost:8080/servers',
+    url: 'http://localhost:8080/servers/login',
     handleCodeInApp: true,
 };
 
@@ -19,7 +19,6 @@ const EMAIL_KEY = 'emailForSignIn';
     providedIn: 'root',
 })
 export class LoginService {
-    user: _firebase.User | null = null;
     firebase_auth: _firebase.auth.Auth;
     constructor() {
         this.firebase_auth = _firebase.initializeApp(firebaseConfig).auth();
@@ -56,7 +55,7 @@ export class LoginService {
                     );
                     window.localStorage.removeItem(EMAIL_KEY);
                     if (result.user) {
-                        this.user = result.user;
+                        this.firebase_auth.currentUser = result.user;
                         return true;
                     }
                     // You can access the new user via result.user

@@ -4,41 +4,42 @@
 
 // For the font
 $config: mat-typography-config(
-  $font-family: "Fira Code, sans-serif",
+    $font-family: "Fira Code, sans-serif",
 );
 @include mat-core($config);
 
 // Available color palettes: https://material.io/design/color/
 
 // For the theme
-$primary: mat-palette($mat-deep-purple, A800);
-$accent: mat-palette($mat-amber, A800);
+$primary: mat-palette($mat-deep-purple, 800);
+$accent: mat-palette($mat-amber, 800);
 // The warn palette is optional (defaults to red).
 $theme: mat-dark-theme(
-  (
-    color: (
-      primary: $primary,
-      accent: $accent,
-      //warn: $warn,
-      //background: $background,,,,,,,,,,,,,,,,,
-    ),
-  )
+    (
+        color: (
+            primary: $primary,
+            accent: $accent,
+            //warn: $warn,
+        ),
+    )
 );
 
+@import "./app/server-select/server-card/power-icon/power-icon.component.scss";
+@import "./app/server-select/refresh-icon/refresh-icon.component.scss";
 @include angular-material-theme($theme);
+@include power-icon-theme($theme);
+@include refresh-icon-theme($theme);
 //Mixins get included here
-
-
 // These should(?) get mixin-ed?
 $background: map-get($theme, background);
 
 html,
 body {
-  height: 100%;
-  background-color: mat-color($background, background);
-  margin: 0;
+    height: 100%;
+    background-color: mat-color($background, background);
+    margin: 0;
 }
 
 .hidden {
-  display: none;
+    display: none;
 }
