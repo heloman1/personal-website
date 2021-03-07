@@ -1,7 +1,14 @@
 import express from "express";
 import Routes from "./routes";
 import server from "./server";
+import admin from "./firebase";
 
+admin
+    .auth()
+    .listUsers()
+    .then((val) => {
+        console.log(val.users);
+    });
 let app = express();
 app.use(express.json());
 app.use(Routes);
