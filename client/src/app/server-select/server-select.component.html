@@ -3,7 +3,9 @@
 </div>
 
 <div *ngFor="let game of serverData | keyvalue">
-    <h2 class="mat-typography title">{{ game.key | titlecase }}</h2>
+    <h2 class="title">
+        {{ game.key | titlecase }}
+    </h2>
     <div class="grid">
         <app-server-card
             *ngFor="let server of game.value | keyvalue"
