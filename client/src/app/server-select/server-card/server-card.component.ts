@@ -1,5 +1,5 @@
 import { Output, EventEmitter, Component, Input } from '@angular/core';
-import { QueryParams, ServerDataValue } from '../server-select.component';
+import { QueryParams, ServerDataValue } from '../types';
 
 @Component({
     selector: 'app-server-card',

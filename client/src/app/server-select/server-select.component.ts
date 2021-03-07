@@ -1,23 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { LoginService } from 'src/app/services/firebase.service';
+import { QueryParams, ServerData } from './types';
 
-export type QueryParams = {
-    game: string;
-    server: string;
-    command: 'start' | 'stop' | 'restart';
-};
-
-export interface ServerDataValue {
-    is_online: boolean;
-    port: number;
-    queryDone: boolean;
-}
-export interface ServerData {
-    [game: string]: {
-        [server: string]: ServerDataValue;
-    };
-}
 
 @Component({
     selector: 'app-server-select',
@@ -31,73 +16,99 @@ export class ServerSelectComponent implements OnInit {
     ) {}
     serverData: ServerData = {};
 
-    async handleServerEvent(data: QueryParams) {
-        this.setAllButtons(false);
-        await this.sendCommand(data);
-        this.updateDisabledServers();
+    ngOnInit(): void {
+        // Is the url a sign-in url?
+        this.firebase_service.tryCompleteSignIn().then(async (success) => {
+            if (success) {
+                // "Redirect" away from sign-in url
+                window.location.href = '/servers';
+            }
+        });
+
+        // Load card data
+        this.getCardData();
+    }
+
+    async handleCardEvent(query: QueryParams) {
+        // Disable all buttons
+        this.iterateServerKeys((game, server) => {
+            this.serverData[game][server].queryDone = false;
+        });
+        // Do the query
+        let res = await this.sendCommand(query);
+        // Update online state
+        this.updateCardOnlineState(query, res);
+        // Reenable appropriate buttons
+        this.reenableCardButtons();
     }
 
     async sendCommand(data: QueryParams) {
-        const { game, server, command } = data;
-        // Disable card buttons
-        this.serverData[game][server].queryDone = false;
-
         // Do the query
         // TODO: Firebase auth required here
-        let res = await this.http
+        return await this.http
             .post('/backend/server-command', null, {
                 params: data,
                 responseType: 'text',
                 observe: 'response',
             })
             .toPromise();
+    }
 
+    updateCardOnlineState(query: QueryParams, res: HttpResponse<string>) {
+        const { game, server, command } = query;
+        // Update what's online
         switch (res.status) {
             case 200:
-                if (command === 'start' || command === 'restart') {
-                    this.serverData[game][server].is_online = true;
-                } else if (command === 'stop') {
-                    this.serverData[game][server].is_online = false;
+                switch (command) {
+                    case 'start':
+                    case 'restart':
+                        this.serverData[game][server].is_online = true;
+                        break;
+                    case 'stop':
+                        this.serverData[game][server].is_online = false;
+                        break;
+                    default:
+                        console.error('Unimplemented Command');
+                        break;
                 }
                 break;
             case 400:
+                console.error('Recieved 400');
                 break;
+            case 500:
+                console.error('Recieved 500');
+                break;
+            default:
+                console.error('Recieved unexpected status code');
         }
-
-        this.serverData[game][server].queryDone = true;
     }
 
-    updateDisabledServers() {
+    reenableCardButtons() {
         //Enforce that servers cant share ports
         // Get list of in-use ports
-        let ports: number[] = [];
-        this.iterateServers((game, server) => {
+        let usedPorts: Set<number> = new Set();
+        this.iterateServerKeys((game, server) => {
             if (this.serverData[game][server].is_online) {
-                ports.push(this.serverData[game][server].port);
+                usedPorts.add(this.serverData[game][server].port); // This port is in use
             }
         });
 
-        this.iterateServers((game, server) => {
-            // If port is in use and the current server isnt the one using it
+        this.iterateServerKeys((game, server) => {
+            // If port is in use and the current server isn't the one using it
             if (
-                ports.includes(this.serverData[game][server].port) &&
+                usedPorts.has(this.serverData[game][server].port) &&
                 !this.serverData[game][server].is_online
             ) {
                 this.serverData[game][server].queryDone = false;
             } else {
-                // Either port is not in use, or this is the server using a port
+                // Either port is not in use, or this *is* the server using the port
                 // Either way, allow buttons to be pressed
                 this.serverData[game][server].queryDone = true;
             }
         });
     }
 
-    setAllButtons(toggle: boolean) {
-        this.iterateServers((game, server) => {
-            this.serverData[game][server].queryDone = false;
-        });
-    }
-    iterateServers(fun: (game: string, server: string) => void) {
+    iterateServerKeys(fun: (game: string, server: string) => void) {
         for (let game of Object.keys(this.serverData)) {
             for (let server of Object.keys(this.serverData[game])) {
                 fun(game, server);
@@ -106,31 +117,22 @@ export class ServerSelectComponent implements OnInit {
     }
 
     async getCardData() {
-        this.http
+        let data = (await this.http
             .get('/backend/servers-status', {
                 headers: {
                     Authorization: `Bearer ${await this.firebase_service.user?.getIdToken()}`,
                 },
             })
-            .subscribe({
-                next: (data) => {
-                    this.serverData = data as ServerData;
-                    this.iterateServers((game, server) => {
-                        this.serverData[game][server].queryDone = true;
-                    });
-                },
-            });
-    }
+            .toPromise()) as ServerData;
 
-    ngOnInit(): void {
-        this.firebase_service.tryCompleteSignIn().then(async (success) => {
-            if (success) {
-                let token = await this.firebase_service.user!.getIdToken();
-                console.log(token);
-            }
-        });
-        this.getCardData();
+        // This line should technically be the last thing to occur
+        // It has not yet caused problems though
+        this.serverData = data;
+
+        // This will add the missing keys that typescript thinks exists
+        this.reenableCardButtons();
+        //this.iterateServerKeys((game, server) => {
+        //    this.serverData[game][server].queryDone = false;
+        //});
     }
 }
-// ./mcserver details | sed 's/\x1b\[[0-9;]*m//g'
-// /Server name.*\n\n/gms
