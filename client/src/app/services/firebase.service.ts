@@ -19,6 +19,7 @@ const EMAIL_KEY = 'emailForSignIn';
     providedIn: 'root',
 })
 export class LoginService {
+    user: _firebase.User | null = null;
     firebase_auth: _firebase.auth.Auth;
     constructor() {
         this.firebase_auth = _firebase.initializeApp(firebaseConfig).auth();
@@ -53,17 +54,22 @@ export class LoginService {
                         email,
                         window.location.href
                     );
+                    window.localStorage.removeItem(EMAIL_KEY);
+                    if (result.user) {
+                        this.user = result.user;
+                        return true;
+                    }
                     // You can access the new user via result.user
                     // Additional user info profile not available via:
                     // result.additionalUserInfo.profile == null
                     // You can check if the user is new or existing:
                     // result.additionalUserInfo.isNewUser
-                    window.localStorage.removeItem(EMAIL_KEY);
                 } catch (error) {
                     console.log(error);
                 }
             }
         }
+        return false;
     }
 
     async signOut() {
