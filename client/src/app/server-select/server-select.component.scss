@@ -27,6 +27,8 @@
     //margin-top: -50px;
     //margin-left: -50px;
     display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     align-items: center;
     justify-content: center;
 }
