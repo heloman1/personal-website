@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import * as admin from "firebase-admin";
+import admin from "firebase-admin";
 import config from "./config";
 let conf = config.getConfig();
 let firebaseAdmin = admin.initializeApp({
