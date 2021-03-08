@@ -55,7 +55,6 @@ export class LoginService {
                     );
                     window.localStorage.removeItem(EMAIL_KEY);
                     if (result.user) {
-                        this.firebase_auth.currentUser = result.user;
                         return true;
                     }
                     // You can access the new user via result.user

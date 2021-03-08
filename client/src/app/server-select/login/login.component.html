@@ -1,7 +1,7 @@
 <div class="grid">
     <mat-card>
         <mat-card-title>Login</mat-card-title>
-        <form action="">
+        <form>
             <mat-form-field>
                 <mat-label>Email</mat-label>
                 <input
@@ -16,6 +16,7 @@
             <mat-card-actions>
                 <button
                     type="submit"
+                    [disabled]="disableSend"
                     (click)="submit()"
                     color="primary"
                     mat-flat-button
@@ -25,10 +26,7 @@
             </mat-card-actions>
         </form>
         <mat-card-footer>
-            <mat-card-content
-                [ngClass]="{ hidden: this.feedbackMessage == '' }"
-                >{{ feedbackMessage }}</mat-card-content
-            >
+            <mat-card-content>{{ feedbackMessage }}</mat-card-content>
         </mat-card-footer>
     </mat-card>
 </div>

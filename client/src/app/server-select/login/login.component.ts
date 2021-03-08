@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { LoginService } from 'src/app/services/firebase.service';
-import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
@@ -12,15 +12,16 @@ export class LoginComponent implements OnInit {
         validators: [Validators.required, Validators.email],
     });
     feedbackMessage = '';
+    disableSend = false;
     constructor(
         private firebase_service: LoginService,
-        private location: Location
+        private router: Router
     ) {}
 
     ngOnInit() {
         this.firebase_service.tryCompleteSignIn().then(async (success) => {
             if (success) {
-                this.location.go('/servers'); // "Redirect" away from sign-in url
+                this.router.navigateByUrl('/servers'); // "Redirect" away from sign-in url
             }
         });
     }
@@ -37,6 +38,7 @@ export class LoginComponent implements OnInit {
             let success = await this.firebase_service.sendSignInEmail(email);
             if (success === true) {
                 this.feedbackMessage = `A signin email has been sent to ${email}`;
+                this.disableSend = true;
             } else {
                 this.feedbackMessage =
                     'An error occurred when attempting to send the email.';
