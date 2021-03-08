@@ -11,7 +11,7 @@ const firebaseConfig = {
 };
 
 var actionCodeSettings: _firebase.auth.ActionCodeSettings = {
-    url: 'http://localhost:8080/servers/login',
+    url: 'https://edwardgomez.dev/servers/login',
     handleCodeInApp: true,
 };
 
