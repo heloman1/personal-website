@@ -3,6 +3,7 @@ import child_process from "child_process";
 import { promisify } from "util";
 import config from "../config";
 import { decodeJWTToken } from "../firebase";
+import Condition from "../condition";
 
 let shell = promisify(child_process.exec);
 const conf = config.getConfig();
@@ -11,7 +12,7 @@ let lastCheck = new Date(0).getTime();
 let router = Router();
 router.use(decodeJWTToken);
 
-let currentlyChecking = false;
+let currentlyChecking = new Condition(false);
 let executingCommand = false;
 
 let statusList: {
@@ -22,15 +23,6 @@ let statusList: {
         };
     };
 } = {};
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-async function waitForCondition(cond: boolean, expect: boolean) {
-    if (cond === expect) {
-        return;
-    }
-    await sleep(500);
-    await waitForCondition(cond, expect);
-}
 
 function isAuthorized(req: Request) {
     if (req.user && req.user.email) {
@@ -45,10 +37,10 @@ function isAuthorized(req: Request) {
     return false;
 }
 router.get("/servers-status", async (req, res) => {
-    if (currentlyChecking) {
-        waitForCondition(currentlyChecking, false);
+    if (currentlyChecking.state === true) {
+        await currentlyChecking.waitForCondition(false);
     } else {
-        currentlyChecking = true;
+        currentlyChecking.state = true;
         if (
             req.query.force !== undefined ||
             new Date().getTime() - lastCheck > FIVE_MIN
@@ -88,7 +80,7 @@ router.get("/servers-status", async (req, res) => {
             });
             lastCheck = new Date().getTime();
         }
-        currentlyChecking = false;
+        currentlyChecking.state = false;
     }
 
     res.json(statusList);
