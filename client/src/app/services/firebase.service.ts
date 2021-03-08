@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import _firebase from 'firebase';
+import _firebase from 'firebase/app';
+import 'firebase/auth';
 const firebaseConfig = {
     apiKey: 'AIzaSyCrM2dSNeEj1GatjS4l78zdrEoeKgRxzYE',
     authDomain: 'serverselect-be6d0.firebaseapp.com',

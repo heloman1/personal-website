@@ -24,7 +24,6 @@
     //top: 50%;
     //left: 50%;
 
-
     //margin-top: -50px;
     //margin-left: -50px;
     display: flex;
@@ -38,11 +37,16 @@
 }
 
 .floating-actions {
+    p {
+        color: white;
+    }
+    display: inline-flex;
+    flex-direction: row;
     width: 99%;
     position: fixed;
     top: 5rem;
     z-index: 2;
-    display: flex;
-    justify-content: flex-end;
+    align-items: baseline;
+    justify-content: right;
     gap: 1rem;
 }

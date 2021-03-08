@@ -14,6 +14,7 @@ export class ServerSelectComponent implements OnInit {
         private http: HttpClient,
         private router: Router
     ) {}
+    statusText = '';
     serverData: ServerData = {};
     doneLoading = false;
     signedIn = false;
@@ -70,24 +71,36 @@ export class ServerSelectComponent implements OnInit {
                     case 'start':
                     case 'restart':
                         this.serverData[game][server].is_online = true;
+                        this.statusText = 'Command Successful';
                         break;
                     case 'stop':
                         this.serverData[game][server].is_online = false;
+                        this.statusText = 'Command Successful';
                         break;
                     default:
-                        console.error('Unimplemented Command');
+                        this.statusText =
+                            'Unimplemented Commandm contact the developer';
                         break;
                 }
                 break;
             case 400:
-                console.error('Recieved 400');
+                this.statusText = 'Client Syntax, contact the developer.';
+                break;
+            case 401:
+                this.statusText = 'Unauthorized, contact the administrator.';
                 break;
             case 500:
-                console.error('Recieved 500');
+                this.statusText = 'Server error, contact the developer.';
+                break;
+            case 503:
+                this.statusText = 'Server busy, please wait a few seconds';
                 break;
             default:
-                console.error('Recieved unexpected status code');
+                this.statusText = `Recieved unexpected status code: ${res.status}`;
         }
+        setTimeout(() => {
+            this.statusText = '';
+        }, 7000);
     }
 
     reenableCardButtons() {

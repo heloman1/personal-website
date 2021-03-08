@@ -11,6 +11,9 @@ let lastCheck = new Date(0).getTime();
 let router = Router();
 router.use(decodeJWTToken);
 
+let currentlyChecking = false;
+let executingCommand = false;
+
 let statusList: {
     [game: string]: {
         [server: string]: {
@@ -19,6 +22,15 @@ let statusList: {
         };
     };
 } = {};
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+async function waitForCondition(cond: boolean, expect: boolean) {
+    if (cond === expect) {
+        return;
+    }
+    await sleep(500);
+    await waitForCondition(cond, expect);
+}
 
 function isAuthorized(req: Request) {
     if (req.user && req.user.email) {
@@ -33,7 +45,10 @@ function isAuthorized(req: Request) {
     return false;
 }
 router.get("/servers-status", async (req, res) => {
-    if (isAuthorized(req)) {
+    if (currentlyChecking) {
+        waitForCondition(currentlyChecking, false);
+    } else {
+        currentlyChecking = true;
         if (
             req.query.force !== undefined ||
             new Date().getTime() - lastCheck > FIVE_MIN
@@ -73,10 +88,10 @@ router.get("/servers-status", async (req, res) => {
             });
             lastCheck = new Date().getTime();
         }
-        res.json(statusList);
-    } else {
-        res.sendStatus(401);
+        currentlyChecking = false;
     }
+
+    res.json(statusList);
 });
 
 async function sendServerCommand(query: any) {
@@ -85,8 +100,10 @@ async function sendServerCommand(query: any) {
     );
 }
 router.post("/server-command", async (req, res) => {
-    //TODO: Firebase Auth REQUIRED Here
-    if (isAuthorized(req)) {
+    if (executingCommand) {
+        res.sendStatus(503);
+    } else {
+        executingCommand = true;
         try {
             const { command, game, server } = req.query;
             if (game && server && command) {
@@ -103,20 +120,21 @@ router.post("/server-command", async (req, res) => {
                         break;
                     default:
                         res.sendStatus(400);
+                        executingCommand = false;
                         return;
                 }
                 statusList[game as string][
                     server as string
                 ].is_online = is_online;
                 res.sendStatus(200);
-                return;
+            } else {
+                res.sendStatus(400);
             }
         } catch (err) {
             console.log(err);
+            res.sendStatus(500);
         }
-        res.sendStatus(400);
-    } else {
-        res.sendStatus(401);
+        executingCommand = false;
     }
 });
 
