@@ -17,6 +17,7 @@ import { LoginComponent } from './server-select/login/login.component';
 import { ServerCardComponent } from './server-select/server-card/server-card.component';
 import { PowerIconComponent } from './server-select/server-card/power-icon/power-icon.component';
 import { RefreshIconComponent } from './server-select/refresh-icon/refresh-icon.component';
+import { TitleService } from './services/title.service';
 
 @NgModule({
     declarations: [
@@ -38,7 +39,7 @@ import { RefreshIconComponent } from './server-select/refresh-icon/refresh-icon.
         HttpClientModule,
         MatProgressSpinnerModule,
     ],
-    providers: [LoginService, HttpClient],
+    providers: [LoginService, HttpClient, TitleService],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

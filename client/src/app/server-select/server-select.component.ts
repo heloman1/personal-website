@@ -1,19 +1,23 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { LoginService } from 'src/app/services/firebase.service';
 import { QueryParams, ServerData } from './types';
 import { Router } from '@angular/router';
+import { TitleService } from '../services/title.service';
 @Component({
     selector: 'app-server-select',
     templateUrl: './server-select.component.html',
     styleUrls: ['./server-select.component.scss'],
 })
-export class ServerSelectComponent implements OnInit {
+export class ServerSelectComponent implements OnInit, OnDestroy {
     constructor(
         private firebase_service: LoginService,
         private http: HttpClient,
-        private router: Router
-    ) {}
+        private router: Router,
+        private title: TitleService
+    ) {
+        title.setTitle('Server Panel');
+    }
     statusText = '';
     serverData: ServerData = {};
     doneLoading = false;
@@ -34,6 +38,9 @@ export class ServerSelectComponent implements OnInit {
         });
     }
 
+    ngOnDestroy() {
+        this.title.setTitle('');
+    }
     async handleCardEvent(query: QueryParams) {
         // Disable all buttons
         this.iterateServerKeys((game, server) => {

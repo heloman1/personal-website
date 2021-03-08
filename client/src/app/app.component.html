@@ -1,7 +1,10 @@
-<mat-toolbar style="position: fixed; top: 0; z-index: 1" color="primary">
-    <button mat-button routerLink="/">Home</button>
-    <button mat-button routerLink="/servers">Servers</button>
-    <button mat-button routerLink="/">About</button>
+<mat-toolbar color="primary">
+    <button mat-raised-button color="accent" routerLink="/">Home</button>
+    <button mat-raised-button color="accent" routerLink="/servers">
+        Servers
+    </button>
+    <button mat-raised-button color="accent" routerLink="/">About</button>
+    <span>{{ title }}</span>
     <!--<button mat-button routerLink="/servers/login">Login</button>-->
 </mat-toolbar>
 <div style="padding-top: 4rem">
