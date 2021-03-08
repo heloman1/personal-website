@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { LoginService } from 'src/app/services/firebase.service';
 import { Router } from '@angular/router';
+
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',

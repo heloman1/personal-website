@@ -5,8 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
@@ -33,13 +32,11 @@ import { RefreshIconComponent } from './server-select/refresh-icon/refresh-icon.
     imports: [
         BrowserModule,
         AppRoutingModule,
-        BrowserAnimationsModule,
         MatToolbarModule,
         MatButtonModule,
         MatCardModule,
         MatInputModule,
         ReactiveFormsModule,
-        FormsModule,
         HttpClientModule,
         MatProgressSpinnerModule,
     ],
