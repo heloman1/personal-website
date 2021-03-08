@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit {
             const email = this.email.value;
             let success = await this.firebase_service.sendSignInEmail(email);
             if (success === true) {
-                this.feedbackMessage = `A signin email has been sent to ${email}`;
+                this.feedbackMessage = `A signin email has been sent to ${email}.\nMake sure to check your junk mail.`;
                 this.disableSend = true;
             } else {
                 this.feedbackMessage =
