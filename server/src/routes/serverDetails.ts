@@ -24,18 +24,6 @@ let statusList: {
     };
 } = {};
 
-function isAuthorized(req: Request) {
-    if (req.user && req.user.email) {
-        const temp = conf.emailList[req.user.email];
-        if (conf) {
-            if (temp.access_level > 0) {
-                // This email is allowed
-                return true;
-            }
-        }
-    }
-    return false;
-}
 router.get("/servers-status", async (req, res) => {
     if (currentlyChecking.state === true) {
         await currentlyChecking.waitForCondition(false);
