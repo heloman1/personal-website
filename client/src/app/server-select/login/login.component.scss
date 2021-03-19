@@ -1,26 +1,39 @@
-.grid {
-    justify-content: center;
-    align-content: center;
-    display: grid;
-    margin: 2rem;
-    grid-template-columns: minmax(1rem, 30rem);
-    grid-gap: 10px;
-}
-
-.mat-card {
-    padding: 2rem 0 2rem 0;
+.center-container {
+    height: 100%;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 12rem;
+    .mat-card {
+        width: 24rem;
+        height: 14rem;
+        margin: auto; // Centering in a flexbox
+
+        padding: 2rem;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        :last-child {
+            margin-top: auto;
+        } // Push text to the bottom
+    }
 }
 
+// Currently just holds the login button
 .mat-card-actions {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    button {
+        margin: auto;
+    }
 }
 
 .mat-card-content {
-    white-space: pre-line;
+    p {
+        text-align: center;
+        white-space: pre-line; // Don't ignore newlines
+        opacity: 0;
+        transition: opacity 0.2s ease-in;
+    }
+    .fadeIn {
+        opacity: 1;
+    }
 }

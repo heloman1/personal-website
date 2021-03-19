@@ -1,4 +1,4 @@
-<div class="grid">
+<div class="center-container">
     <mat-card>
         <mat-card-title>Login</mat-card-title>
         <form onsubmit="return false">
@@ -26,7 +26,9 @@
             </mat-card-actions>
         </form>
         <mat-card-footer>
-            <mat-card-content>{{ feedbackMessage }}</mat-card-content>
+            <mat-card-content
+                ><p [ngClass]="{ fadeIn : fadeIn }">{{ feedbackMessage }}</p></mat-card-content
+            >
         </mat-card-footer>
     </mat-card>
 </div>
