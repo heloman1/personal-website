@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { LoginService } from 'src/app/services/firebase.service';
 import { QueryParams, ServerData } from './types';
@@ -15,21 +15,21 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
         private http: HttpClient,
         private router: Router,
         private title: TitleService
-    ) {
-        title.setTitle('Server Panel');
-    }
+    ) {}
+
     statusText = '';
     serverData: ServerData = {};
     doneLoading = false;
     signedIn = false;
     ngOnInit(): void {
+        this.title.setTitle('Server Panel');
         // Is the url a sign-in url?
         this.firebase_service.firebase_auth.onAuthStateChanged(async (user) => {
             this.doneLoading = false;
             if (user) {
                 this.signedIn = true;
                 // Load card data
-                this.getCardData(); // this will set done loading
+                this.fetchCardData(); // this will set done loading
             } else {
                 this.signedIn = false;
                 console.log('You need to sign in');
@@ -41,38 +41,47 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.title.setTitle('');
     }
-    async handleCardEvent(query: QueryParams) {
+
+    async onCardButtonClick(query: QueryParams) {
         // Disable all buttons
         this.iterateServerKeys((game, server) => {
             this.serverData[game][server].queryDone = false;
         });
         // Do the query
-        let res = await this.sendCommand(query);
+        let statusCode = await this.sendCommand(query);
         // Update online state
-        this.updateCardOnlineState(query, res);
+        this.handleServerResponse(query, statusCode);
         // Reenable appropriate buttons
-        this.reenableCardButtons();
+        this.disableInvalidCards();
     }
 
     async sendCommand(data: QueryParams) {
-        // Do the query
-        // TODO: Firebase auth required here
-        return await this.http
-            .post('/backend/server-command', null, {
-                headers: {
-                    Authorization: `Bearer ${await this.firebase_service.firebase_auth.currentUser!.getIdToken()}`,
-                },
-                params: data,
-                responseType: 'text',
-                observe: 'response',
-            })
-            .toPromise();
+        try {
+            let res = await this.http
+                .post('/backend/server-command', null, {
+                    headers: {
+                        Authorization: `Bearer ${await this.firebase_service.firebase_auth.currentUser!.getIdToken()}`,
+                    },
+                    params: data,
+                    responseType: 'text',
+                    observe: 'response',
+                })
+                .toPromise();
+            return res.status;
+        } catch (error) {
+            if (error.status) {
+                return error.status as number;
+            } else {
+                // There was an actual error
+                throw error;
+            }
+        }
     }
 
-    updateCardOnlineState(query: QueryParams, res: HttpResponse<string>) {
+    handleServerResponse(query: QueryParams, statusCode: number) {
         const { game, server, command } = query;
         // Update what's online
-        switch (res.status) {
+        switch (statusCode) {
             case 200:
                 switch (command) {
                     case 'start':
@@ -103,14 +112,15 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
                 this.statusText = 'Server busy, please wait a few seconds';
                 break;
             default:
-                this.statusText = `Recieved unexpected status code: ${res.status}`;
+                this.statusText = `Recieved unexpected status code: ${statusCode}
+                Contact the developer.`;
         }
         setTimeout(() => {
             this.statusText = '';
         }, 7000);
     }
 
-    reenableCardButtons() {
+    disableInvalidCards() {
         //Enforce that servers cant share ports
         // Get list of in-use ports
         let usedPorts: Set<number> = new Set();
@@ -143,7 +153,7 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
         }
     }
 
-    async getCardData() {
+    async fetchCardData() {
         this.doneLoading = false;
 
         let data = (await this.http
@@ -159,7 +169,7 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
         this.serverData = data;
 
         // This will add the missing keys that typescript thinks exists
-        this.reenableCardButtons();
+        this.disableInvalidCards();
         //this.iterateServerKeys((game, server) => {
         //    this.serverData[game][server].queryDone = false;
         //});

@@ -5,7 +5,7 @@
 
 <div class="floating-actions">
     <p>{{ statusText }}</p>
-    <button (click)="getCardData()" color="accent" mat-raised-button>
+    <button (click)="fetchCardData()" color="accent" mat-raised-button>
         <app-refresh-icon></app-refresh-icon>
     </button>
     <button (click)="signInOut()" color="accent" mat-raised-button>
@@ -23,7 +23,7 @@
             [game]="game.key"
             [server]="server.key"
             [data]="serverData[game.key][server.key]"
-            (buttonPressed)="handleCardEvent($event)"
+            (buttonPressed)="onCardButtonClick($event)"
         >
         </app-server-card>
     </div>
