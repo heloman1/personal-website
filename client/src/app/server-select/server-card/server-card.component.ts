@@ -16,14 +16,11 @@ export class ServerCardComponent {
         queryDone: false,
     };
 
-    constructor() {}
-
     submit() {
         this.buttonPressed.emit({
             game: this.game,
             server: this.server,
             command: this.data.is_online ? 'stop' : 'start',
         });
-        //this.data.queryDone = false;
     }
 }

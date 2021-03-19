@@ -5,6 +5,4 @@ import { Component } from '@angular/core';
     templateUrl: './refresh-icon.component.html',
     styleUrls: ['./refresh-icon.component.scss'],
 })
-export class RefreshIconComponent {
-    constructor() {}
-}
+export class RefreshIconComponent {}

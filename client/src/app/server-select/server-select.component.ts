@@ -11,30 +11,29 @@ import { TitleService } from '../services/title.service';
 })
 export class ServerSelectComponent implements OnInit, OnDestroy {
     constructor(
-        private firebase_service: LoginService,
+        private loginService: LoginService,
         private http: HttpClient,
         private router: Router,
         private title: TitleService
     ) {}
 
-    statusText = '';
-    serverData: ServerData = {};
-    doneLoading = false;
-    signedIn = false;
+    statusText = ''; // Informational Text displayed next to refresh button
+    serverData: ServerData = {}; // Object that holds all server state data
+    doneLoading = false; // To show/hide the loading pane
+    signedIn = false; // To set the SignInOut button state
     ngOnInit(): void {
+        this.doneLoading = false;
         this.title.setTitle('Server Panel');
         // Is the url a sign-in url?
-        this.firebase_service.firebase_auth.onAuthStateChanged(async (user) => {
-            this.doneLoading = false;
+        this.loginService.firebase_auth.onAuthStateChanged(async (user) => {
             if (user) {
                 this.signedIn = true;
                 // Load card data
-                this.fetchCardData(); // this will set done loading
+                await this.fetchCardData();
             } else {
                 this.signedIn = false;
-                console.log('You need to sign in');
-                this.doneLoading = true;
             }
+            this.doneLoading = true;
         });
     }
 
@@ -60,7 +59,7 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
             let res = await this.http
                 .post('/backend/server-command', null, {
                     headers: {
-                        Authorization: `Bearer ${await this.firebase_service.firebase_auth.currentUser!.getIdToken()}`,
+                        Authorization: `Bearer ${await this.loginService.firebase_auth.currentUser!.getIdToken()}`,
                     },
                     params: data,
                     responseType: 'text',
@@ -159,7 +158,7 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
         let data = (await this.http
             .get('/backend/servers-status', {
                 headers: {
-                    Authorization: `Bearer ${await this.firebase_service.firebase_auth.currentUser!.getIdToken()}`,
+                    Authorization: `Bearer ${await this.loginService.firebase_auth.currentUser!.getIdToken()}`,
                 },
             })
             .toPromise()) as ServerData;
@@ -173,12 +172,11 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
         //this.iterateServerKeys((game, server) => {
         //    this.serverData[game][server].queryDone = false;
         //});
-        this.doneLoading = true;
     }
 
     async signInOut() {
         if (this.signedIn) {
-            if (await this.firebase_service.signOut()) {
+            if (await this.loginService.signOut()) {
                 window.location.reload();
             }
         } else {

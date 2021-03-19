@@ -15,8 +15,8 @@ import { ServerSelectComponent } from './server-select/server-select.component';
 import { LoginService } from './services/firebase.service';
 import { LoginComponent } from './server-select/login/login.component';
 import { ServerCardComponent } from './server-select/server-card/server-card.component';
-import { PowerIconComponent } from './server-select/server-card/power-icon/power-icon.component';
-import { RefreshIconComponent } from './server-select/refresh-icon/refresh-icon.component';
+import { PowerIconComponent } from './icons/power-icon/power-icon.component';
+import { RefreshIconComponent } from './icons/refresh-icon/refresh-icon.component';
 import { TitleService } from './services/title.service';
 
 @NgModule({
