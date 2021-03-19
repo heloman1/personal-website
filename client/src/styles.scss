@@ -34,12 +34,16 @@ $theme: mat-dark-theme(
 $background: map-get($theme, background);
 
 html,
-body {
+body,
+app-root {
     height: 100%;
     background-color: mat-color($background, background);
     margin: 0;
 }
 
+app-root {
+    display: block;
+}
 .hidden {
     display: none;
 }
