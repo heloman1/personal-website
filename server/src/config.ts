@@ -1,10 +1,13 @@
 import fs from "fs";
+import TwoWayMap from "./twoWayMap";
+type FolderName = string;
+type GameName = string;
 export default class Config {
     private static instance: Config;
 
-    insecure: boolean;
+    insecure: boolean; // Are we using http or https?
     port: number;
-    gameList: string[];
+    gameFolderNameMap: TwoWayMap<FolderName, GameName>;
     emailList: {
         [email: string]: {
             access_level: number;
@@ -25,8 +28,9 @@ export default class Config {
 
         this.insecure = insecure;
         this.port = port;
-        this.gameList = JSON.parse(
-            fs.readFileSync("data/games.json").toString()
+
+        this.gameFolderNameMap = new TwoWayMap(
+            JSON.parse(fs.readFileSync("data/games.json").toString())
         );
         this.emailList = JSON.parse(
             fs.readFileSync("data/emails.json").toString()

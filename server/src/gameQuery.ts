@@ -1,6 +1,8 @@
 import child_process from "child_process";
 import { promisify } from "util";
+import config from "./config";
 
+const nameMap = config.getConfig().gameFolderNameMap.map;
 let shell = promisify(child_process.exec);
 
 interface ExpectedJSONData {
@@ -55,7 +57,11 @@ function formatData(jsonList: ExpectedJSONData[]): ServerStatuses {
         let port = Number.parseInt(port_string);
         let is_online = status === "ONLINE";
 
-        if (!gameName) gameName = "Unknown";
+        gameName = nameMap.get(gameName)!;
+        if (!gameName) {
+            gameName = "Unknown";
+        }
+        
         if (!serverName) serverName = "Unknown";
         if (!port) port = -1;
 

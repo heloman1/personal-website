@@ -5,7 +5,8 @@ import Condition from "../condition";
 import gameQuery from "../gameQuery";
 import { ServerStatuses } from "../gameQuery";
 
-const conf = config.getConfig();
+const folderList = Array.from(config.getConfig().gameFolderNameMap.map.keys());
+const gameNameFolderMap = config.getConfig().gameFolderNameMap.revMap;
 const FIVE_MIN = 5 * 60 * 1000;
 let lastCheck = new Date(0).getTime();
 let router = Router();
@@ -26,7 +27,7 @@ router.get("/servers-status", async (req, res) => {
         currentlyChecking.state = true;
 
         try {
-            statusList = await gameQuery.fetchData(conf.gameList);
+            statusList = await gameQuery.fetchData(folderList);
             lastCheck = new Date().getTime();
         } catch (err) {
             console.error("Error when fetching data");
@@ -43,9 +44,13 @@ router.get("/servers-status", async (req, res) => {
 
 router.post("/server-command", async (req, res) => {
     const { command, game, server } = req.query;
-    if (game && server && command) {
+    let folderName: string | undefined;
+    if (game) {
+        folderName = gameNameFolderMap.get(game as string);
+    }
+    if (folderName && server && command) {
         let query = {
-            game: game as string,
+            game: folderName,
             server: server as string,
             command: command as string,
         };
