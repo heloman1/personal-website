@@ -7,11 +7,19 @@
     justify-content: center;
     display: grid;
     margin: 1rem;
-    grid-template-columns: minmax(1rem, 25rem) minmax(1rem, 25rem) minmax(
-            0.5rem,
-            25rem
-        );
-    grid-gap: 10px;
+
+    grid-template-columns: minmax(20rem, 30rem);
+    @media (min-width: 45rem) {
+        grid-template-columns: repeat(2, minmax(20rem, 30rem));
+    }
+    @media (min-width: 70rem) {
+        grid-template-columns: repeat(3, minmax(20rem, 30rem));
+    }
+    @media (min-width: 85rem) {
+        grid-template-columns: repeat(4, minmax(20rem, 30rem));
+    }
+
+    grid-gap: 1rem;
 }
 
 .loading-container {
