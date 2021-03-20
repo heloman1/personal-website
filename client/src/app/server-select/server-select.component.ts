@@ -36,11 +36,12 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
                     // This happens to add them
                     // Emphasis on "happens to"
                     this.disableInvalidCards();
+                    this.doneLoading = true;
                 });
             } else {
                 this.signedIn = false;
+                this.doneLoading = true;
             }
-            this.doneLoading = true;
         });
     }
 
