@@ -1,21 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { LoginService } from 'src/app/services/firebase.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
     email = new FormControl('', {
         validators: [Validators.required, Validators.email],
     });
+    fadeIn = false;
     feedbackMessage = '';
     disableSend = false;
-    fadeIn = false;
-    constructor(private firebase_service: LoginService) {}
+    constructor(
+        private firebase_service: LoginService,
+        private router: Router
+    ) {}
 
+    ngOnInit() {
+        this.firebase_service.tryCompleteSignIn().then(async (success) => {
+            if (success) {
+                this.router.navigateByUrl('/servers'); // "Redirect" away from sign-in url
+            }
+        });
+    }
     emailInputMessage() {
         if (this.email.hasError('required')) {
             return 'You must enter a value';
