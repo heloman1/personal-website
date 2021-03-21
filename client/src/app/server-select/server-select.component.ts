@@ -22,7 +22,6 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
     doneLoading = false; // To show/hide the loading pane
     signedIn = false; // To set the SignInOut button state
     ngOnInit(): void {
-        this.doneLoading = false;
         this.title.setTitle('Server Panel');
         // Is the url a sign-in url?
         this.loginService.firebase_auth.onAuthStateChanged(async (user) => {
@@ -30,13 +29,7 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
                 this.signedIn = true;
                 // Load card data
                 this.http.functions.fetchCardData().then((data) => {
-                    this.serverData = data;
-
-                    // serverData is technically be missing queryDone keys
-                    // This happens to add them
-                    // Emphasis on "happens to"
-                    this.disableInvalidCards();
-                    this.doneLoading = true;
+                    this.refreshCards();
                 });
             } else {
                 this.signedIn = false;
@@ -62,6 +55,9 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
         this.disableInvalidCards();
     }
 
+    // serverData is technically missing queryDone keys when first fetching
+    // This happens to add them
+    // Emphasis on "happens to"
     disableInvalidCards() {
         //Enforce that servers cant share ports
         // Get list of in-use ports
@@ -94,9 +90,10 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
         }
     }
 
-    async refresh() {
+    async refreshCards() {
         this.doneLoading = false;
         this.serverData = await this.http.functions.fetchCardData();
+        this.disableInvalidCards();
         this.doneLoading = true;
     }
 
