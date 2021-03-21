@@ -55,13 +55,13 @@ function formatData(jsonList: ExpectedJSONData[]): ServerStatuses {
         let [_ip, port_string] = ip_port.split(":");
 
         let port = Number.parseInt(port_string);
-        let is_online = status === "ONLINE";
+        let is_online = status === "STARTED";
 
         gameName = nameMap.get(gameName)!;
         if (!gameName) {
             gameName = "Unknown";
         }
-        
+
         if (!serverName) serverName = "Unknown";
         if (!port) port = -1;
 
