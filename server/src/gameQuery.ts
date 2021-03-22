@@ -6,6 +6,7 @@ const nameMap = config.getConfig().gameFolderNameMap.map;
 let shell = promisify(child_process.exec);
 
 interface ExpectedJSONData {
+    game: string;
     server: string;
     details_string: string;
 }
@@ -47,29 +48,28 @@ export interface ServerStatuses {
 
 function formatData(jsonList: ExpectedJSONData[]): ServerStatuses {
     let serverStatuses: ServerStatuses = {};
-    for (let j of jsonList) {
-        // server: "game/server"
-        // details_string: "Internet IP: 123.456.789.123:12345 Status: OFFLINE"
-        let [gameName, serverName] = j.server.split("/");
-        let [_0, _1, ip_port, _3, status] = j.details_string.split(" ");
-        let [_ip, port_string] = ip_port.split(":");
+    for (let json of jsonList) {
+        // details_string: "Internet IP: 100.1.111.60:7777 Status: STOPPED "
+        let { game, server } = json;
+        let [, , ip_port, , , status] = json.details_string.trim().split(" ");
+        let [, port_string] = ip_port.split(":");
 
         let port = Number.parseInt(port_string);
         let is_online = status === "STARTED";
 
-        gameName = nameMap.get(gameName)!;
-        if (!gameName) {
-            gameName = "Unknown";
+        game = nameMap.get(game)!;
+        if (!game) {
+            game = "Unknown";
         }
 
-        if (!serverName) serverName = "Unknown";
+        if (!server) server = "Unknown";
         if (!port) port = -1;
 
-        if (serverStatuses[gameName] === undefined) {
-            serverStatuses[gameName] = {};
+        if (serverStatuses[game] === undefined) {
+            serverStatuses[game] = {};
         }
 
-        serverStatuses[gameName][serverName] = {
+        serverStatuses[game][server] = {
             is_online: is_online,
             port: port,
         };
