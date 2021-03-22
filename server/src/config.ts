@@ -1,5 +1,5 @@
 import fs from "fs";
-import TwoWayMap from "./twoWayMap";
+import TwoWayMap from "./utils/twoWayMap";
 type FolderName = string;
 type GameName = string;
 export default class Config {

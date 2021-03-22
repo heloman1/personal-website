@@ -8,7 +8,7 @@ app.use(Routes);
 app.use(express.static("assets"));
 app.use(express.static("../client/dist/client"));
 
-app.get("/*", async (req, res) => {
+app.get("/*", async (_, res) => {
     res.sendFile("/index.html", { root: "../client/dist/client" });
 });
 

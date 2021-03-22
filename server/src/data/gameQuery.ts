@@ -1,6 +1,6 @@
 import child_process from "child_process";
 import { promisify } from "util";
-import config from "./config";
+import config from "../config";
 
 const nameMap = config.getConfig().gameFolderNameMap.map;
 let shell = promisify(child_process.exec);

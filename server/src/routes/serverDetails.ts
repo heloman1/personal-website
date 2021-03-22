@@ -1,9 +1,9 @@
 import { Router } from "express";
 import config from "../config";
-import { decodeJWTToken } from "../firebase";
-import Condition from "../condition";
-import gameQuery from "../gameQuery";
-import { ServerStatuses } from "../gameQuery";
+import { decodeJWTToken } from "../middleware/firebase";
+import Condition from "../utils/condition";
+import gameQuery from "../data/gameQuery";
+import { ServerStatuses } from "../data/gameQuery";
 
 const folderList = Array.from(config.getConfig().gameFolderNameMap.map.keys());
 const gameNameFolderMap = config.getConfig().gameFolderNameMap.revMap;

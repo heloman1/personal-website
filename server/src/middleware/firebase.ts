@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import admin from "firebase-admin";
-import config from "./config";
+import config from "../config";
 let conf = config.getConfig();
 let firebaseAdmin = admin.initializeApp({
     credential: admin.credential.applicationDefault(),
