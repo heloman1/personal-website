@@ -1,8 +1,9 @@
 import child_process from "child_process";
 import { promisify } from "util";
-import config from "../config";
+import Globals from "../globals";
+import { ServerStatuses } from "../globals";
 
-const nameMap = config.getConfig().gameFolderNameMap;
+const nameMap = Globals.getGlobals().gameFolderNameMap;
 let shell = promisify(child_process.exec);
 
 interface ExpectedJSONData {
@@ -35,15 +36,6 @@ async function queryData(gameList: string[]): Promise<ExpectedJSONData[]> {
         }
     }
     return serverData;
-}
-
-export interface ServerStatuses {
-    [game: string]: {
-        [server: string]: {
-            is_online: boolean;
-            port: number;
-        };
-    };
 }
 
 function formatData(jsonList: ExpectedJSONData[]): ServerStatuses {

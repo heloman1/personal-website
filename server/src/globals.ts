@@ -2,9 +2,20 @@ import fs from "fs";
 import TwoWayMap from "./utils/twoWayMap";
 type FolderName = string;
 type GameName = string;
-export default class Config {
-    private static instance: Config;
 
+export interface ServerStatuses {
+    [game: string]: {
+        [server: string]: {
+            is_online: boolean;
+            port: number;
+        };
+    };
+}
+
+export default class Globals {
+    private static instance: Globals;
+
+    serverStatuses: ServerStatuses;
     insecure: boolean; // Are we using http or https?
     port: number;
     gameFolderNameMap: TwoWayMap<FolderName, GameName>;
@@ -35,13 +46,14 @@ export default class Config {
         this.emailList = JSON.parse(
             fs.readFileSync("data/emails.json").toString()
         );
+        this.serverStatuses = {};
     }
 
-    public static getConfig(): Config {
-        if (!Config.instance) {
-            Config.instance = new Config();
+    public static getGlobals(): Globals {
+        if (!Globals.instance) {
+            Globals.instance = new Globals();
         }
 
-        return Config.instance;
+        return Globals.instance;
     }
 }

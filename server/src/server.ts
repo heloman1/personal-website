@@ -1,13 +1,13 @@
 import https from "https";
 import http from "http";
 import fs from "fs";
-import config from "./config";
+import Globals from "./globals";
 import { Express } from "express";
 
 export default function startServer(app: Express) {
-    const conf = config.getConfig();
+    const conf = Globals.getGlobals();
     let httpServer: https.Server | http.Server;
-    if (config.getConfig().insecure) {
+    if (Globals.getGlobals().insecure) {
         console.log("WARNING: NOT using HTTPS");
         httpServer = http.createServer(app);
     } else {
