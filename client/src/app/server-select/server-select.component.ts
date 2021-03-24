@@ -28,9 +28,7 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
             if (user) {
                 this.signedIn = true;
                 // Load card data
-                this.http.functions.fetchCardData().then((data) => {
-                    this.refreshCards();
-                });
+                this.refreshCards();
             } else {
                 this.signedIn = false;
                 this.doneLoading = true;
