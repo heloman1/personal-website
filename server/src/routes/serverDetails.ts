@@ -5,8 +5,9 @@ import Condition from "../utils/condition";
 import gameQuery from "../data/gameQuery";
 import { ServerStatuses } from "../data/gameQuery";
 
-const folderList = Array.from(config.getConfig().gameFolderNameMap.map.keys());
-const gameNameFolderMap = config.getConfig().gameFolderNameMap.revMap;
+const gameFolderNameMap = config.getConfig().gameFolderNameMap;
+const folderList = Array.from(gameFolderNameMap.keys());
+
 const FIVE_MIN = 5 * 60 * 1000;
 let lastCheck = new Date(0).getTime();
 let router = Router();
@@ -46,7 +47,7 @@ router.post("/server-command", async (req, res) => {
     const { command, game, server } = req.query;
     let folderName: string | undefined;
     if (game) {
-        folderName = gameNameFolderMap.get(game as string);
+        folderName = gameFolderNameMap.getRev(game as string);
     }
     if (folderName && server && command) {
         let query = {

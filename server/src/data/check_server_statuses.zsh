@@ -22,6 +22,7 @@ for game in $(# for each in folder list
             if command -v ./$server/*server >/dev/null; then
                 # if a server exists in here
                 echo_json $game $(basename $server) &
+                # Note: I'm relying on line buffering to check all of the servers in parallel/async
             fi
         done
     fi

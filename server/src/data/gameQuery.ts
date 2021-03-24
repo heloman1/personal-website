@@ -2,7 +2,7 @@ import child_process from "child_process";
 import { promisify } from "util";
 import config from "../config";
 
-const nameMap = config.getConfig().gameFolderNameMap.map;
+const nameMap = config.getConfig().gameFolderNameMap;
 let shell = promisify(child_process.exec);
 
 interface ExpectedJSONData {
@@ -59,11 +59,11 @@ function formatData(jsonList: ExpectedJSONData[]): ServerStatuses {
 
         game = nameMap.get(game)!;
         if (!game) {
-            game = "Unknown";
+            game = "Unknown"; // Highly Unexpected
         }
+        if (!server) server = "Unknown"; // Highy Unexpected
 
-        if (!server) server = "Unknown";
-        if (!port) port = -1;
+        if (!port) port = -1; // Details_string is probably messed up
 
         if (serverStatuses[game] === undefined) {
             serverStatuses[game] = {};
