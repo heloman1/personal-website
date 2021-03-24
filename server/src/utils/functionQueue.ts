@@ -5,7 +5,8 @@ export default class FunctionQueue {
         this.registeredFunctions.push(fun);
     }
 
-    runAll() {
+    consumeAll() {
         this.registeredFunctions.forEach((fun) => fun());
+        this.registeredFunctions = [];
     }
 }
