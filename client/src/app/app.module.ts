@@ -18,6 +18,9 @@ import { ServerCardComponent } from './server-select/server-card/server-card.com
 import { PowerIconComponent } from './icons/power-icon/power-icon.component';
 import { RefreshIconComponent } from './icons/refresh-icon/refresh-icon.component';
 import { TitleService } from './services/title.service';
+import { BadRouteComponent } from './bad-route/bad-route.component';
+import { HomeComponent } from './home/home.component';
+import { AboutComponent } from './about/about.component';
 
 @NgModule({
     declarations: [
@@ -27,6 +30,9 @@ import { TitleService } from './services/title.service';
         ServerCardComponent,
         PowerIconComponent,
         RefreshIconComponent,
+        BadRouteComponent,
+        HomeComponent,
+        AboutComponent,
     ],
     imports: [
         BrowserModule,
