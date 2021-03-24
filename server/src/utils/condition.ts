@@ -1,3 +1,4 @@
+// Obsolete
 export default class Condition {
     state: boolean;
     constructor(b: boolean) {

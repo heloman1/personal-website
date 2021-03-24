@@ -1,31 +1,34 @@
 import { Router } from "express";
 import config from "../config";
 import { decodeJWTToken } from "../middleware/firebase";
-import Condition from "../utils/condition";
 import gameQuery from "../data/gameQuery";
 import { ServerStatuses } from "../data/gameQuery";
+import FunctionQueue from "../utils/functionQueue";
 
 const gameFolderNameMap = config.getConfig().gameFolderNameMap;
 const folderList = Array.from(gameFolderNameMap.keys());
-
 const FIVE_MIN = 5 * 60 * 1000;
-let lastCheck = new Date(0).getTime();
-let router = Router();
+const router = Router();
 router.use(decodeJWTToken);
-
-let currentlyChecking = new Condition(false);
-let executingCommand = false;
 
 let statusList: ServerStatuses = {};
 
+const queuedResponses = new FunctionQueue();
+let currentlyChecking = false;
+let lastCheck = new Date(0).getTime();
 router.get("/servers-status", async (req, res) => {
-    if (currentlyChecking.state === true) {
-        await currentlyChecking.waitForCondition(false);
-    } else if (
+    if (currentlyChecking === true) {
+        queuedResponses.addToQueue(() => {
+            res.json(statusList);
+        });
+        return;
+    }
+
+    if (
         req.query.force !== undefined ||
         new Date().getTime() - lastCheck > FIVE_MIN
     ) {
-        currentlyChecking.state = true;
+        currentlyChecking = true;
 
         try {
             statusList = await gameQuery.fetchData(folderList);
@@ -36,13 +39,14 @@ router.get("/servers-status", async (req, res) => {
             res.sendStatus(500);
             return;
         } finally {
-            currentlyChecking.state = false;
+            currentlyChecking = false;
         }
+        res.json(statusList);
+        queuedResponses.runAll();
     }
-
-    res.json(statusList);
 });
 
+let executingCommand = false;
 router.post("/server-command", async (req, res) => {
     const { command, game, server } = req.query;
     let folderName: string | undefined;
@@ -55,7 +59,6 @@ router.post("/server-command", async (req, res) => {
             server: server as string,
             command: command as string,
         };
-
         if (executingCommand) {
             res.sendStatus(503); // Busy
         } else {
