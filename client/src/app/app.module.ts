@@ -21,6 +21,7 @@ import { TitleService } from './services/title.service';
 import { BadRouteComponent } from './bad-route/bad-route.component';
 import { HomeComponent } from './home/home.component';
 import { AboutComponent } from './about/about.component';
+import { LoadingOverlayComponent } from './server-select/loading-overlay/loading-overlay.component';
 
 @NgModule({
     declarations: [
@@ -33,6 +34,7 @@ import { AboutComponent } from './about/about.component';
         BadRouteComponent,
         HomeComponent,
         AboutComponent,
+        LoadingOverlayComponent,
     ],
     imports: [
         BrowserModule,
