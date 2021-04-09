@@ -24,20 +24,15 @@
 }
 
 .loading-container {
-    background-color: rgba(0, 0, 0, 0.33);
     position: fixed;
-    z-index: 1;
     width: 100%;
     height: 100%;
+    background-color: rgba(0, 0, 0, 0.33);
+    z-index: 1;
 
-    //top: 50%;
-    //left: 50%;
-
-    //margin-top: -50px;
-    //margin-left: -50px;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    row-gap: 2rem;
     align-items: center;
     justify-content: center;
     p {
