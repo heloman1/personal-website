@@ -4,19 +4,20 @@
 //
 //}
 .grid {
+    --columns: 1;
     justify-content: center;
     display: grid;
     margin: 1rem;
 
-    grid-template-columns: minmax(20rem, 30rem);
+    grid-template-columns: repeat(var(--columns), minmax(20rem, 30rem));
     @media (min-width: 45rem) {
-        grid-template-columns: repeat(2, minmax(20rem, 30rem));
+        --columns: 2;
     }
     @media (min-width: 70rem) {
-        grid-template-columns: repeat(3, minmax(20rem, 30rem));
+        --columns: 3;
     }
     @media (min-width: 85rem) {
-        grid-template-columns: repeat(4, minmax(20rem, 30rem));
+        --columns: 4;
     }
 
     grid-gap: 1rem;
