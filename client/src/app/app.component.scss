@@ -1,11 +1,7 @@
-.app-container {
-    margin-top: 4rem;
-    height: 100%;
-}
 .mat-toolbar {
     position: fixed;
     top: 0;
-    gap: .5rem;
+    gap: 0.5rem;
     z-index: 1;
     span:last-child {
         margin-left: auto;
