@@ -1,14 +1,9 @@
 <app-loading-overlay *ngIf="!doneLoading"></app-loading-overlay>
 
-<div class="floating-actions">
-    <p>{{ ServerDataService.statusText | async }}</p>
-    <button (click)="refreshCards()" color="accent" mat-raised-button>
-        <app-refresh-icon></app-refresh-icon>
-    </button>
-    <button (click)="signInOut()" color="accent" mat-raised-button>
-        {{ signedIn ? "Sign Out" : "Sign In" }}
-    </button>
-</div>
+<app-floating-actions
+    (doneLoading)="doneLoading = $event"
+    [signedIn]="signedIn"
+></app-floating-actions>
 
 <div *ngFor="let entry of ServerDataService.iterableServerData | async">
     <h2 class="title">

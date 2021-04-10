@@ -4,13 +4,35 @@ export type QueryParams = {
     command: 'start' | 'stop' | 'restart';
 };
 
-export interface ServerDataValue {
+interface IncomingServerStatuses {
+    [game: string]: {
+        [server: string]: {
+            is_online: boolean;
+            port: number;
+        };
+    };
+}
+
+interface ServerStatus {
     is_online: boolean;
     port: number;
-    queryDone: boolean;
+    canToggle: boolean;
 }
-export interface ServerData {
+
+interface ServerStatuses {
     [game: string]: {
-        [server: string]: ServerDataValue;
+        [server: string]: ServerStatus;
     };
+}
+
+export interface IterableServerStatus {
+    name: string;
+    is_online: boolean;
+    port: number;
+    canToggle: boolean;
+}
+
+export interface IterableServerStatuses {
+    game: string;
+    servers: IterableServerStatus[];
 }

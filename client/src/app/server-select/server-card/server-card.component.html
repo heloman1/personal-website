@@ -7,7 +7,7 @@
     <mat-card-actions>
         <button
             [ngClass]="{ green: !data.is_online, transition: true }"
-            [disabled]="!disable"
+            [disabled]="disable || !data.canToggle"
             (click)="submit()"
             [color]="data.is_online ? 'warn' : ''"
             mat-flat-button

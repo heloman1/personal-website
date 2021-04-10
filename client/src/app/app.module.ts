@@ -23,6 +23,8 @@ import { HomeComponent } from './home/home.component';
 import { AboutComponent } from './about/about.component';
 import { LoadingOverlayComponent } from './server-select/loading-overlay/loading-overlay.component';
 import { ServerDataService } from './server-select/serverdata.service';
+import { FloatingActionsComponent } from './server-select/floating-actions/floating-actions.component';
+
 @NgModule({
     declarations: [
         AppComponent,
@@ -35,6 +37,7 @@ import { ServerDataService } from './server-select/serverdata.service';
         HomeComponent,
         AboutComponent,
         LoadingOverlayComponent,
+        FloatingActionsComponent,
     ],
     imports: [
         BrowserModule,

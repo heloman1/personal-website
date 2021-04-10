@@ -2,45 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { LoginService } from 'src/app/services/firebase.service';
-
-export type QueryParams = {
-    game: string;
-    server: string;
-    command: 'start' | 'stop' | 'restart';
-};
-
-interface IncomingServerStatuses {
-    [game: string]: {
-        [server: string]: {
-            is_online: boolean;
-            port: number;
-        };
-    };
-}
-
-interface ServerStatus {
-    is_online: boolean;
-    port: number;
-    canToggle: boolean;
-}
-
-interface ServerStatuses {
-    [game: string]: {
-        [server: string]: ServerStatus;
-    };
-}
-
-export interface IterableServerStatus {
-    name: string;
-    is_online: boolean;
-    port: number;
-    canToggle: boolean;
-}
-
-export interface IterableServerStatuses {
-    game: string;
-    servers: IterableServerStatus[];
-}
+import {
+    IncomingServerStatuses,
+    IterableServerStatuses,
+    QueryParams,
+    ServerStatus,
+    ServerStatuses,
+} from './types';
 
 @Injectable({
     providedIn: 'root',
@@ -117,11 +85,17 @@ export class ServerDataService {
                     case 'restart':
                         this.serverData[game][server].is_online = true;
                         this.updateToggleableServers();
+                        this.iterableServerData.next(
+                            this.ToIterableServerStatuses(this.serverData)
+                        );
                         text = 'Command Successful';
                         break;
                     case 'stop':
                         this.serverData[game][server].is_online = false;
                         this.updateToggleableServers();
+                        this.iterableServerData.next(
+                            this.ToIterableServerStatuses(this.serverData)
+                        );
                         text = 'Command Successful';
                         break;
                     default:

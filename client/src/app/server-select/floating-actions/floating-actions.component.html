@@ -1,0 +1,7 @@
+<p>{{ serverDataService.statusText | async }}</p>
+<button (click)="refreshCards()" color="accent" mat-raised-button>
+    <app-refresh-icon></app-refresh-icon>
+</button>
+<button (click)="signInOut()" color="accent" mat-raised-button>
+    {{ signedIn ? "Sign Out" : "Sign In" }}
+</button>

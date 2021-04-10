@@ -1,0 +1,14 @@
+:host {
+    p {
+        color: white;
+    }
+    display: inline-flex;
+    flex-direction: row;
+    width: 99%;
+    position: fixed;
+    top: 5rem;
+    z-index: 2;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 1rem;
+}
