@@ -1,7 +1,7 @@
 <app-loading-overlay *ngIf="!doneLoading"></app-loading-overlay>
 
 <div class="floating-actions">
-    <p>{{ statusText }}</p>
+    <p>{{ ServerDataService.statusText | async }}</p>
     <button (click)="refreshCards()" color="accent" mat-raised-button>
         <app-refresh-icon></app-refresh-icon>
     </button>
@@ -10,16 +10,16 @@
     </button>
 </div>
 
-<div *ngFor="let game of serverData | keyvalue">
+<div *ngFor="let entry of ServerDataService.iterableServerData | async">
     <h2 class="title">
-        {{ game.key }}
+        {{ entry.game }}
     </h2>
     <div class="grid">
         <app-server-card
-            *ngFor="let server of game.value | keyvalue"
-            [game]="game.key"
-            [server]="server.key"
-            [data]="serverData[game.key][server.key]"
+            *ngFor="let server of entry.servers"
+            [game]="entry.game"
+            [data]="server"
+            [disable]="disableCards"
             (buttonPressed)="onCardButtonClick($event)"
         >
         </app-server-card>

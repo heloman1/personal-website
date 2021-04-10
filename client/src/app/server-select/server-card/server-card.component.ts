@@ -1,6 +1,6 @@
 import { Output, EventEmitter, Component, Input } from '@angular/core';
-import { QueryParams, ServerDataValue } from '../types';
-
+import { QueryParams } from '../types';
+import { IterableServerStatus } from '../../services/serverdata.service';
 @Component({
     selector: 'app-server-card',
     templateUrl: './server-card.component.html',
@@ -9,17 +9,18 @@ import { QueryParams, ServerDataValue } from '../types';
 export class ServerCardComponent {
     @Output() buttonPressed = new EventEmitter<QueryParams>();
     @Input() game = 'unset';
-    @Input() server = 'unset';
-    @Input() data: ServerDataValue = {
+    @Input() data: IterableServerStatus = {
+        name: 'unset',
         is_online: false,
         port: -1,
-        queryDone: false,
+        canToggle: false,
     };
+    @Input() disable = true;
 
     submit() {
         this.buttonPressed.emit({
             game: this.game,
-            server: this.server,
+            server: this.data.name,
             command: this.data.is_online ? 'stop' : 'start',
         });
     }

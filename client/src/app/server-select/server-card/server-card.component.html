@@ -1,5 +1,5 @@
 <mat-card>
-    <mat-card-title>{{ server }}</mat-card-title>
+    <mat-card-title>{{ data.name }}</mat-card-title>
     <mat-card-content
         >Status: {{ data.is_online ? "On" : "Off" }}</mat-card-content
     >
@@ -7,7 +7,7 @@
     <mat-card-actions>
         <button
             [ngClass]="{ green: !data.is_online, transition: true }"
-            [disabled]="!data.queryDone"
+            [disabled]="!disable"
             (click)="submit()"
             [color]="data.is_online ? 'warn' : ''"
             mat-flat-button
