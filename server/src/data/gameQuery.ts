@@ -43,7 +43,7 @@ function formatData(jsonList: ExpectedJSONData[]): ServerStatuses {
     for (let json of jsonList) {
         // details_string: "Internet IP: 100.1.111.60:7777 Status: STOPPED "
         let { game, server } = json;
-        let [, , ip_port, , , status] = json.details_string.trim().split(" ");
+        let [, , ip_port, , status] = json.details_string.trim().split(" ");
         let [, port_string] = ip_port.split(":");
 
         let port = Number.parseInt(port_string);

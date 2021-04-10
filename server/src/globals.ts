@@ -3,12 +3,14 @@ import TwoWayMap from "./utils/twoWayMap";
 type FolderName = string;
 type GameName = string;
 
+export interface ServerStatus {
+    is_online: boolean;
+    port: number;
+}
+
 export interface ServerStatuses {
     [game: string]: {
-        [server: string]: {
-            is_online: boolean;
-            port: number;
-        };
+        [server: string]: ServerStatus;
     };
 }
 
