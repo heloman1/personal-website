@@ -22,7 +22,7 @@ import { BadRouteComponent } from './bad-route/bad-route.component';
 import { HomeComponent } from './home/home.component';
 import { AboutComponent } from './about/about.component';
 import { LoadingOverlayComponent } from './server-select/loading-overlay/loading-overlay.component';
-
+import { ServerDataService } from './server-select/serverdata.service';
 @NgModule({
     declarations: [
         AppComponent,
@@ -47,7 +47,7 @@ import { LoadingOverlayComponent } from './server-select/loading-overlay/loading
         HttpClientModule,
         MatProgressSpinnerModule,
     ],
-    providers: [LoginService, HttpClient, TitleService],
+    providers: [LoginService, HttpClient, TitleService, ServerDataService],
     bootstrap: [AppComponent],
 })
 export class AppModule {}
