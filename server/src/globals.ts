@@ -27,33 +27,60 @@ export default class Globals {
         };
     };
 
-    private constructor() {
-        const insecure = process.argv[2] === "insecure" ? true : false;
-        let port: number;
+    private constructor(configPath: string) {
+        const { insecure, port, gamesList, emailsList } = JSON.parse(
+            fs.readFileSync(configPath).toString()
+        );
 
-        if (process.argv[3]) {
-            port = +process.argv[3];
-        } else if (insecure) {
-            port = 8080;
+        if (Number.isInteger(port)) {
+            this.port = port;
         } else {
-            port = 443;
+            const defaultPort = 443;
+            console.warn(
+                `Warning: port not correctly set in config. Setting to default (${defaultPort})`
+            );
+            this.port = defaultPort;
+        }
+        if (typeof insecure === "boolean") {
+            this.insecure = insecure;
+        } else {
+            const defaultInsecurity = false;
+            console.warn(
+                `Warning: insecure not set in config. Setting to default (${defaultInsecurity})`
+            );
+            this.insecure = defaultInsecurity;
         }
 
-        this.insecure = insecure;
-        this.port = port;
+        if (typeof gamesList === "string") {
+            this.gameFolderNameMap = new TwoWayMap(
+                JSON.parse(fs.readFileSync(gamesList).toString())
+            );
+        } else {
+            console.warn(
+                `Warning: games.json not set in config. Setting to null)`
+            );
+            this.gameFolderNameMap = new TwoWayMap();
+        }
 
-        this.gameFolderNameMap = new TwoWayMap(
-            JSON.parse(fs.readFileSync("data/games.json").toString())
-        );
-        this.emailList = JSON.parse(
-            fs.readFileSync("data/emails.json").toString()
-        );
+        if (typeof emailsList === "string") {
+            this.emailList = JSON.parse(fs.readFileSync(emailsList).toString());
+        } else {
+            console.warn(
+                `Warning: emails.json not set in config. Setting to null)`
+            );
+            this.emailList = {};
+        }
+
         this.serverStatuses = {};
     }
 
-    public static getGlobals(): Globals {
+    public static getGlobals(configPath?: string): Globals {
         if (!Globals.instance) {
-            Globals.instance = new Globals();
+            if (configPath) {
+                Globals.instance = new Globals(configPath);
+            } else {
+                throw new Error("Cannot init Globals without a config path");
+            }
         }
 
         return Globals.instance;

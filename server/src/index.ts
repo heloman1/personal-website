@@ -2,6 +2,12 @@ import express from "express";
 import Routes from "./routes";
 import server from "./server";
 
+import Globals from "./globals";
+
+if (typeof process.argv[1] === "string") {
+    Globals.getGlobals(process.argv[1]);
+}
+
 let app = express();
 app.use(express.json());
 app.use(Routes);
