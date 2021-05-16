@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 import admin from "firebase-admin";
 import Globals from "../globals";
 let conf = Globals.getGlobals();

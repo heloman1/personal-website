@@ -3,11 +3,9 @@ import Globals from "./globals";
 if (typeof process.argv[2] === "string") {
     Globals.getGlobals(process.argv[2]);
 }
-
 import fastify from "fastify";
 import fastifyStatic from "fastify-static";
 import fs from "fs";
-
 import path from "path";
 import Routes from "./routes";
 

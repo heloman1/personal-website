@@ -1,8 +1,8 @@
-import Globals from "../globals";
-import gameQuery from "../data/gameQuery";
-import FunctionQueue from "../utils/functionQueue";
-import decodeJWTToken from "../hooks/firebase";
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
+import gameQuery from "../data/gameQuery";
+import Globals from "../globals";
+import decodeJWTToken from "../hooks/firebase";
+import FunctionQueue from "../utils/functionQueue";
 
 const gameFolderNameMap = Globals.getGlobals().gameFolderNameMap;
 const folderList = Array.from(gameFolderNameMap.keys());
