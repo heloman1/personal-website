@@ -1,10 +1,12 @@
-import { Router } from "express";
 import Login from "./serverDetails";
 import Command from "./command";
 
-let router = Router();
-
-router.use("/backend", Login);
-router.use("/backend", Command);
-
-export default router;
+import { FastifyInstance, FastifyPluginOptions } from "fastify";
+export default function (
+    routes: FastifyInstance,
+    _opts: FastifyPluginOptions,
+    _done: (err?: Error) => void
+) {
+    routes.register(Login, { prefix: "/backend" });
+    routes.register(Command, { prefix: "/backend" });
+}

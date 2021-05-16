@@ -21,7 +21,6 @@ export default class Globals {
     private static instance: Globals;
 
     serverStatuses: ServerStatuses;
-    insecure: boolean; // Are we using http or https?
     port: number;
     gameFolderNameMap: TwoWayMap<FolderName, GameName>;
     emailList: {
@@ -31,7 +30,7 @@ export default class Globals {
     };
 
     private constructor(configPath: string) {
-        const { insecure, port, gamesList, emailsList } = JSON.parse(
+        const { port, gamesList, emailsList } = JSON.parse(
             fs.readFileSync(configPath).toString()
         );
 
@@ -43,15 +42,6 @@ export default class Globals {
                 `Warning: port not correctly set in config. Setting to default (${defaultPort})`
             );
             this.port = defaultPort;
-        }
-        if (typeof insecure === "boolean") {
-            this.insecure = insecure;
-        } else {
-            const defaultInsecurity = false;
-            console.warn(
-                `Warning: insecure not set in config. Setting to default (${defaultInsecurity})`
-            );
-            this.insecure = defaultInsecurity;
         }
 
         if (typeof gamesList === "string") {

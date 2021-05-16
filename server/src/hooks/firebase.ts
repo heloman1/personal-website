@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { FastifyRequest, FastifyReply, HookHandlerDoneFunction } from "fastify";
 import admin from "firebase-admin";
 import Globals from "../globals";
 let conf = Globals.getGlobals();
@@ -6,18 +6,10 @@ let firebaseAdmin = admin.initializeApp({
     credential: admin.credential.applicationDefault(),
 });
 
-declare global {
-    namespace Express {
-        export interface Request {
-            user?: admin.auth.DecodedIdToken;
-        }
-    }
-}
-
-export async function decodeJWTToken(
-    req: Request,
-    res: Response,
-    next: NextFunction
+export default async function decodeJWTToken(
+    req: FastifyRequest,
+    res: FastifyReply,
+    done: HookHandlerDoneFunction
 ) {
     // Check Authorization Header
     if (req.headers.authorization?.startsWith("Bearer ")) {
@@ -25,7 +17,9 @@ export async function decodeJWTToken(
 
         try {
             // This will throw if failed
-            const decodedToken = await admin.auth().verifyIdToken(token);
+            const decodedToken = await firebaseAdmin
+                .auth()
+                .verifyIdToken(token);
 
             // Sanity check
             if (decodedToken.email) {
@@ -33,8 +27,8 @@ export async function decodeJWTToken(
                 if (emailValues !== undefined) {
                     // This email exists in email list
                     // and verified
-                    req["user"] = decodedToken;
-                    next();
+                    req.body = decodedToken;
+                    done();
                     return;
                 } else {
                     console.log(`${decodedToken.email} not in email list`);
@@ -48,7 +42,5 @@ export async function decodeJWTToken(
         console.log("No Auth header was given");
     }
 
-    res.sendStatus(401);
+    res.code(401);
 }
-
-export default firebaseAdmin;

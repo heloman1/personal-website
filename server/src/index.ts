@@ -1,21 +1,40 @@
 import Globals from "./globals";
+// Instanstiate Globals
 if (typeof process.argv[2] === "string") {
     Globals.getGlobals(process.argv[2]);
 }
 
-import express from "express";
+import fastify from "fastify";
+import fastifyStatic from "fastify-static";
+import fs from "fs";
+
+import path from "path";
 import Routes from "./routes";
-import server from "./server";
 
-
-let app = express();
-app.use(express.json());
-app.use(Routes);
-app.use(express.static("assets"));
-app.use(express.static("../client/dist/client"));
-
-app.get("/*", async (_, res) => {
-    res.sendFile("/index.html", { root: "../client/dist/client" });
+let app = fastify({
+    http2: true,
+    https: {
+        key: fs.readFileSync("creds/privkey.pem"),
+        cert: fs.readFileSync("creds/fullchain.pem"),
+    },
 });
 
-server(app);
+app.register(Routes);
+app.register(fastifyStatic, {
+    root: path.join(__dirname, "../public"),
+});
+app.register(fastifyStatic, {
+    root: path.join(__dirname, "../../client/dist/client"),
+});
+
+app.get("/*", async (_, res) => {
+    res.sendFile("/index.html", "../../client/dist/client");
+});
+
+app.listen(Globals.getGlobals().port, (err, address) => {
+    if (err) {
+        console.error(err);
+    } else {
+        console.log(`Listening on ${address}`);
+    }
+});
