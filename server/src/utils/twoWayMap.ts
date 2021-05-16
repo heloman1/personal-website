@@ -1,3 +1,8 @@
+/**
+ * TwoWayMap
+ * 
+ * A simple two way map
+ */
 export default class TwoWayMap<K, V> {
     private map: Map<K, V>;
     private revMap: Map<V, K>;
