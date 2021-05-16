@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply, HookHandlerDoneFunction } from "fastify";
+import { FastifyRequest, FastifyReply } from "fastify";
 import admin from "firebase-admin";
 import Globals from "../globals";
 let conf = Globals.getGlobals();
@@ -8,8 +8,7 @@ let firebaseAdmin = admin.initializeApp({
 
 export default async function decodeJWTToken(
     req: FastifyRequest,
-    res: FastifyReply,
-    done: HookHandlerDoneFunction
+    res: FastifyReply
 ) {
     // Check Authorization Header
     if (req.headers.authorization?.startsWith("Bearer ")) {
@@ -28,7 +27,6 @@ export default async function decodeJWTToken(
                     // This email exists in email list
                     // and verified
                     req.body = decodedToken;
-                    done();
                     return;
                 } else {
                     console.log(`${decodedToken.email} not in email list`);
@@ -43,4 +41,6 @@ export default async function decodeJWTToken(
     }
 
     res.code(401);
+    res.send();
+    return;
 }

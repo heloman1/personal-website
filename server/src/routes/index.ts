@@ -1,12 +1,13 @@
-import Login from "./serverDetails";
+import serverDetails from "./serverDetails";
 import Command from "./command";
 
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
 export default function (
     routes: FastifyInstance,
     _opts: FastifyPluginOptions,
-    _done: (err?: Error) => void
+    done: (err?: Error) => void
 ) {
-    routes.register(Login, { prefix: "/backend" });
+    routes.register(serverDetails, { prefix: "/backend" });
     routes.register(Command, { prefix: "/backend" });
+    done();
 }

@@ -14,6 +14,7 @@ import Routes from "./routes";
 let app = fastify({
     http2: true,
     https: {
+        allowHTTP1: true,
         key: fs.readFileSync("creds/privkey.pem"),
         cert: fs.readFileSync("creds/fullchain.pem"),
     },
@@ -23,12 +24,9 @@ app.register(Routes);
 app.register(fastifyStatic, {
     root: path.join(__dirname, "../public"),
 });
-app.register(fastifyStatic, {
-    root: path.join(__dirname, "../../client/dist/client"),
-});
 
-app.get("/*", async (_, res) => {
-    res.sendFile("/index.html", "../../client/dist/client");
+app.setNotFoundHandler(async (_, res) => {
+    res.sendFile("/index.html", path.join(__dirname, "../public"));
 });
 
 app.listen(Globals.getGlobals().port, (err, address) => {

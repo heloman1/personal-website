@@ -11,7 +11,7 @@ let executingCommand = false;
 export default function (
     routes: FastifyInstance,
     _opts: FastifyPluginOptions,
-    _done: (err?: Error) => void
+    done: (err?: Error) => void
 ) {
     routes.addHook("onRequest", decodeJWTToken);
     routes.post("/server-command", async (req, res) => {
@@ -43,8 +43,8 @@ export default function (
                             is_online = true;
                             break;
                         default:
-                            res.code(400);
                             executingCommand = false;
+                            res.code(400).send();
                             return;
                     }
                     Globals.getGlobals().serverStatuses[game as string][
@@ -61,5 +61,7 @@ export default function (
         } else {
             res.code(400);
         }
+        res.send();
     });
+    done();
 }

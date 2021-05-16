@@ -1,7 +1,7 @@
 import Globals from "../globals";
-import decodeJWTToken from "../hooks/firebase";
 import gameQuery from "../data/gameQuery";
 import FunctionQueue from "../utils/functionQueue";
+import decodeJWTToken from "../hooks/firebase";
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
 
 const gameFolderNameMap = Globals.getGlobals().gameFolderNameMap;
@@ -15,10 +15,10 @@ let lastCheck = new Date(0).getTime();
 export default function (
     routes: FastifyInstance,
     _opts: FastifyPluginOptions,
-    _done: (err?: Error) => void
+    done: (err?: Error) => void
 ) {
     routes.addHook("onRequest", decodeJWTToken);
-    routes.post("/server-command", async (req, res) => {
+    routes.get("/servers-status", async (req, res) => {
         if (currentlyChecking === true) {
             // Webserver is currently querying, wait for it to finish before sending
             queuedResponses.addToQueue(() => {
@@ -50,4 +50,5 @@ export default function (
         res.send(Globals.getGlobals().serverStatuses);
         queuedResponses.consumeAll(); // This will do nothing if its empty
     });
+    done();
 }
