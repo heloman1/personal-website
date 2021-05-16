@@ -26,7 +26,7 @@ export default async function decodeJWTToken(
                 if (emailValues !== undefined) {
                     // This email exists in email list
                     // and verified
-                    req.body = decodedToken;
+                    req.user = decodedToken;
                     return;
                 } else {
                     console.log(`${decodedToken.email} not in email list`);

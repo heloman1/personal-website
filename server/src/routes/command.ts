@@ -1,8 +1,8 @@
 import { FastifyInstance, FastifyPluginOptions } from "fastify";
-import decodeJWTToken from "../hooks/firebase";
-
 import gameQuery from "../data/gameQuery";
 import Globals from "../globals";
+import decodeJWTToken from "../hooks/firebase";
+import { CommandRouteInterface } from "../types";
 
 const { gameFolderNameMap } = Globals.getGlobals();
 
@@ -14,54 +14,71 @@ export default function (
     done: (err?: Error) => void
 ) {
     routes.addHook("onRequest", decodeJWTToken);
-    routes.post("/server-command", async (req, res) => {
-        const { command, game, server } = req.query as any;
-        let folderName: string | undefined;
-        if (game) {
-            folderName = gameFolderNameMap.getRev(game as string);
-        }
-        if (folderName && server && command) {
-            let query = {
-                game: folderName,
-                server: server as string,
-                command: command as string,
-            };
-            if (executingCommand) {
-                res.code(503); // Busy
-            } else {
-                executingCommand = true;
-                try {
-                    let is_online;
-                    switch (command) {
-                        case "stop":
-                            await gameQuery.sendServerCommand(query);
-                            is_online = false;
-                            break;
-                        case "start":
-                        case "restart":
-                            await gameQuery.sendServerCommand(query);
-                            is_online = true;
-                            break;
-                        default:
-                            executingCommand = false;
-                            res.code(400).send();
-                            return;
-                    }
-                    Globals.getGlobals().serverStatuses[game as string][
-                        server as string
-                    ].is_online = is_online;
-                    res.code(200);
-                } catch (err) {
-                    console.log(err);
-                    res.code(500);
-                } finally {
-                    executingCommand = false;
-                }
+    routes.post<CommandRouteInterface>(
+        "/server-command",
+        {
+            // Fastify should validate these
+            schema: {
+                querystring: {
+                    game: { type: "string" },
+                    command: { type: "string" },
+                    server: { type: "string" },
+                },
+            },
+        },
+        async (req, res) => {
+            // 503 : Busy/Server Unavailable
+            // 500 : Server Error
+            // 400 : Bad Argument
+            // 200 : Success
+            const { command, game, server } = req.query;
+            let folderName: string | undefined;
+            if (game) {
+                folderName = gameFolderNameMap.getRev(game as string);
             }
-        } else {
-            res.code(400);
+            if (folderName && server && command) {
+                let query = {
+                    game: folderName,
+                    server: server as string,
+                    command: command as string,
+                };
+                if (executingCommand) {
+                    res.code(503); // Busy
+                } else {
+                    executingCommand = true;
+                    try {
+                        let is_online;
+                        switch (command) {
+                            case "stop":
+                                await gameQuery.sendServerCommand(query);
+                                is_online = false;
+                                break;
+                            case "start":
+                            case "restart":
+                                await gameQuery.sendServerCommand(query);
+                                is_online = true;
+                                break;
+                            default:
+                                executingCommand = false;
+                                res.code(400).send();
+                                return;
+                        }
+                        Globals.getGlobals().serverStatuses[game][
+                            server
+                        ].is_online = is_online;
+                        res.code(200);
+                    } catch (err) {
+                        console.log(err);
+                        res.code(500);
+                    } finally {
+                        executingCommand = false;
+                    }
+                }
+            } else {
+                res.code(400);
+            }
+            res.send();
         }
-        res.send();
-    });
+    );
     done();
 }

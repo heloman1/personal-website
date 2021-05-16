@@ -24,7 +24,7 @@ export default function (
             queuedResponses.addToQueue(() => {
                 res.send(Globals.getGlobals().serverStatuses);
             });
-            return; // Don't hit the res.json at the bottom
+            return; // Don't hit the res.send at the bottom
         }
 
         if (

@@ -20,6 +20,8 @@ let app = fastify({
     },
 });
 
+app.decorateReply("user", null);
+
 app.register(Routes);
 app.register(fastifyStatic, {
     root: path.join(__dirname, "../public"),
