@@ -33,7 +33,7 @@ $green: mat.define-palette(mat.$green-palette, 600);
 //Mixins get included here
 // These should(?) get mixin-ed?
 $background: map-get($theme, background);
-p {
+.text {
     color: white;
 }
 html,
