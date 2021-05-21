@@ -1,5 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-
+@use '~@angular/material' as mat;
 
 // For the font
 $config: mat.define-typography-config(
@@ -10,8 +10,8 @@ $config: mat.define-typography-config(
 // Available color palettes: https://material.io/design/color/
 
 // For the theme
-$primary: mat.define-palette(mat.$deep-purple-palette, 800);
-$accent: mat.define-palette(mat.$amber-palette, 800);
+$primary: mat.define-palette(mat.$deep-purple-palette, 600);
+$accent: mat.define-palette(mat.$amber-palette, 600);
 // The warn palette is optional (defaults to red).
 $theme: mat.define-dark-theme(
     (
@@ -23,9 +23,8 @@ $theme: mat.define-dark-theme(
     )
 );
 
-$green: mat.define-palette(mat.$green-palette, 800);
+$green: mat.define-palette(mat.$green-palette, 600);
 
-@use '~@angular/material' as mat;
 @import "./app/icons/power-icon/power-icon.component.scss";
 @import "./app/icons/refresh-icon/refresh-icon.component.scss";
 @include mat.all-component-themes($theme);
@@ -34,7 +33,9 @@ $green: mat.define-palette(mat.$green-palette, 800);
 //Mixins get included here
 // These should(?) get mixin-ed?
 $background: map-get($theme, background);
-
+p {
+    color: white;
+}
 html,
 body,
 app-root {
