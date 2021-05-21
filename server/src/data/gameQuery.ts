@@ -35,6 +35,7 @@ async function queryData(gameList: string[]): Promise<ExpectedJSONData[]> {
             console.error(err);
         }
     }
+    serverData.sort((a, b) => (a.server < b.server ? -1 : 1));
     return serverData;
 }
 
