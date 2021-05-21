@@ -1,20 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import "~@angular/material/theming";
 
 // For the font
-$config: mat-typography-config(
+$config: mat.define-typography-config(
     $font-family: "Fira Code, sans-serif",
 );
-@include mat-core($config);
+@include mat.core($config);
 
 // Available color palettes: https://material.io/design/color/
 
 // For the theme
-$primary: mat-palette($mat-deep-purple, 800);
-$accent: mat-palette($mat-amber, 800);
+$primary: mat.define-palette(mat.$deep-purple-palette, 800);
+$accent: mat.define-palette(mat.$amber-palette, 800);
 // The warn palette is optional (defaults to red).
-$theme: mat-dark-theme(
+$theme: mat.define-dark-theme(
     (
         color: (
             primary: $primary,
@@ -24,11 +23,12 @@ $theme: mat-dark-theme(
     )
 );
 
-$green: mat-palette($mat-green, 800);
+$green: mat.define-palette(mat.$green-palette, 800);
 
+@use '~@angular/material' as mat;
 @import "./app/icons/power-icon/power-icon.component.scss";
 @import "./app/icons/refresh-icon/refresh-icon.component.scss";
-@include angular-material-theme($theme);
+@include mat.all-component-themes($theme);
 @include power-icon-theme($theme);
 @include refresh-icon-theme($theme);
 //Mixins get included here
@@ -39,7 +39,7 @@ html,
 body,
 app-root {
     height: 100%;
-    background-color: mat-color($background, background);
+    background-color: mat.get-color-from-palette($background, background);
     margin: 0;
 }
 
@@ -49,5 +49,5 @@ app-root {
 }
 
 .green {
-    background-color: mat-color($green);
+    background-color: mat.get-color-from-palette($green);
 }
