@@ -4,7 +4,13 @@
         Servers
     </button>
     <button mat-stroked-button color="text" routerLink="/about">About</button>
+
     <span>{{ title }}</span>
+
+    <mat-slide-toggle [(ngModel)]="slideToggleState" (change)="onSlideToggle($event)"
+        ><mat-icon>{{ slideToggleState ? "dark_mode" : "light_mode" }}</mat-icon></mat-slide-toggle
+    >
+
     <!--<button mat-button routerLink="/servers/login">Login</button>-->
 </mat-toolbar>
 

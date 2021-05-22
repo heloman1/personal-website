@@ -6,6 +6,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
 
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
@@ -40,6 +43,8 @@ import { FloatingActionsComponent } from './server-select/floating-actions/float
         FloatingActionsComponent,
     ],
     imports: [
+        FormsModule,
+        MatIconModule,
         BrowserModule,
         AppRoutingModule,
         MatToolbarModule,
@@ -49,6 +54,7 @@ import { FloatingActionsComponent } from './server-select/floating-actions/float
         ReactiveFormsModule,
         HttpClientModule,
         MatProgressSpinnerModule,
+        MatSlideToggleModule,
     ],
     providers: [LoginService, HttpClient, TitleService, ServerDataService],
     bootstrap: [AppComponent],

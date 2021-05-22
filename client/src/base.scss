@@ -1,0 +1,72 @@
+/* You can add global styles to this file, and also import other style files */
+@use '~@angular/material' as mat;
+@import "./app/icons/power-icon/power-icon.component.scss";
+@import "./app/icons/refresh-icon/refresh-icon.component.scss";
+
+// For the font
+$config: mat.define-typography-config(
+    $font-family: "Fira Code, sans-serif",
+);
+@include mat.core($config);
+
+// Available color palettes: https://material.io/design/color/
+
+// For the theme
+$primary: mat.define-palette(mat.$deep-purple-palette, 600);
+$accent: mat.define-palette(mat.$amber-palette, 600);
+
+// The warn palette is optional (defaults to red).
+$light-theme: mat.define-light-theme(
+    (
+        color: (
+            primary: $primary,
+            accent: $accent,
+        ),
+    )
+);
+$light-background: map-get($light-theme, background);
+
+// Default Settings
+//@include mat.all-component-themes($light-theme);
+@include mat.core-theme($light-theme);
+@include mat.button-theme($light-theme);
+@include mat.slide-toggle-theme($light-theme);
+@include mat.card-theme($light-theme);
+@include mat.toolbar-theme($light-theme);
+@include mat.progress-spinner-theme($light-theme);
+@include power-icon-theme($light-theme);
+@include refresh-icon-theme($light-theme);
+
+.text {
+    color: black;
+}
+
+// TODO: Make this a little bit more specific
+// This was done to make material element transition their colors
+// (Transitions were moved into main.ts in order to not blind people's eyes)
+//* {
+//    transition: all 0.5s ease;
+//}
+
+html,
+body {
+    overflow: auto;
+}
+
+html,
+body,
+app-root {
+    height: 100%;
+    background-color: mat.get-color-from-palette($light-background, background);
+    margin: 0;
+}
+
+app-root {
+    display: block;
+    padding-top: 4rem;
+}
+
+$green: mat.define-palette(mat.$green-palette, 600);
+.green {
+    background-color: mat.get-color-from-palette($green) !important;
+}
