@@ -1,14 +1,37 @@
 <mat-toolbar color="primary">
-    <button mat-stroked-button color="text" routerLink="/home">Home</button>
-    <button mat-stroked-button color="text" routerLink="/servers">
+    <button
+        mat-stroked-button
+        color="text"
+        [disabled]="areWeOnPage('/home')"
+        routerLink="/home"
+    >
+        Home
+    </button>
+    <button
+        mat-stroked-button
+        color="text"
+        [disabled]="areWeOnPage('/servers')"
+        routerLink="/servers"
+    >
         Servers
     </button>
-    <button mat-stroked-button color="text" routerLink="/about">About</button>
+    <button
+        mat-stroked-button
+        color="text"
+        [disabled]="areWeOnPage('/about')"
+        routerLink="/about"
+    >
+        About
+    </button>
 
     <span>{{ title }}</span>
 
-    <mat-slide-toggle [(ngModel)]="slideToggleState" (change)="onSlideToggle($event)"
-        ><mat-icon>{{ slideToggleState ? "dark_mode" : "light_mode" }}</mat-icon></mat-slide-toggle
+    <mat-slide-toggle
+        [(ngModel)]="slideToggleState"
+        (change)="onSlideToggle($event)"
+        ><mat-icon>{{
+            slideToggleState ? "dark_mode" : "light_mode"
+        }}</mat-icon></mat-slide-toggle
     >
 
     <!--<button mat-button routerLink="/servers/login">Login</button>-->

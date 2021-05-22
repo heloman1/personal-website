@@ -45,6 +45,10 @@ export class AppComponent implements OnDestroy {
     onSlideToggle(dark: MatSlideToggleChange) {
         this.changeTheme(dark.checked);
     }
+
+    areWeOnPage(path: string) {
+        return window.location.pathname == path;
+    }
     ngOnDestroy() {
         this.titleSubscription.unsubscribe();
     }
