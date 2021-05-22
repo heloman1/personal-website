@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoginService } from 'src/app/services/firebase.service';
+import { LoginService } from 'src/app/services/login.service';
 import { ServerDataService } from '../serverdata.service';
 
 @Component({

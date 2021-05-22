@@ -15,7 +15,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ServerSelectComponent } from './server-select/server-select.component';
-import { LoginService } from './services/firebase.service';
+import { LoginService } from './services/login.service';
 import { LoginComponent } from './server-select/login/login.component';
 import { ServerCardComponent } from './server-select/server-card/server-card.component';
 import { PowerIconComponent } from './icons/power-icon/power-icon.component';

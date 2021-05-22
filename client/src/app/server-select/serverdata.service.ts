@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { LoginService } from 'src/app/services/firebase.service';
+import { LoginService } from 'src/app/services/login.service';
 import {
     IncomingServerStatuses,
     IterableServerStatuses,

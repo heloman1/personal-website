@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { LoginService } from 'src/app/services/firebase.service';
+import { LoginService } from 'src/app/services/login.service';
 import { QueryParams } from './types';
 import { Router } from '@angular/router';
 import { TitleService } from '../services/title.service';
