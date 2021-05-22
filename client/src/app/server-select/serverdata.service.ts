@@ -6,15 +6,15 @@ import {
     IncomingServerStatuses,
     IterableServerStatuses,
     QueryParams,
-    ServerStatus,
-    ServerStatuses,
 } from './types';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ServerDataService {
-    serverData: ServerStatuses = {};
+    gameToIndex: {
+        [game: string]: { i: number; [server: string]: number };
+    } = {};
     iterableServerData: BehaviorSubject<IterableServerStatuses[]>;
     statusText: Subject<string>;
 
@@ -23,37 +23,6 @@ export class ServerDataService {
             []
         );
         this.statusText = new Subject<string>();
-    }
-
-    // Also sorts based on game name
-    private ToIterableServerStatuses(serverStatuses: ServerStatuses) {
-        let out: IterableServerStatuses[] = [];
-        for (const [game, _servers] of Object.entries(serverStatuses)) {
-            const len = out.push({
-                game: game,
-                servers: [],
-            });
-            for (const [name, status] of Object.entries(_servers)) {
-                out[len - 1].servers.push({
-                    name: name,
-                    is_online: status.is_online,
-                    port: status.port,
-                    canToggle: status.canToggle,
-                });
-            }
-        }
-        out.sort((a, b) => (a.game > b.game ? 1 : -1));
-        return out;
-    }
-
-    // Adds the canToggle keys, inited to false
-    private ToServerStatuses(incoming: IncomingServerStatuses) {
-        for (let game of Object.keys(incoming)) {
-            for (let server of Object.keys(incoming[game])) {
-                (incoming as ServerStatuses)[game][server].canToggle = false;
-            }
-        }
-        return incoming as ServerStatuses;
     }
 
     // Fetches the data, adds canToggle keys, sets those keys, and pushes the data
@@ -65,37 +34,65 @@ export class ServerDataService {
                 },
             })
             .toPromise()) as IncomingServerStatuses;
-        this.serverData = this.ToServerStatuses(data); // Add keys
-        this.updateToggleableServers(); // Set keys
-        this.iterableServerData.next(
-            this.ToIterableServerStatuses(this.serverData)
-        );
+        let serverData = this.convertServerDataFormat(data); // Add keys
+        this.updateToggleableServers(serverData); // Set keys
+        this.iterableServerData.next(serverData);
     }
 
+    convertServerDataFormat(data: IncomingServerStatuses) {
+        let out: IterableServerStatuses[] = [];
+        for (const [game, servers] of Object.entries(data)) {
+            // Keep the index of what we just pushed
+            const gameIndex =
+                out.push({
+                    game: game,
+                    servers: [],
+                }) - 1;
+            this.gameToIndex[game] = { i: gameIndex };
+            for (const [server, status] of Object.entries(servers)) {
+                const serverIndex = out[gameIndex].servers.push({
+                    name: server,
+                    is_online: status.is_online,
+                    port: status.port,
+                    canToggle: false,
+                });
+
+                this.gameToIndex[game][server] = serverIndex;
+            }
+        }
+        // Sort the games
+        out.sort((a, b) => (a.game > b.game ? 1 : -1));
+        // Sort the servers in each game
+        for (let gameServer of out) {
+            gameServer.servers.sort((a, b) => (a.name > b.name ? 1 : -1));
+        }
+        return out;
+    }
     // Provides Correct Status Text based on status code
     // Also, assuming server was successful, recalculate which servers are toggleable
     private handleServerResponse(query: QueryParams, statusCode: number) {
         let text = 'No Server Response? How did you manage that?';
         const { game, server, command } = query;
+        const gameIndex = this.gameToIndex[game].i;
+        const serverIndex = this.gameToIndex[game][server];
+        const serverData = this.iterableServerData.getValue();
         // Update what's online
         switch (statusCode) {
             case 200:
                 switch (command) {
                     case 'start':
                     case 'restart':
-                        this.serverData[game][server].is_online = true;
-                        this.updateToggleableServers();
-                        this.iterableServerData.next(
-                            this.ToIterableServerStatuses(this.serverData)
-                        );
+                        serverData[gameIndex].servers[serverIndex].is_online =
+                            true;
+                        this.updateToggleableServers(serverData);
+                        this.iterableServerData.next(serverData);
                         text = 'Command Successful';
                         break;
                     case 'stop':
-                        this.serverData[game][server].is_online = false;
-                        this.updateToggleableServers();
-                        this.iterableServerData.next(
-                            this.ToIterableServerStatuses(this.serverData)
-                        );
+                        serverData[gameIndex].servers[serverIndex].is_online =
+                            false;
+                        this.updateToggleableServers(serverData);
+                        this.iterableServerData.next(serverData);
                         text = 'Command Successful';
                         break;
                     default:
@@ -125,35 +122,31 @@ export class ServerDataService {
         }, 7000);
     }
 
-    private iterateServerKeys(fun: (data: ServerStatus) => void) {
-        for (let game of Object.keys(this.serverData)) {
-            for (let server of Object.keys(this.serverData[game])) {
-                fun(this.serverData[game][server]);
-            }
-        }
-    }
-
     // Calculate which servers are able to be toggled, based on required ports
-    private updateToggleableServers() {
+    private updateToggleableServers(data: IterableServerStatuses[]) {
         //Enforce that servers cant share ports
         // Get list of in-use ports
         let usedPorts: Set<number> = new Set();
-        this.iterateServerKeys((data) => {
-            if (data.is_online) {
-                usedPorts.add(data.port); // This port is in use
+        for (const game of data) {
+            for (const server of game.servers) {
+                if (server.is_online) {
+                    usedPorts.add(server.port); // This port is in use
+                }
             }
-        });
+        }
 
-        this.iterateServerKeys((data) => {
-            // If port is in use and the current server isn't the one using it
-            if (usedPorts.has(data.port) && !data.is_online) {
-                data.canToggle = false;
-            } else {
-                // Either port is not in use, or this *is* the server using the port
-                // Either way, allow buttons to be pressed
-                data.canToggle = true;
+        for (const game of data) {
+            for (const server of game.servers) {
+                // If port is in use and the current server isn't the one using it
+                if (usedPorts.has(server.port) && !server.is_online) {
+                    server.canToggle = false;
+                } else {
+                    // Either the port is not in use, or this *is* the server using the port
+                    // Either way, allow buttons to be pressed
+                    server.canToggle = true;
+                }
             }
-        });
+        }
     }
 
     async sendCommand(data: QueryParams) {

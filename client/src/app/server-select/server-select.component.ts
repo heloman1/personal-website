@@ -33,8 +33,6 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
             }
             this.doneLoading = true;
         });
-        console.log(this.signedIn);
-        
     }
 
     ngOnDestroy() {

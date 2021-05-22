@@ -13,26 +13,14 @@ interface IncomingServerStatuses {
     };
 }
 
-interface ServerStatus {
-    is_online: boolean;
-    port: number;
-    canToggle: boolean;
+export interface IterableServerStatuses {
+    game: string;
+    servers: CardData[];
 }
 
-interface ServerStatuses {
-    [game: string]: {
-        [server: string]: ServerStatus;
-    };
-}
-
-export interface IterableServerStatus {
+export interface CardData {
     name: string;
     is_online: boolean;
     port: number;
     canToggle: boolean;
-}
-
-export interface IterableServerStatuses {
-    game: string;
-    servers: IterableServerStatus[];
 }
