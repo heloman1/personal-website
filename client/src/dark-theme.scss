@@ -45,6 +45,6 @@ $dark-background: map-get($dark-theme, background);
         );
     }
     .text {
-        color: white;
+        color: white !important;
     }
 }

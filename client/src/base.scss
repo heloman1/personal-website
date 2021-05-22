@@ -38,7 +38,7 @@ $light-background: map-get($light-theme, background);
 @include refresh-icon-theme($light-theme);
 
 .text {
-    color: black;
+    color: black !important;
 }
 
 // TODO: Make this a little bit more specific
