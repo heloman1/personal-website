@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router } from '@angular/router';
 import { LoginService } from 'src/app/services/login.service';
 import { ServerDataService } from '../serverdata.service';
 
@@ -11,19 +10,13 @@ import { ServerDataService } from '../serverdata.service';
 export class FloatingActionsComponent {
     constructor(
         public serverDataService: ServerDataService,
-        private loginService: LoginService,
-        private router: Router
+        private loginService: LoginService
     ) {}
     @Input() signedIn = false;
     @Output() doneLoading = new EventEmitter<boolean>();
-    async signInOut() {
-        if (this.signedIn) {
-            if (await this.loginService.signOut()) {
-                window.location.reload();
-            }
-        } else {
-            this.router.navigateByUrl('/servers/login');
-        }
+    async signOut() {
+        await this.loginService.signOut();
+        window.location.reload();
     }
 
     async refreshCards() {

@@ -2,6 +2,16 @@
 <button (click)="refreshCards()" color="accent" mat-raised-button>
     <app-refresh-icon></app-refresh-icon>
 </button>
-<button (click)="signInOut()" color="accent" mat-raised-button>
-    {{ signedIn ? "Sign Out" : "Sign In" }}
-</button>
+
+<div *ngIf="signedIn; else elseBlock">
+    <button (click)="signOut()" color="accent" mat-raised-button>
+        Sign Out
+    </button>
+</div>
+<ng-template #elseBlock>
+    <button
+        color="accent"
+        routerLink="/servers/login"
+        mat-raised-button
+    >Sign In</button>
+</ng-template>

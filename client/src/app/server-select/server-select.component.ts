@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { LoginService } from 'src/app/services/login.service';
 import { QueryParams } from './types';
-import { Router } from '@angular/router';
 import { TitleService } from '../services/title.service';
 import { ServerDataService } from './serverdata.service';
 
@@ -34,6 +33,8 @@ export class ServerSelectComponent implements OnInit, OnDestroy {
             }
             this.doneLoading = true;
         });
+        console.log(this.signedIn);
+        
     }
 
     ngOnDestroy() {
