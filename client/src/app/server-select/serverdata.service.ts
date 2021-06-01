@@ -34,13 +34,13 @@ export class ServerDataService {
 
     // Fetches the data, adds canToggle keys, sets those keys, and pushes the data
     async fetchData() {
-        const data = (await this.http
-            .get('/backend/servers-status', {
+        const data = await this.http
+            .get<IncomingServerStatuses>('/backend/servers-status', {
                 headers: {
                     Authorization: `Bearer ${await this.loginService.firebase_auth.currentUser!.getIdToken()}`,
                 },
             })
-            .toPromise()) as IncomingServerStatuses;
+            .toPromise();
         let serverData = this.convertServerDataFormat(data); // Add keys
         this.updateToggleableServers(serverData); // Set keys
         this.iterableServerData.next(serverData);

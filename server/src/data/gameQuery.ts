@@ -1,16 +1,10 @@
 import child_process from "child_process";
 import { promisify } from "util";
 import Globals from "../globals";
-import { ServerStatuses } from "../globals";
+import { ExpectedJSONData, OutgoingServerStatuses } from "../types";
 
 const nameMap = Globals.getGlobals().gameFolderNameMap;
 let shell = promisify(child_process.exec);
-
-interface ExpectedJSONData {
-    game: string;
-    server: string;
-    details_string: string;
-}
 
 async function queryData(gameList: string[]): Promise<ExpectedJSONData[]> {
     let jsonList: string[];
@@ -39,8 +33,8 @@ async function queryData(gameList: string[]): Promise<ExpectedJSONData[]> {
     return serverData;
 }
 
-function formatData(jsonList: ExpectedJSONData[]): ServerStatuses {
-    let serverStatuses: ServerStatuses = {};
+function formatData(jsonList: ExpectedJSONData[]): OutgoingServerStatuses {
+    let serverStatuses: OutgoingServerStatuses = {};
     for (let json of jsonList) {
         // details_string: "Internet IP: 100.1.111.60:7777 Status: STOPPED "
         let { game, server } = json;

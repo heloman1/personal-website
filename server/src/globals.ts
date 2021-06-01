@@ -1,26 +1,15 @@
 import fs from "fs";
 import TwoWayMap from "./utils/twoWayMap";
-
+import { OutgoingServerStatuses } from "./types";
 const DATA_FOLDER = "data/";
 
 type FolderName = string;
 type GameName = string;
 
-export interface ServerStatus {
-    is_online: boolean;
-    port: number;
-}
-
-export interface ServerStatuses {
-    [game: string]: {
-        [server: string]: ServerStatus;
-    };
-}
-
 export default class Globals {
     private static instance: Globals;
 
-    serverStatuses: ServerStatuses;
+    serverStatuses: OutgoingServerStatuses;
     port: number;
     gameFolderNameMap: TwoWayMap<FolderName, GameName>;
     emailList: {

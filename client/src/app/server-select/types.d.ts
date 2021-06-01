@@ -4,6 +4,7 @@ export type QueryParams = {
     command: 'start' | 'stop' | 'restart';
 };
 
+// Should match OutgoingServerStatuses on client-side
 interface IncomingServerStatuses {
     [game: string]: {
         [server: string]: {

@@ -16,3 +16,19 @@ export interface CommandRouteInterface extends RouteGenericInterface {
         server: string;
     };
 }
+
+export interface ExpectedJSONData {
+    game: string;
+    server: string;
+    details_string: string;
+}
+
+// Should match IncomingServerStatuses on client-side
+export interface OutgoingServerStatuses {
+    [game: string]: {
+        [server: string]: {
+            is_online: boolean;
+            port: number;
+        };
+    };
+}
