@@ -11,37 +11,22 @@ import { ServerDataService } from './serverdata.service';
 })
 export class ServerSelectComponent implements OnInit, OnDestroy {
     constructor(
-        private loginService: LoginService,
-        public ServerDataService: ServerDataService,
-        private title: TitleService
+        private title: TitleService,
+        private serverDataService: ServerDataService
     ) {}
 
-    disableCards = true;
-    doneLoading = false; // To show/hide the loading pane
-    signedIn = false; // To set the SignInOut button state
+    showLoadingPane = true;
+    showLoadingPane$ = this.serverDataService.showLoadingPane.subscribe(
+        (bool) => {
+            this.showLoadingPane = bool;
+        }
+    );
+
     ngOnInit(): void {
         this.title.setTitle('Server Panel');
-        // Is the url a sign-in url?
-        this.loginService.firebase_auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                this.signedIn = true;
-                // Load card data
-                await this.ServerDataService.fetchData();
-                this.disableCards = false;
-            } else {
-                this.signedIn = false;
-            }
-            this.doneLoading = true;
-        });
     }
 
     ngOnDestroy() {
         this.title.setTitle('');
-    }
-
-    async onCardButtonClick(query: QueryParams) {
-        this.disableCards = true;
-        await this.ServerDataService.sendCommand(query);
-        this.disableCards = false;
     }
 }

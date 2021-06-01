@@ -12,16 +12,20 @@ export class FloatingActionsComponent {
         public serverDataService: ServerDataService,
         private loginService: LoginService
     ) {}
-    @Input() signedIn = false;
-    @Output() doneLoading = new EventEmitter<boolean>();
+
+    @Input() isSignedIn = false;
+    isSignedIn$ = this.serverDataService.isSignedIn.subscribe(
+        (bool) => (this.isSignedIn = bool)
+    );
+
     async signOut() {
         await this.loginService.signOut();
         window.location.reload();
     }
 
     async refreshCards() {
-        this.doneLoading.emit(false);
+        this.serverDataService.showLoadingPane.next(true);
         await this.serverDataService.fetchData();
-        this.doneLoading.emit(true);
+        this.serverDataService.showLoadingPane.next(false);
     }
 }

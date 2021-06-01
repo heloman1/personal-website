@@ -12,17 +12,24 @@ import {
     providedIn: 'root',
 })
 export class ServerDataService {
+    showLoadingPane = new BehaviorSubject<boolean>(true);
+    isSignedIn = new BehaviorSubject<boolean>(false);
+
     gameToIndex: {
         [game: string]: { i: number; [server: string]: number };
     } = {};
-    iterableServerData: BehaviorSubject<IterableServerStatuses[]>;
-    statusText: Subject<string>;
+    iterableServerData = new BehaviorSubject<IterableServerStatuses[]>([]);
+    statusText = new Subject<string>();
 
     constructor(private http: HttpClient, private loginService: LoginService) {
-        this.iterableServerData = new BehaviorSubject<IterableServerStatuses[]>(
-            []
-        );
-        this.statusText = new Subject<string>();
+        this.loginService.firebase_auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                this.isSignedIn.next(true);
+            } else {
+                this.isSignedIn.next(false);
+            }
+        });
+        this.showLoadingPane.next(false);
     }
 
     // Fetches the data, adds canToggle keys, sets those keys, and pushes the data

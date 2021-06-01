@@ -3,7 +3,7 @@
     <app-refresh-icon></app-refresh-icon>
 </button>
 
-<div *ngIf="signedIn; else elseBlock">
+<div *ngIf="isSignedIn; else elseBlock">
     <button (click)="signOut()" color="accent" mat-raised-button>
         Sign Out
     </button>
@@ -11,7 +11,7 @@
 <ng-template #elseBlock>
     <button
         color="accent"
-        routerLink="/servers/login"
+        routerLink="./login"
         mat-raised-button
     >Sign In</button>
 </ng-template>

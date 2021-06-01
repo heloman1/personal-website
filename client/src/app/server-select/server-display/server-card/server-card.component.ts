@@ -1,6 +1,6 @@
 import { Output, EventEmitter, Component, Input } from '@angular/core';
-import { QueryParams } from '../types';
-import { CardData } from '../types';
+import { QueryParams } from '../../types';
+import { CardData } from '../../types';
 @Component({
     selector: 'app-server-card',
     templateUrl: './server-card.component.html',

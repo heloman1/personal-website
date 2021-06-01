@@ -17,7 +17,7 @@ import { AppComponent } from './app.component';
 import { ServerSelectComponent } from './server-select/server-select.component';
 import { LoginService } from './services/login.service';
 import { LoginComponent } from './server-select/login/login.component';
-import { ServerCardComponent } from './server-select/server-card/server-card.component';
+import { ServerCardComponent } from './server-select/server-display/server-card/server-card.component';
 import { PowerIconComponent } from './icons/power-icon/power-icon.component';
 import { RefreshIconComponent } from './icons/refresh-icon/refresh-icon.component';
 import { TitleService } from './services/title.service';
@@ -27,6 +27,7 @@ import { AboutComponent } from './about/about.component';
 import { LoadingOverlayComponent } from './server-select/loading-overlay/loading-overlay.component';
 import { ServerDataService } from './server-select/serverdata.service';
 import { FloatingActionsComponent } from './server-select/floating-actions/floating-actions.component';
+import { ServerDisplayComponent } from './server-select/server-display/server-display.component';
 
 @NgModule({
     declarations: [
@@ -41,6 +42,7 @@ import { FloatingActionsComponent } from './server-select/floating-actions/float
         AboutComponent,
         LoadingOverlayComponent,
         FloatingActionsComponent,
+        ServerDisplayComponent,
     ],
     imports: [
         FormsModule,

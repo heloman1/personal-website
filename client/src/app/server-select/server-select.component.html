@@ -1,22 +1,5 @@
-<app-loading-overlay *ngIf="!doneLoading"></app-loading-overlay>
+<app-loading-overlay *ngIf="showLoadingPane"></app-loading-overlay>
 
-<app-floating-actions
-    (doneLoading)="doneLoading = $event"
-    [signedIn]="signedIn"
-></app-floating-actions>
+<app-floating-actions></app-floating-actions>
 
-<div *ngFor="let entry of ServerDataService.iterableServerData | async">
-    <h2 class="title text">
-        {{ entry.game }}
-    </h2>
-    <div class="grid">
-        <app-server-card
-            *ngFor="let server of entry.servers"
-            [game]="entry.game"
-            [data]="server"
-            [disable]="disableCards"
-            (buttonPressed)="onCardButtonClick($event)"
-        >
-        </app-server-card>
-    </div>
-</div>
+<router-outlet></router-outlet>
