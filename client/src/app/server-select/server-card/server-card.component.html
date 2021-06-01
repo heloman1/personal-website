@@ -6,7 +6,7 @@
     <mat-card-content>Port: {{ data.port }}</mat-card-content>
     <mat-card-actions>
         <button
-            [ngClass]="{ green: !data.is_online && !disable, transition: true }"
+            [ngClass]="{ green: !data.is_online && !(disable || !data.canToggle), transition: true }"
             [disabled]="disable || !data.canToggle"
             (click)="submit()"
             [color]="data.is_online ? 'warn' : ''"
