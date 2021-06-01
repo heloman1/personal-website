@@ -13,7 +13,7 @@ import {
 })
 export class ServerDataService {
     showLoadingPane = new BehaviorSubject<boolean>(true);
-    isSignedIn = new BehaviorSubject<boolean>(false);
+    isSignedIn = new Subject<boolean>();
 
     gameToIndex: {
         [game: string]: { i: number; [server: string]: number };
