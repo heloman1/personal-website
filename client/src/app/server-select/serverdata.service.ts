@@ -48,26 +48,40 @@ export class ServerDataService {
                     game: game,
                     servers: [],
                 }) - 1;
-            this.gameToIndex[game] = { i: gameIndex };
             for (const [server, status] of Object.entries(servers)) {
-                const serverIndex = out[gameIndex].servers.push({
+                // Use gameIndex here to categorize games correctly
+                out[gameIndex].servers.push({
                     name: server,
                     is_online: status.is_online,
                     port: status.port,
                     canToggle: false,
                 });
-
-                this.gameToIndex[game][server] = serverIndex;
             }
         }
+
+        // The following might be done by the server
+        // Do it again anyway
         // Sort the games
         out.sort((a, b) => (a.game > b.game ? 1 : -1));
         // Sort the servers in each game
         for (let gameServer of out) {
             gameServer.servers.sort((a, b) => (a.name > b.name ? 1 : -1));
         }
+
+        // Populate gameToIndex
+        // Must be done after sorting
+        for (let i = 0; i < out.length; i++) {
+            const game = out[i].game;
+            this.gameToIndex[game] = { i: i };
+            for (let j = 0; j < out[i].servers.length; j++) {
+                const server = out[i].servers[j].name;
+                this.gameToIndex[game][server] = j;
+            }
+        }
+
         return out;
     }
+
     // Provides Correct Status Text based on status code
     // Also, assuming server was successful, recalculate which servers are toggleable
     private handleServerResponse(query: QueryParams, statusCode: number) {
@@ -76,6 +90,7 @@ export class ServerDataService {
         const gameIndex = this.gameToIndex[game].i;
         const serverIndex = this.gameToIndex[game][server];
         const serverData = this.iterableServerData.getValue();
+
         // Update what's online
         switch (statusCode) {
             case 200:
