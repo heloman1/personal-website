@@ -33,6 +33,7 @@ $dark-background: map-get($dark-theme, background);
     @include mat.card-theme($dark-theme);
     @include mat.toolbar-theme($dark-theme);
     @include mat.progress-spinner-theme($dark-theme);
+    @include mat.form-field-theme($dark-theme);
     @include power-icon-theme($dark-theme);
     @include refresh-icon-theme($dark-theme);
 

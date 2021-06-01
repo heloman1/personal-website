@@ -34,6 +34,7 @@ $light-background: map-get($light-theme, background);
 @include mat.card-theme($light-theme);
 @include mat.toolbar-theme($light-theme);
 @include mat.progress-spinner-theme($light-theme);
+@include mat.form-field-theme($light-theme);
 @include power-icon-theme($light-theme);
 @include refresh-icon-theme($light-theme);
 
