@@ -9,21 +9,42 @@
  * multiple redundant queries from occuring.
  */
 export default class FunctionQueue {
-    private registeredFunctions: (() => void)[] = [];
+    clearOnConsume: boolean;
+
+    constructor(clearOnConsume = true) {
+        this.clearOnConsume = clearOnConsume;
+    }
+
+    private registeredFunctions = new Map<number, () => void>();
 
     /**
      * Add a function to be run later to the queue
      * @param fun Any function
      */
-    addToQueue(fun: () => void) {
-        this.registeredFunctions.push(fun);
+    push(fun: () => void) {
+        let id: number;
+        do {
+            id = Math.floor(Math.random() * 16777216);
+        } while (this.registeredFunctions.has(id));
+
+        this.registeredFunctions.set(id, fun);
+        return id;
     }
 
+    kick(id: number) {
+        this.registeredFunctions.delete(id);
+    }
     /**
      * Run all functions, and clear the queue
      */
     consumeAll() {
         this.registeredFunctions.forEach((fun) => fun());
-        this.registeredFunctions = [];
+        if (this.clearOnConsume) {
+            this.clear();
+        }
+    }
+
+    clear() {
+        this.registeredFunctions.clear();
     }
 }

@@ -1,16 +1,21 @@
-import { FastifyInstance, FastifyPluginOptions } from "fastify";
+import { FastifyInstance, FastifyPluginOptions, FastifyReply } from "fastify";
 import gameQuery from "../data/gameQuery";
 import Globals from "../globals";
 import decodeJWTToken from "../hooks/firebase";
 import FunctionQueue from "../utils/functionQueue";
 
-const gameFolderNameMap = Globals.getGlobals().gameFolderNameMap;
-const folderList = Array.from(gameFolderNameMap.keys());
+const folderList = Array.from(Globals.getGlobals().gameFolderNameMap.keys());
 const FIVE_MIN = 5 * 60 * 1000;
 
-const queuedResponses = new FunctionQueue();
+const polledResponses = new FunctionQueue();
 let currentlyChecking = false;
-let lastCheck = new Date(0).getTime();
+let lastCheck = new Date(0).getTime(); // Set date to 1970
+
+const sseResponses = new FunctionQueue(false);
+
+function sseWrite(res: FastifyReply, event: string, data: string) {
+    res.raw.write(`event: ${event}\ndata: ${data}\n\n`);
+}
 
 export default function (
     routes: FastifyInstance,
@@ -21,7 +26,7 @@ export default function (
     routes.get("/servers-status", async (req, res) => {
         if (currentlyChecking === true) {
             // Webserver is currently querying, wait for it to finish before sending
-            queuedResponses.addToQueue(() => {
+            polledResponses.push(() => {
                 res.send(Globals.getGlobals().serverStatuses);
             });
             return; // Don't hit the res.send at the bottom
@@ -48,7 +53,30 @@ export default function (
             }
         }
         res.send(Globals.getGlobals().serverStatuses);
-        queuedResponses.consumeAll(); // This will do nothing if its empty
+        polledResponses.consumeAll(); // This will do nothing if its empty
+    });
+    routes.get("/servers-status/sse", async (req, res) => {
+        res.raw.writeHead(200, {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+        });
+        const id = sseResponses.push(() => {
+            sseWrite(
+                res,
+                "serverData",
+                JSON.stringify(Globals.getGlobals().serverStatuses)
+            );
+        });
+        res.raw.on("close", () => {
+            sseResponses.kick(id);
+            res.raw.end();
+        });
     });
     done();
 }
+
+export function procSse() {
+    sseResponses.consumeAll();
+}
+
+// Still gotta do client side
