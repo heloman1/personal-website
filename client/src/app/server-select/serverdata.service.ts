@@ -15,7 +15,7 @@ export class ServerDataService {
     showLoadingPane = new BehaviorSubject<boolean>(true);
     isSignedIn = new Subject<boolean>();
 
-    gameToIndex: {
+    private gameToIndex: {
         [game: string]: { i: number; [server: string]: number };
     } = {};
     iterableServerData = new BehaviorSubject<IterableServerStatuses[]>([]);
