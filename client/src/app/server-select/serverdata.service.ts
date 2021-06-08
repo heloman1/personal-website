@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { LoginService } from 'src/app/services/login.service';
 import {
     IncomingServerStatuses,
@@ -12,41 +12,64 @@ import {
     providedIn: 'root',
 })
 export class ServerDataService {
-    showLoadingPane = new BehaviorSubject<boolean>(true);
-    isSignedIn = new Subject<boolean>();
-
     private gameToIndex: {
         [game: string]: { i: number; [server: string]: number };
     } = {};
-    iterableServerData = new BehaviorSubject<IterableServerStatuses[]>([]);
-    statusText = new Subject<string>();
 
-    constructor(private http: HttpClient, private loginService: LoginService) {
-        this.loginService.firebase_auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                this.isSignedIn.next(true);
-            } else {
-                this.isSignedIn.next(false);
-            }
-        });
-        this.showLoadingPane.next(false);
-    }
+    isLoading = new BehaviorSubject<boolean>(true);
+    isSendingCommand = new BehaviorSubject<boolean>(false);
+    iterableServerData = new BehaviorSubject<IterableServerStatuses[]>([]);
+    statusText = new BehaviorSubject<string>('');
+
+    constructor(private http: HttpClient, private loginService: LoginService) {}
 
     // Fetches the data, adds canToggle keys, sets those keys, and pushes the data
     async fetchData() {
+        this.isLoading.next(true);
         const data = await this.http
             .get<IncomingServerStatuses>('/backend/servers-status', {
                 headers: {
-                    Authorization: `Bearer ${await this.loginService.firebase_auth.currentUser!.getIdToken()}`,
+                    Authorization: `Bearer ${await this.loginService.getUserToken()}`,
                 },
             })
             .toPromise();
-        let serverData = this.convertServerDataFormat(data); // Add keys
+        const serverData = this.convertServerDataFormat(data); // Add keys
         this.updateToggleableServers(serverData); // Set keys
         this.iterableServerData.next(serverData);
+        this.isLoading.next(false);
     }
 
-    convertServerDataFormat(data: IncomingServerStatuses) {
+    async sendCommand(data: QueryParams) {
+        this.isSendingCommand.next(true);
+        let code: number;
+        try {
+            let res = await this.http
+                .post('/backend/server-command', null, {
+                    headers: {
+                        Authorization: `Bearer ${await this.loginService.getUserToken()}`,
+                    },
+                    params: data,
+                    responseType: 'text',
+                    observe: 'response',
+                })
+                .toPromise();
+            code = res.status;
+        } catch (error) {
+            console.log('sendCommand caught an error');
+            console.log(error);
+
+            if (error.status) {
+                code = error.status as number;
+            } else {
+                // There was an actual error
+                throw error;
+            }
+        }
+        this.handleServerResponse(data, code);
+        this.isSendingCommand.next(false);
+    }
+
+    private convertServerDataFormat(data: IncomingServerStatuses) {
         let out: IterableServerStatuses[] = [];
         for (const [game, servers] of Object.entries(data)) {
             // Keep the index of what we just pushed
@@ -169,33 +192,5 @@ export class ServerDataService {
                 }
             }
         }
-    }
-
-    async sendCommand(data: QueryParams) {
-        let code: number;
-        try {
-            let res = await this.http
-                .post('/backend/server-command', null, {
-                    headers: {
-                        Authorization: `Bearer ${await this.loginService.firebase_auth.currentUser!.getIdToken()}`,
-                    },
-                    params: data,
-                    responseType: 'text',
-                    observe: 'response',
-                })
-                .toPromise();
-            code = res.status;
-        } catch (error) {
-            console.log('sendCommand caught an error');
-            console.log(error);
-
-            if (error.status) {
-                code = error.status as number;
-            } else {
-                // There was an actual error
-                throw error;
-            }
-        }
-        this.handleServerResponse(data, code);
     }
 }

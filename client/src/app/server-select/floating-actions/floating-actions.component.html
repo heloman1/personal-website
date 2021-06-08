@@ -1,17 +1,15 @@
-<p>{{ serverDataService.statusText | async }}</p>
+<p>{{ statusText$ | async }}</p>
 <button (click)="refreshCards()" color="accent" mat-raised-button>
     <app-refresh-icon></app-refresh-icon>
 </button>
 
-<div *ngIf="isSignedIn; else elseBlock">
+<div *ngIf="isSignedIn$ | async; else elseBlock">
     <button (click)="signOut()" color="accent" mat-raised-button>
         Sign Out
     </button>
 </div>
 <ng-template #elseBlock>
-    <button
-        color="accent"
-        routerLink="./login"
-        mat-raised-button
-    >Sign In</button>
+    <button color="accent" routerLink="./login" mat-raised-button>
+        Sign In
+    </button>
 </ng-template>

@@ -24,7 +24,7 @@
         About
     </button>
 
-    <span>{{ title }}</span>
+    <span>{{ title | async }}</span>
 
     <mat-slide-toggle
         [(ngModel)]="slideToggleState"

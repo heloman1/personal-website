@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { LoginService } from 'src/app/services/login.service';
-import { TitleService } from 'src/app/services/title.service';
 import { ServerDataService } from '../serverdata.service';
 import { QueryParams } from '../types';
 @Component({
@@ -8,28 +8,38 @@ import { QueryParams } from '../types';
     templateUrl: './server-display.component.html',
     styleUrls: ['./server-display.component.scss'],
 })
-export class ServerDisplayComponent {
-    constructor(public serverDataService: ServerDataService) {}
+export class ServerDisplayComponent implements OnDestroy {
+    private isSignedIn$: Subscription;
 
-    disableCards = false;
+    constructor(
+        private serverDataService: ServerDataService,
+        private loginService: LoginService
+    ) {
+        this.isSignedIn$ = this.loginService.isSignedIn.subscribe(
+            (signedIn) => {
+                if (signedIn) {
+                    this.refreshCards();
+                }
+            }
+        );
+    }
 
-    isSignedIn$ = this.serverDataService.isSignedIn.subscribe((isSignedIn) => {
-        if (isSignedIn) {
-            this.refreshCards();
-        } else {
-            this.serverDataService.showLoadingPane.next(false);
-        }
-    });
+    get disableCards$() {
+        return this.serverDataService.isSendingCommand;
+    }
+    get serverData$() {
+        return this.serverDataService.iterableServerData;
+    }
 
-    async refreshCards() {
-        this.serverDataService.showLoadingPane.next(true);
-        await this.serverDataService.fetchData();
-        this.serverDataService.showLoadingPane.next(false);
+    refreshCards() {
+        this.serverDataService.fetchData();
     }
 
     async onCardButtonClick(query: QueryParams) {
-        this.disableCards = true;
         await this.serverDataService.sendCommand(query);
-        this.disableCards = false;
+    }
+
+    ngOnDestroy() {
+        this.isSignedIn$.unsubscribe();
     }
 }

@@ -1,6 +1,6 @@
 <app-floating-actions></app-floating-actions>
 
-<div *ngFor="let entry of serverDataService.iterableServerData | async">
+<div *ngFor="let entry of serverData$ | async">
     <h2 class="title text">
         {{ entry.game }}
     </h2>
@@ -9,7 +9,7 @@
             *ngFor="let server of entry.servers"
             [game]="entry.game"
             [data]="server"
-            [disable]="disableCards"
+            [disable]="(disableCards$ | async) || false"
             (buttonPressed)="onCardButtonClick($event)"
         >
         </app-server-card>

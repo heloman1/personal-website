@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { LoginService } from 'src/app/services/login.service';
 import { ServerDataService } from '../serverdata.service';
 
@@ -9,23 +9,24 @@ import { ServerDataService } from '../serverdata.service';
 })
 export class FloatingActionsComponent {
     constructor(
-        public serverDataService: ServerDataService,
+        private serverDataService: ServerDataService,
         private loginService: LoginService
     ) {}
 
-    @Input() isSignedIn = false;
-    isSignedIn$ = this.serverDataService.isSignedIn.subscribe(
-        (bool) => (this.isSignedIn = bool)
-    );
+    get statusText$() {
+        return this.serverDataService.statusText;
+    }
+
+    get isSignedIn$() {
+        return this.loginService.isSignedIn;
+    }
 
     async signOut() {
         await this.loginService.signOut();
         window.location.reload();
     }
 
-    async refreshCards() {
-        this.serverDataService.showLoadingPane.next(true);
-        await this.serverDataService.fetchData();
-        this.serverDataService.showLoadingPane.next(false);
+    refreshCards() {
+        this.serverDataService.fetchData();
     }
 }

@@ -1,6 +1,5 @@
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { Subscription } from 'rxjs';
 import { TitleService } from './services/title.service';
 
 const THEME_KEY = 'IsDarkTheme';
@@ -10,16 +9,10 @@ const THEME_KEY = 'IsDarkTheme';
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnDestroy {
-    title = '';
-    titleSubscription: Subscription;
+export class AppComponent {
+    title = this.title_service.title;
     slideToggleState: boolean;
     constructor(private title_service: TitleService) {
-        this.titleSubscription = this.title_service.title$.subscribe(
-            (title) => {
-                this.title = title;
-            }
-        );
         const IsDarkTheme = window.localStorage.getItem(THEME_KEY);
         if (!IsDarkTheme) {
             this.slideToggleState = false;
@@ -48,8 +41,5 @@ export class AppComponent implements OnDestroy {
 
     areWeOnPage(path: string) {
         return window.location.pathname == path;
-    }
-    ngOnDestroy() {
-        this.titleSubscription.unsubscribe();
     }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import _firebase from 'firebase/app';
 import 'firebase/auth';
+import { BehaviorSubject } from 'rxjs';
 const firebaseConfig = {
     apiKey: 'AIzaSyCrM2dSNeEj1GatjS4l78zdrEoeKgRxzYE',
     authDomain: 'serverselect-be6d0.firebaseapp.com',
@@ -20,9 +21,18 @@ const EMAIL_KEY = 'emailForSignIn';
     providedIn: 'root',
 })
 export class LoginService {
-    firebase_auth: _firebase.auth.Auth;
+    private firebase_auth: _firebase.auth.Auth;
+    isSignedIn = new BehaviorSubject<boolean>(false);
+
+    async getUserToken() {
+        return await this.firebase_auth.currentUser?.getIdToken();
+    }
     constructor() {
         this.firebase_auth = _firebase.initializeApp(firebaseConfig).auth();
+
+        this.firebase_auth.onAuthStateChanged(async (user) => {
+            this.isSignedIn.next(user ? true : false);
+        });
     }
 
     async sendSignInEmail(email: string) {
