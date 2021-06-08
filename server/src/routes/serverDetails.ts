@@ -2,16 +2,16 @@ import { FastifyInstance, FastifyPluginOptions, FastifyReply } from "fastify";
 import gameQuery from "../data/gameQuery";
 import Globals from "../globals";
 import decodeJWTToken from "../hooks/firebase";
-import FunctionQueue from "../utils/functionQueue";
+import DeferredFunctions from "../utils/deferredFunctions";
 
 const folderList = Array.from(Globals.getGlobals().gameFolderNameMap.keys());
 const FIVE_MIN = 5 * 60 * 1000;
 
-const polledResponses = new FunctionQueue();
+const polledResponses = new DeferredFunctions<void>();
 let currentlyChecking = false;
 let lastCheck = new Date(0).getTime(); // Set date to 1970
 
-const sseResponses = new FunctionQueue(false);
+const sseResponses = new DeferredFunctions<void>(false);
 
 function sseWrite(res: FastifyReply, event: string, data: string) {
     res.raw.write(`event: ${event}\ndata: ${data}\n\n`);
