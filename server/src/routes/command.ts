@@ -3,7 +3,7 @@ import gameQuery from "../data/gameQuery";
 import Globals from "../globals";
 import decodeJWTToken from "../hooks/firebase";
 import { CommandRouteInterface } from "../types";
-import { procSse } from "./serverDetails";
+import { sseSendServerData } from "./serverDetails";
 
 const { gameFolderNameMap } = Globals.getGlobals();
 
@@ -79,7 +79,7 @@ export default function (
                 res.code(400);
             }
             res.send();
-            procSse();
+            sseSendServerData();
         }
     );
     done();
