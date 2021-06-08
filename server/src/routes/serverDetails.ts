@@ -7,11 +7,14 @@ import DeferredFunctions from "../utils/deferredFunctions";
 const folderList = Array.from(Globals.getGlobals().gameFolderNameMap.keys());
 const FIVE_MIN = 5 * 60 * 1000;
 
-const polledResponses = new DeferredFunctions<void>();
+const polledResponses = new DeferredFunctions<void, void>();
 let currentlyChecking = false;
 let lastCheck = new Date(0).getTime(); // Set date to 1970
 
-const sseResponses = new DeferredFunctions<void>(false);
+const sseResponses = new DeferredFunctions<
+    { event: string; data: string },
+    void
+>({ clearOnConsume: true });
 
 function sseWrite(res: FastifyReply, event: string, data: string) {
     res.raw.write(`event: ${event}\ndata: ${data}\n\n`);
@@ -60,12 +63,8 @@ export default function (
             "Content-Type": "text/event-stream",
             "Cache-Control": "no-cache",
         });
-        const id = sseResponses.push(() => {
-            sseWrite(
-                res,
-                "serverData",
-                JSON.stringify(Globals.getGlobals().serverStatuses)
-            );
+        const id = sseResponses.push((data) => {
+            sseWrite(res, data.event, data.data);
         });
         res.raw.on("close", () => {
             sseResponses.kick(id);
@@ -75,8 +74,18 @@ export default function (
     done();
 }
 
-export function procSse() {
-    sseResponses.consumeAll();
+export function sseCommandRunning(b: boolean) {
+    sseResponses.consumeAll({
+        event: "commandRunning",
+        data: JSON.stringify(b),
+    });
+}
+
+export function sseSendServerData() {
+    sseResponses.consumeAll({
+        event: "serverData",
+        data: JSON.stringify(Globals.getGlobals().serverStatuses),
+    });
 }
 
 // Still gotta do client side

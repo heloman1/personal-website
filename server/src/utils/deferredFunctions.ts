@@ -1,5 +1,5 @@
 /**
- * FunctionQueue
+ * DeferredFunctions
  *
  * Used to make multiple async functions wait until it is appropriate for them
  * to run.
@@ -8,20 +8,20 @@
  * wait until the first call finishes its query before sending, which stops
  * multiple redundant queries from occuring.
  */
-export default class DeferredFunctions<T> {
+export default class DeferredFunctions<T, U> {
     clearOnConsume: boolean;
 
-    constructor(clearOnConsume = true) {
-        this.clearOnConsume = clearOnConsume;
+    constructor(config = { clearOnConsume: true }) {
+        this.clearOnConsume = config.clearOnConsume;
     }
 
-    private registeredFunctions = new Map<number, () => T>();
+    private registeredFunctions = new Map<number, (data: T) => U>();
 
     /**
      * Add a function to be run later to the queue
      * @param fun Any function
      */
-    push(fun: () => T) {
+    push(fun: (data: T) => U) {
         let id: number;
         do {
             id = Math.floor(Math.random() * 16777216);
@@ -37,10 +37,10 @@ export default class DeferredFunctions<T> {
     /**
      * Run all functions, and clear the queue
      */
-    consumeAll(): T[] {
+    consumeAll(data: T): U[] {
         const out = [];
         for (const fun of this.registeredFunctions.values()) {
-            const ret = fun();
+            const ret = fun(data);
             // Don't make an array of undefined values
             // (If T === void, just return [])
             if (typeof ret == "undefined") {
