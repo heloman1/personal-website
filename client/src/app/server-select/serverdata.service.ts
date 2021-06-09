@@ -26,17 +26,27 @@ export class ServerDataService {
     // Fetches the data, adds canToggle keys, sets those keys, and pushes the data
     async fetchData() {
         this.isLoading.next(true);
-        const data = await this.http
-            .get<IncomingServerStatuses>('/backend/servers-status', {
-                headers: {
-                    Authorization: `Bearer ${await this.loginService.getUserToken()}`,
-                },
-            })
-            .toPromise();
-        const serverData = this.convertServerDataFormat(data); // Add keys
-        this.updateToggleableServers(serverData); // Set keys
-        this.iterableServerData.next(serverData);
-        this.isLoading.next(false);
+        try {
+            const data = await this.http
+                .get<IncomingServerStatuses>('/backend/servers-status', {
+                    headers: {
+                        Authorization: `Bearer ${await this.loginService.getUserToken()}`,
+                    },
+                })
+                .toPromise();
+            const serverData = this.convertServerDataFormat(data); // Add keys
+            this.updateToggleableServers(serverData); // Set keys
+            this.iterableServerData.next(serverData);
+            this.isLoading.next(false);
+        } catch (err) {
+            const code = err.status;
+            if (code && typeof code === 'number') {
+                this.handleServerResponse(code);
+            } else {
+                // There was an actual error
+                throw err;
+            }
+        }
     }
 
     async sendCommand(data: QueryParams) {
@@ -65,7 +75,7 @@ export class ServerDataService {
                 throw error;
             }
         }
-        this.handleServerResponse(data, code);
+        this.handleServerResponse(code, data);
         this.isSendingCommand.next(false);
     }
 
@@ -114,16 +124,17 @@ export class ServerDataService {
 
     // Provides Correct Status Text based on status code
     // Also, assuming server was successful, recalculate which servers are toggleable
-    private handleServerResponse(query: QueryParams, statusCode: number) {
+    private handleServerResponse(statusCode: number, query?: QueryParams) {
         let text = 'No Server Response? How did you manage that?';
-        const { game, server, command } = query;
-        const gameIndex = this.gameToIndex[game].i;
-        const serverIndex = this.gameToIndex[game][server];
-        const serverData = this.iterableServerData.getValue();
 
         // Update what's online
         switch (statusCode) {
             case 200:
+                const { game, server, command } = query!;
+                const gameIndex = this.gameToIndex[game].i;
+                const serverIndex = this.gameToIndex[game][server];
+                const serverData = this.iterableServerData.getValue();
+
                 switch (command) {
                     case 'start':
                     case 'restart':
@@ -150,10 +161,12 @@ export class ServerDataService {
                 break;
             case 401:
                 text = 'Unauthorized, contact the administrator.';
-
                 break;
             case 500:
                 text = 'Server error, contact the developer.';
+                break;
+            case 502:
+                text = 'The backend api may be down, contact the administrator';
                 break;
             case 503:
                 text = 'Server busy, please wait a few seconds';
