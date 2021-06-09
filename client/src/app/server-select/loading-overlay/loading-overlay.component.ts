@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     selector: 'app-loading-overlay',
     template: `
         <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-        <p>This may take a while...</p>
+        <p class="text">This may take a while...</p>
     `,
     styleUrls: ['./loading-overlay.component.scss'],
 })
