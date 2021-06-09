@@ -1,6 +1,7 @@
 import fs from "fs";
 import TwoWayMap from "./utils/twoWayMap";
 import { OutgoingServerStatuses } from "./types";
+import { BehaviorSubject } from "rxjs";
 const DATA_FOLDER = "data/";
 
 type FolderName = string;
@@ -9,7 +10,7 @@ type GameName = string;
 export default class Globals {
     private static instance: Globals;
 
-    serverStatuses: OutgoingServerStatuses;
+    serverStatuses: BehaviorSubject<OutgoingServerStatuses>;
     port: number;
     gameFolderNameMap: TwoWayMap<FolderName, GameName>;
     emailList: {
@@ -57,7 +58,7 @@ export default class Globals {
             this.emailList = {};
         }
 
-        this.serverStatuses = {};
+        this.serverStatuses = new BehaviorSubject({});
     }
 
     public static getGlobals(configPath?: string): Globals {

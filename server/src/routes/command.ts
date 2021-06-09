@@ -3,11 +3,10 @@ import gameQuery from "../data/gameQuery";
 import Globals from "../globals";
 import decodeJWTToken from "../hooks/firebase";
 import { CommandRouteInterface } from "../types";
-import { sseSendServerData } from "./serverDetails";
-
+import { BehaviorSubject } from "rxjs";
 const { gameFolderNameMap } = Globals.getGlobals();
 
-let executingCommand = false;
+export const isCommandRunning = new BehaviorSubject<boolean>(false);
 
 export default function (
     routes: FastifyInstance,
@@ -43,10 +42,10 @@ export default function (
                     server: server as string,
                     command: command as string,
                 };
-                if (executingCommand) {
+                if (isCommandRunning.getValue()) {
                     res.code(503); // Busy
                 } else {
-                    executingCommand = true;
+                    isCommandRunning.next(true);
                     try {
                         let is_online;
                         switch (command) {
@@ -60,26 +59,26 @@ export default function (
                                 is_online = true;
                                 break;
                             default:
-                                executingCommand = false;
+                                isCommandRunning.next(false);
                                 res.code(400).send();
                                 return;
                         }
-                        Globals.getGlobals().serverStatuses[game][
-                            server
-                        ].is_online = is_online;
+                        const temp =
+                            Globals.getGlobals().serverStatuses.getValue();
+                        temp[game][server].is_online = is_online;
+                        Globals.getGlobals().serverStatuses.next(temp);
                         res.code(200);
                     } catch (err) {
                         console.log(err);
                         res.code(500);
                     } finally {
-                        executingCommand = false;
+                        isCommandRunning.next(false);
                     }
                 }
             } else {
                 res.code(400);
             }
             res.send();
-            sseSendServerData();
         }
     );
     done();
