@@ -1,3 +1,4 @@
+//Note: This file is being loaded by routes/serverDetails.ts
 import { FastifyReply } from "fastify";
 import { OutgoingServerStatuses } from "../types";
 import DeferredFunctions from "../utils/deferredFunctions";
