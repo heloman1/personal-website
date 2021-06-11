@@ -50,11 +50,17 @@ export default function (
                         let is_online;
                         switch (command) {
                             case "stop":
+                                console.log(
+                                    `Command: Running ${command} for game "${game}", server ${server}`
+                                );
                                 await gameQuery.sendServerCommand(query);
                                 is_online = false;
                                 break;
                             case "start":
                             case "restart":
+                                console.log(
+                                    `Command: Running ${command} for game "${game}", server ${server}`
+                                );
                                 await gameQuery.sendServerCommand(query);
                                 is_online = true;
                                 break;

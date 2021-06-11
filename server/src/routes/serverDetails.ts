@@ -15,6 +15,7 @@ async function updateServerData(force: boolean) {
     if (force || new Date().getTime() - lastCheck > FIVE_MIN) {
         try {
             // TODO: Return if data hasn't changed
+            console.log("serverDetails: Updating");
             Globals.getGlobals().serverStatuses.next(
                 await gameQuery.fetchData(folderList)
             );

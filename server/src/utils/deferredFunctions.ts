@@ -11,6 +11,9 @@
 export default class DeferredFunctions<T, U> {
     clearOnConsume: boolean;
 
+    get count() {
+        return this.registeredFunctions.size;
+    }
     constructor(config = { clearOnConsume: true }) {
         this.clearOnConsume = config.clearOnConsume;
     }

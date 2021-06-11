@@ -11,6 +11,7 @@ const sseResponses = new DeferredFunctions<
 
 // This will run whenever serverStatuses.next() is called
 function sendServerData(data: OutgoingServerStatuses) {
+    console.log(`SSE: Sending Server Data`);
     sseResponses.consumeAll({
         event: "serverData",
         data: JSON.stringify(data),
@@ -21,6 +22,7 @@ Globals.getGlobals().serverStatuses.subscribe((data) => {
 });
 
 function sendCommandRunning(b: boolean) {
+    console.log(`SSE: Inform Command Running (${b})`);
     sseResponses.consumeAll({
         event: "commandRunning",
         data: JSON.stringify(b),
@@ -31,11 +33,14 @@ isCommandRunning.subscribe((b) => {
 });
 
 export default function pushClient(res: FastifyReply) {
+    console.log(`SSE: Client Added, Total: ${sseResponses.count}`);
+
     const id = sseResponses.push((data) => {
         res.raw.write(`event: ${data.event}\ndata: ${data.data}\n\n`);
     });
     res.raw.on("close", () => {
         sseResponses.kick(id);
         res.raw.end();
+        console.log(`SSE: Client Closed, Total: ${sseResponses.count}`);
     });
 }
