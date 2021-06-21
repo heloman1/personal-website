@@ -16,7 +16,7 @@ export class ServerDataService {
         [game: string]: { i: number; [server: string]: number };
     } = {};
 
-    isLoading = new BehaviorSubject<boolean>(true);
+    isLoading = new BehaviorSubject<boolean>(false);
     isSendingCommand = new BehaviorSubject<boolean>(false);
     iterableServerData = new BehaviorSubject<IterableServerStatuses[]>([]);
     statusText = new BehaviorSubject<string>('');
