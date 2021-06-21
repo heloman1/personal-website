@@ -33,11 +33,10 @@ isCommandRunning.subscribe((b) => {
 });
 
 export default function pushClient(res: FastifyReply) {
-    console.log(`SSE: Client Added, Total: ${sseResponses.count}`);
-
     const id = sseResponses.push((data) => {
         res.raw.write(`event: ${data.event}\ndata: ${data.data}\n\n`);
     });
+    console.log(`SSE: Client Added, Total: ${sseResponses.count}`);
     res.raw.on("close", () => {
         sseResponses.kick(id);
         res.raw.end();
