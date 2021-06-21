@@ -9,7 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -57,6 +57,7 @@ import { ServerDisplayComponent } from './server-select/server-display/server-di
         HttpClientModule,
         MatProgressSpinnerModule,
         MatSlideToggleModule,
+        BrowserAnimationsModule,
     ],
     providers: [LoginService, HttpClient, TitleService, ServerDataService],
     bootstrap: [AppComponent],
