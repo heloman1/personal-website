@@ -4,9 +4,7 @@ if (typeof process.argv[2] === "string") {
     Globals.getGlobals(process.argv[2]);
 }
 import fastify from "fastify";
-import fastifyStatic from "fastify-static";
 import fs from "fs";
-import path from "path";
 import Routes from "./routes";
 
 let app = fastify({
@@ -21,13 +19,6 @@ let app = fastify({
 app.decorateReply("user", null);
 
 app.register(Routes);
-app.register(fastifyStatic, {
-    root: path.join(__dirname, "../public"),
-});
-
-app.setNotFoundHandler(async (_, res) => {
-    res.sendFile("/index.html", path.join(__dirname, "../public"));
-});
 
 app.listen(Globals.getGlobals().port, (err, address) => {
     if (err) {
