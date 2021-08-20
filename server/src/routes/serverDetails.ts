@@ -3,7 +3,6 @@ import gameQuery from "../data/gameQuery";
 import Globals from "../globals";
 import decodeJWTToken from "../hooks/firebase";
 import DeferredFunctions from "../utils/deferredFunctions";
-import pushSseClient from "../services/sse";
 const folderList = Array.from(Globals.getGlobals().gameFolderNameMap.keys());
 const FIVE_MIN = 5 * 60 * 1000;
 
@@ -50,13 +49,6 @@ export default function (
 
         res.send(Globals.getGlobals().serverStatuses.getValue());
         polledResponses.consumeAll(); // This will do nothing if its empty
-    });
-    routes.get("/servers-status/sse", async (_req, res) => {
-        res.raw.writeHead(200, {
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache",
-        });
-        pushSseClient(res);
     });
     done();
 }
