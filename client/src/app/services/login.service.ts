@@ -1,46 +1,56 @@
 import { Injectable } from '@angular/core';
-import _firebase from 'firebase/app';
-import 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+import {
+    ActionCodeSettings,
+    Auth,
+    getAuth,
+    onAuthStateChanged,
+    sendSignInLinkToEmail,
+    isSignInWithEmailLink,
+    signInWithEmailLink,
+} from '@firebase/auth';
 import { BehaviorSubject } from 'rxjs';
-const firebaseConfig = {
+
+const actionCodeSettings: ActionCodeSettings = {
+    url: 'https://edwardgomez.dev/servers/login',
+    handleCodeInApp: true,
+};
+
+const firebaseApp = initializeApp({
     apiKey: 'AIzaSyCrM2dSNeEj1GatjS4l78zdrEoeKgRxzYE',
     authDomain: 'serverselect-be6d0.firebaseapp.com',
     projectId: 'serverselect-be6d0',
     storageBucket: 'serverselect-be6d0.appspot.com',
     messagingSenderId: '858468729816',
     appId: '1:858468729816:web:9fe801aa31baefc58f68ad',
-};
+});
 
-var actionCodeSettings: _firebase.auth.ActionCodeSettings = {
-    url: 'https://edwardgomez.dev/servers/login',
-    handleCodeInApp: true,
-};
-
+/** Local Storage Key (The key is arbitrary) */
 const EMAIL_KEY = 'emailForSignIn';
 @Injectable({
     providedIn: 'root',
 })
 export class LoginService {
-    private firebase_auth: _firebase.auth.Auth;
+    /** Used (probably by a page, to tell if the user is signed in) */
     isSignedIn = new BehaviorSubject<boolean>(false);
 
-    async getUserToken() {
-        return await this.firebase_auth.currentUser?.getIdToken();
-    }
-    constructor() {
-        this.firebase_auth = _firebase.initializeApp(firebaseConfig).auth();
-
-        this.firebase_auth.onAuthStateChanged(async (user) => {
-            this.isSignedIn.next(user ? true : false);
-        });
+    /** 
+     * Returns the users token, expected to be used as the bearer token
+     * in an Authorization header
+     */
+    public get userToken() {
+        if (this.auth.currentUser) {
+            return this.auth.currentUser.getIdToken();
+        } else {
+            return new Promise<string>((res) => {
+                return '';
+            });
+        }
     }
 
     async sendSignInEmail(email: string) {
         try {
-            await this.firebase_auth.sendSignInLinkToEmail(
-                email,
-                actionCodeSettings
-            );
+            sendSignInLinkToEmail(this.auth, email, actionCodeSettings);
             window.localStorage.setItem(EMAIL_KEY, email);
             return true;
         } catch (error) {
@@ -51,7 +61,7 @@ export class LoginService {
 
     async tryCompleteSignIn() {
         // Confirm the link is a sign-in with email link.
-        if (this.firebase_auth.isSignInWithEmailLink(window.location.href)) {
+        if (isSignInWithEmailLink(this.auth, window.location.href)) {
             let email = window.localStorage.getItem(EMAIL_KEY);
             if (!email) {
                 window.alert(
@@ -60,7 +70,8 @@ export class LoginService {
             } else {
                 // The client SDK will parse the code from the link for you.
                 try {
-                    let result = await this.firebase_auth.signInWithEmailLink(
+                    let result = await signInWithEmailLink(
+                        this.auth,
                         email,
                         window.location.href
                     );
@@ -83,11 +94,20 @@ export class LoginService {
 
     async signOut() {
         try {
-            await this.firebase_auth.signOut();
+            await this.auth.signOut();
             return true;
         } catch (error) {
             console.log(error);
             return false;
         }
+    }
+    
+    private auth: Auth;
+    constructor() {
+        this.auth = getAuth(firebaseApp);
+
+        onAuthStateChanged(this.auth, async (user) => {
+            this.isSignedIn.next(user ? true : false);
+        });
     }
 }

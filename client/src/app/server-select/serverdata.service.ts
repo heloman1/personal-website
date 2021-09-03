@@ -30,7 +30,8 @@ export class ServerDataService {
             const data = await this.http
                 .get<IncomingServerStatuses>('/backend/servers-status', {
                     headers: {
-                        Authorization: `Bearer ${await this.loginService.getUserToken()}`,
+                        Authorization: `Bearer ${await this.loginService
+                            .userToken}`,
                     },
                 })
                 .toPromise();
@@ -56,7 +57,8 @@ export class ServerDataService {
             let res = await this.http
                 .post('/backend/server-command', null, {
                     headers: {
-                        Authorization: `Bearer ${await this.loginService.getUserToken()}`,
+                        Authorization: `Bearer ${await this.loginService
+                            .userToken}`,
                     },
                     params: data,
                     responseType: 'text',
