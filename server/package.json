@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "build": "tsc",
-        "start": "sh start.sh"
+        "start": "GOOGLE_APPLICATION_CREDENTIALS='./creds/firebase.json' node build/index.js data/config.json"
     },
     "repository": {
         "type": "git",
