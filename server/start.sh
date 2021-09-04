@@ -10,8 +10,9 @@ cd "${0%/*}"
 #sudo ln -s /etc/letsencrypt/live/edwardgomez.dev/fullchain.pem fullchain.pem
 #sudo chown $USER:$USER creds/privkey.pem creds/fullchain.pem
 
+NVM_DIR="$HOME/.nvm"
 set -e
 echo "Sourcing nvm (and npm, and node)"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 echo 'Starting Web Server'
 npm start
