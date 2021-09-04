@@ -31,10 +31,10 @@ const EMAIL_KEY = 'emailForSignIn';
     providedIn: 'root',
 })
 export class LoginService {
-    /** Used (probably by a page, to tell if the user is signed in) */
+    // Expected to be used by a page
     isSignedIn = new BehaviorSubject<boolean>(false);
 
-    /** 
+    /**
      * Returns the users token, expected to be used as the bearer token
      * in an Authorization header
      */
@@ -42,13 +42,17 @@ export class LoginService {
         if (this.auth.currentUser) {
             return this.auth.currentUser.getIdToken();
         } else {
-            return new Promise<string>((res) => {
-                return '';
-            });
+            // Just to make this function only return a Promise<string>
+            return new Promise<string>((res) => res(''));
         }
     }
 
-    async sendSignInEmail(email: string) {
+    /**
+     * Sends a signin link to the given emaik
+     * @param email is not checked in this function and is expected to be checked by the UI
+     * @returns {Promise<boolean>} Promise\<boolean\> based on if the email was sent succesfully
+     */
+    async sendSignInEmail(email: string): Promise<boolean> {
         try {
             sendSignInLinkToEmail(this.auth, email, actionCodeSettings);
             window.localStorage.setItem(EMAIL_KEY, email);
@@ -59,6 +63,10 @@ export class LoginService {
         }
     }
 
+    /**
+     * Attempts to authenticate by using the link sent to the email by {@link sendSignInEmail}
+     * @returns {Promise<boolean>} Promise\<boolean\> based on if authentication was successful
+     */
     async tryCompleteSignIn() {
         // Confirm the link is a sign-in with email link.
         if (isSignInWithEmailLink(this.auth, window.location.href)) {
@@ -101,7 +109,7 @@ export class LoginService {
             return false;
         }
     }
-    
+
     private auth: Auth;
     constructor() {
         this.auth = getAuth(firebaseApp);
