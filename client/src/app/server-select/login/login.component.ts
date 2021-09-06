@@ -21,7 +21,7 @@ export class LoginComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.firebase_service.tryCompleteSignIn().then(async (success) => {
+        this.firebase_service.tryCompleteSignIn(window.location.href).then(async (success) => {
             if (success) {
                 this.router.navigateByUrl('/servers'); // "Redirect" away from sign-in url
             }

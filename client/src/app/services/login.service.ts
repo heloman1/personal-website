@@ -67,9 +67,9 @@ export class LoginService {
      * Attempts to authenticate by using the link sent to the email by {@link sendSignInEmail}
      * @returns {Promise<boolean>} Promise\<boolean\> based on if authentication was successful
      */
-    async tryCompleteSignIn() {
+    async tryCompleteSignIn(emailLink: string) {
         // Confirm the link is a sign-in with email link.
-        if (isSignInWithEmailLink(this.auth, window.location.href)) {
+        if (isSignInWithEmailLink(this.auth, emailLink)) {
             let email = window.localStorage.getItem(EMAIL_KEY);
             if (!email) {
                 window.alert(
@@ -81,7 +81,7 @@ export class LoginService {
                     let result = await signInWithEmailLink(
                         this.auth,
                         email,
-                        window.location.href
+                        emailLink
                     );
                     window.localStorage.removeItem(EMAIL_KEY);
                     if (result.user) {
