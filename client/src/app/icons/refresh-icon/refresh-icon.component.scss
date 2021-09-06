@@ -1,6 +1,6 @@
 @use '~@angular/material' as mat;
 @mixin refresh-icon-theme($theme) {
-    $primary: map-get($theme, accent);
+    $primary: map-get($theme, primary);
     .refresh-icon {
         vertical-align: middle;
         fill: mat.get-color-from-palette($primary, default-contrast);

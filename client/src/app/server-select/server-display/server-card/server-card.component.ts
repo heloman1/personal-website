@@ -17,11 +17,22 @@ export class ServerCardComponent {
     };
     @Input() disable = true;
 
+
+
+
     submit() {
         this.buttonPressed.emit({
             game: this.game,
             server: this.data.name,
             command: this.data.is_online ? 'stop' : 'start',
+        });
+    }
+
+    restart() {
+        this.buttonPressed.emit({
+            game: this.game,
+            server: this.data.name,
+            command: 'restart',
         });
     }
 }

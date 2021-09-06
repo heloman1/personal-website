@@ -71,3 +71,8 @@ $green: mat.define-palette(mat.$green-palette, 600);
 .green {
     background-color: mat.get-color-from-palette($green) !important;
 }
+
+$orange: mat.define-palette(mat.$orange-palette, 600);
+.orange {
+    background-color: mat.get-color-from-palette($orange) !important;
+}

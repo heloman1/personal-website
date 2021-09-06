@@ -5,3 +5,9 @@
 .transition {
     transition: background-color 1s ease;
 }
+
+.mat-card-actions {
+    button {
+        margin-right: 1rem;
+    }
+}
