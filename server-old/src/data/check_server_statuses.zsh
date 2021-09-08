@@ -12,15 +12,17 @@ echo_json() {
     printf '{"game":"%s","server":"%s","details_string":"%s"}\n' $game $(basename $server) $server_details
 }
 
-cd ~/
+# Set working directory to here
+cd "${0%/*}"
 
-for game in $(# for each in folder list
+# for each in folder list
+for game in $(
     echo $1 | jq -r ".[]"
 ); do
     if [ -d $game ]; then # if gamefolder exists
         for server in $game/*; do
+            # if a server exists in here
             if command -v ./$server/*server >/dev/null; then
-                # if a server exists in here
                 echo_json $game $(basename $server) &
                 # Note: I'm relying on line buffering to check all of the servers in parallel/async
             fi
