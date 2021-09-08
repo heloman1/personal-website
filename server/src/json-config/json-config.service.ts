@@ -27,6 +27,7 @@ export class JsonConfigService {
       reverse[entry[1]] = entry[0];
     }
     this.foldersToGame = reverse;
+
     throw 'Implement sshHost';
   }
   private foldersToGame: {

@@ -1,17 +1,26 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
-import { GameQueryService } from './game-query/game-query.service';
+import { Controller, Get, Post, Query } from '@nestjs/common';
+import { GameCommandService } from './game-query/game-command.service';
+import { GameDataService } from './game-query/game-data.service';
 import { OutgoingServerStatuses } from './types';
 
 @Controller('backend')
 export class AppController {
   constructor(
-    private readonly appService: AppService,
-    private readonly queryService: GameQueryService,
+    private readonly queryService: GameDataService,
+    private readonly commandService: GameCommandService,
   ) {}
 
   @Get('servers-status')
   serversStatus(): Promise<OutgoingServerStatuses> {
     return this.queryService.getServersStatus();
+  }
+
+  @Post('server-command')
+  serverCommand(
+    @Query('game') gameName: string,
+    @Query('server') serverName: string,
+    @Query('command') command: string,
+  ): any {
+    this.commandService.command(gameName, serverName, command);
   }
 }
