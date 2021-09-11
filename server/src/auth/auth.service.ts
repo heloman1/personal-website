@@ -1,11 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import admin from 'firebase-admin';
+import { ConfigService } from 'src/config/config.service';
 @Injectable()
 export class AuthService {
   private auth: admin.auth.Auth;
-  constructor() {
+  constructor(private readonly config: ConfigService) {
     this.auth = admin
-      .initializeApp({ credential: admin.credential.applicationDefault() })
+      .initializeApp({
+        credential: admin.credential.cert(config.googleCredLoc),
+      })
       .auth();
   }
 
