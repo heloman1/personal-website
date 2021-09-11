@@ -3,7 +3,8 @@ import { AppController } from './app.controller';
 import { GameDataService } from './game-query/game-data.service';
 import { GameCommandService } from './game-query/game-command.service';
 import { GameQueryService } from './game-query/game-query.service';
-import { JsonConfigService } from './json-config/json-config.service';
+import { ConfigService } from './config/config.service';
+import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [],
@@ -11,8 +12,9 @@ import { JsonConfigService } from './json-config/json-config.service';
   providers: [
     GameQueryService,
     GameDataService,
-    JsonConfigService,
+    ConfigService,
     GameCommandService,
+    AuthService,
   ],
 })
 export class AppModule {}

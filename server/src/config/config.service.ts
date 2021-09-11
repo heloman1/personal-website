@@ -4,7 +4,7 @@ type FolderName = string;
 type GameName = string;
 
 @Injectable()
-export class JsonConfigService {
+export class ConfigService {
   constructor() {
     // TODO: I don't currently check for uniqueness in the values
     console.log(`__dirname is here: ${__dirname}`);
@@ -29,6 +29,7 @@ export class JsonConfigService {
     this.foldersToGame = reverse;
 
     throw 'Implement sshHost';
+    throw 'Implement Google Default Credentials';
   }
   private foldersToGame: {
     [gameName: FolderName]: GameName;

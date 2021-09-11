@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import child_process from 'child_process';
-import { JsonConfigService } from 'src/json-config/json-config.service';
+import { ConfigService } from 'src/config/config.service';
 import { ExpectedJSONData, OutgoingServerStatuses } from 'src/types';
 import { promisify } from 'util';
 
@@ -15,7 +15,7 @@ export class GameQueryService {
     return this.config.sshHost;
   }
 
-  constructor(private readonly config: JsonConfigService) {}
+  constructor(private readonly config: ConfigService) {}
 
   isQueryingOrCommanding = false;
 

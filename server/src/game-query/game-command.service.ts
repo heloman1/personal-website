@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { GameDataService } from 'src/game-query/game-data.service';
-import { JsonConfigService } from 'src/json-config/json-config.service';
+import { ConfigService } from 'src/config/config.service';
 import { GameQueryService } from './game-query.service';
 
 @Injectable()
@@ -9,7 +9,7 @@ import { GameQueryService } from './game-query.service';
  */
 export class GameCommandService {
   constructor(
-    private readonly config: JsonConfigService,
+    private readonly config: ConfigService,
     private readonly gameData: GameDataService,
     private readonly query: GameQueryService,
   ) {}
