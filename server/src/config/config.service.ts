@@ -6,30 +6,54 @@ type GameName = string;
 @Injectable()
 export class ConfigService {
   constructor() {
-    // TODO: I don't currently check for uniqueness in the values
     console.log(`__dirname is here: ${__dirname}`);
 
+    // {
+    //   "sshHost": "username@example",
+    //   "googleCredentials": "config/creds/firebase.json",
+    //   "gameNamesToFolders": {
+    //     "Example": "example123"
+    //   }
+    // }
     const data: {
-      [gameName: string]: FolderName;
+      sshHost?: string;
+      googleCredentials?: string;
+      gameNamesToFolders?: {
+        [gameName: string]: FolderName;
+      };
     } = JSON.parse(fs.readFileSync(__dirname).toString());
-    if (typeof data !== 'object' || Array.isArray(data)) {
-      throw 'Expected an object ({}) in config file';
+
+    if (!data.sshHost) throw 'sshHost missing';
+    this.sshHost = data.sshHost;
+
+    if (!data.googleCredentials) throw 'googleCredentials missing';
+    this.googleCredLoc = data.googleCredentials;
+
+    if (!data.gameNamesToFolders) throw 'gameNamesToFolders missing';
+    const gameNamesToFolders = data.gameNamesToFolders;
+
+    if (
+      typeof gameNamesToFolders !== 'object' ||
+      Array.isArray(gameNamesToFolders)
+    ) {
+      throw 'gameGamesToFolders should be an object';
     }
-    for (const v of Object.values(data)) {
+
+    // Check if all values are strings
+    for (const v of Object.values(gameNamesToFolders)) {
       if (typeof v !== 'string') {
         throw `${v} is not a string`;
       }
     }
-    this.gameToFolders = data;
-    const reverse = {};
 
-    for (const entry of Object.entries(data)) {
-      reverse[entry[1]] = entry[0];
+    this.gameToFolders = data.gameNamesToFolders;
+
+    const reverse = {};
+    for (const [k, v] of Object.entries(gameNamesToFolders)) {
+      if (reverse[v] !== undefined) throw `${v} is not unique`;
+      reverse[v] = k;
     }
     this.foldersToGame = reverse;
-
-    throw 'Implement sshHost';
-    throw 'Implement Google Default Credentials';
   }
   private foldersToGame: {
     [gameName: FolderName]: GameName;
@@ -46,10 +70,8 @@ export class ConfigService {
     return Object.keys(this.foldersToGame);
   }
 
-  private _sshHost: string;
-  get sshHost() {
-    return this._sshHost;
-  }
+  readonly sshHost: string;
+  readonly googleCredLoc: string;
 
   getFolderOf(gameName: string) {
     return this.gameToFolders[gameName];
