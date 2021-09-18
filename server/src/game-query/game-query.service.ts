@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import child_process from 'child_process';
+import { exec } from 'child_process';
 import { ConfigService } from 'src/config/config.service';
 import { ExpectedJSONData, OutgoingServerStatuses } from 'src/types';
 import { promisify } from 'util';
+
+const shell = promisify(exec);
 
 @Injectable()
 /**
  * Does the actual data fetching and command sending
  */
 export class GameQueryService {
-  private static shell = promisify(child_process.exec);
-
   private get sshHost() {
     return this.config.sshHost;
   }
@@ -24,7 +24,7 @@ export class GameQueryService {
     server: string;
     command: string;
   }) {
-    return GameQueryService.shell(
+    return shell(
       `ssh gameserver@edward-server ./${query.game}/${query.server}/*server ${query.command}`,
     );
   }
@@ -35,7 +35,7 @@ export class GameQueryService {
     let shell_output: string;
     try {
       shell_output = (
-        await GameQueryService.shell(
+        await shell(
           `ssh ${this.sshHost} "./check_server_statuses.zsh '${JSON.stringify(
             gameList,
           )}'"`,

@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import fs from 'fs';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 type FolderName = string;
 type GameName = string;
 
 @Injectable()
 export class ConfigService {
   constructor() {
-    console.log(`__dirname is here: ${__dirname}`);
-
     // {
     //   "sshHost": "username@example",
     //   "googleCredentials": "config/creds/firebase.json",
@@ -21,7 +20,12 @@ export class ConfigService {
       gameNamesToFolders?: {
         [gameName: string]: FolderName;
       };
-    } = JSON.parse(fs.readFileSync(__dirname).toString());
+      emails?: string[];
+    } = JSON.parse(
+      readFileSync(
+        join(__dirname, '../..', 'config', 'config.json'),
+      ).toString(),
+    );
 
     if (!data.sshHost) throw 'sshHost missing';
     this.sshHost = data.sshHost;
@@ -31,6 +35,12 @@ export class ConfigService {
 
     if (!data.gameNamesToFolders) throw 'gameNamesToFolders missing';
     const gameNamesToFolders = data.gameNamesToFolders;
+
+    if (!data.emails) throw 'emails missing';
+    this.emails = {};
+    for (const email of data.emails) {
+      this.emails[email] = true;
+    }
 
     if (
       typeof gameNamesToFolders !== 'object' ||
@@ -50,7 +60,8 @@ export class ConfigService {
 
     const reverse = {};
     for (const [k, v] of Object.entries(gameNamesToFolders)) {
-      if (reverse[v] !== undefined) throw `${v} is not unique`;
+      if (reverse[v] !== undefined)
+        throw `All values must be unique, ${v} is not`;
       reverse[v] = k;
     }
     this.foldersToGame = reverse;
@@ -70,8 +81,9 @@ export class ConfigService {
     return Object.keys(this.foldersToGame);
   }
 
-  readonly sshHost: string;
-  readonly googleCredLoc: string;
+  public readonly emails: { [email: string]: any };
+  public readonly sshHost: string;
+  public readonly googleCredLoc: string;
 
   getFolderOf(gameName: string) {
     return this.gameToFolders[gameName];
