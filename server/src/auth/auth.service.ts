@@ -22,8 +22,6 @@ export class AuthService {
     try {
       return await this.auth.verifyIdToken(jwtToken);
     } catch (err) {
-      console.log('Error, verification probably failed');
-      console.log(err);
       throw err;
     }
   }

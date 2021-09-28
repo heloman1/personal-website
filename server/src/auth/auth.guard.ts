@@ -23,12 +23,11 @@ export class AuthGuard implements CanActivate {
   }
 
   private async validateRequest(req: Request) {
-    const authHeader = req.headers.get('Authorization');
+    const authHeader = req.headers['authorization'];
     let decodedToken: admin.auth.DecodedIdToken;
     try {
       decodedToken = await this.authService.decodeAuthHeader(authHeader);
     } catch (err) {
-      console.error('Error in servers-status, token decoding failed');
       console.error(err);
       return false;
     }
@@ -37,7 +36,7 @@ export class AuthGuard implements CanActivate {
       return false;
     }
     if (this.config.emails[email]) {
-      req.headers.set('email', email);
+      req.headers['email'] = email;
       return true;
     } else {
       throw new HttpException( // Unsure if this exception should be here
