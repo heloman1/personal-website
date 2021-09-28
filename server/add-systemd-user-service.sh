@@ -6,7 +6,7 @@ Description=Starts the website API server
 [Service]
 Type=simple
 StandardOutput=journal
-ExecStart=$(realpath ~/personal-website/start.sh)
+ExecStart=$(realpath ~/personal-website/server/start.sh)
 
 [Install]
 WantedBy=default.target
