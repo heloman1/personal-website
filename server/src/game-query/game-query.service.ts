@@ -34,11 +34,14 @@ export class GameQueryService {
     let serverData: ExpectedJSONData[];
     let shell_output: string;
     try {
+      // I don't understand fully why i need this many quotations, but it works
       shell_output = (
         await shell(
-          `ssh ${this.sshHost} "./check_server_statuses.zsh '${JSON.stringify(
+          `ssh ${
+            this.sshHost
+          } './check_server_statuses.zsh '\\''${JSON.stringify(
             gameList,
-          )}'"`,
+          )}'\\'''`,
         )
       ).stdout;
     } catch (err) {
