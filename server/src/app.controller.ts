@@ -1,4 +1,11 @@
-import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { GameCommandService } from './game-query/game-command.service';
 import { GameDataService } from './game-query/game-data.service';
 import { OutgoingServerStatuses } from './types';
@@ -18,6 +25,7 @@ export class AppController {
   }
 
   @Post('server-command')
+  @HttpCode(200)
   serverCommand(
     @Query('game') gameName: string,
     @Query('server') serverName: string,
