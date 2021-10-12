@@ -26,11 +26,11 @@ export class AppController {
 
   @Post('server-command')
   @HttpCode(200)
-  serverCommand(
+  async serverCommand(
     @Query('game') gameName: string,
     @Query('server') serverName: string,
     @Query('command') command: string,
-  ): any {
-    this.commmand.command(gameName, serverName, command);
+  ) {
+    await this.commmand.command(gameName, serverName, command);
   }
 }
