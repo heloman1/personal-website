@@ -1,13 +1,23 @@
 import "../styles/globals.css";
-import type { AppProps } from "next/app";
-import Layout from "../components/Navbar";
+import Navbar from "../components/Navbar";
+import { AppPropsWithLayoutOverride } from "../additional";
+import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 
-function MyApp({ Component, pageProps }: AppProps) {
+const theme = createTheme({
+    palette: {
+        mode: "dark",
+    },
+});
+
+function MyApp({ Component, pageProps }: AppPropsWithLayoutOverride) {
     return (
-        <>
-            <Layout />
-            <Component {...pageProps} />
-        </>
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            {Component.NavbarOverride ? Component.NavbarOverride() : <Navbar />}
+            <main>
+                <Component {...pageProps} />
+            </main>
+        </ThemeProvider>
     );
 }
 
