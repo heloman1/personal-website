@@ -11,10 +11,8 @@ export default function ServerControl({ data }: { data: number }) {
     return <p>Your random number is {data}</p>;
 }
 
-ServerControl.NavbarOverride = (
-    <Navbar>
-        <Button color="inherit">
-            <Link href="/server-control/login">Login</Link>
-        </Button>
-    </Navbar>
+ServerControl.NavbarExtraButtons = (
+    <Button color="inherit" variant="outlined">
+        <Link href="/server-control/login">Login</Link>
+    </Button>
 );
