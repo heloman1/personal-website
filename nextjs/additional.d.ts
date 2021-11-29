@@ -3,11 +3,34 @@ import type { ReactElement, ReactNode, Dispatch, SetStateAction } from "react";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 
-export type ThemeMode = "light" | "dark" | "system";
+type ColorTheme = "light" | "dark" | "system";
 
-export type NextPageWithLayoutOverride = NextPage & {
+type NextPageWithLayoutOverride<P = {}, IP = P> = NextPage<P, IP> & {
     NavbarExtraButtons?: JSX.Element;
 };
-export type AppPropsWithLayoutOverride = AppProps & {
+type AppPropsWithLayoutOverride = AppProps & {
     Component: NextPageWithLayoutOverride;
+};
+
+type ButtonActions = (
+    game: string,
+    server: string,
+    action: "start" | "stop" | "restart"
+) => void;
+
+type ServerStatuses = {
+    [game: string]: {
+        [server: string]: {
+            is_online: boolean;
+            port: number;
+        };
+    };
+};
+
+type ServerStatusesWithDisabled = ServerStatuses & {
+    [game: string]: {
+        [server: string]: {
+            disabled: boolean;
+        };
+    };
 };

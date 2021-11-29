@@ -1,8 +1,8 @@
 import "../styles/globals.css";
 import Navbar from "../components/Navbar";
-import { AppPropsWithLayoutOverride, ThemeMode } from "../additional";
+import { AppPropsWithLayoutOverride, ColorTheme } from "../additional";
 import { ThemeProvider, createTheme, CssBaseline, Grid } from "@mui/material";
-import { useState } from "react";
+import App from "next/app";
 
 const themes = {
     dark: createTheme({
@@ -21,21 +21,49 @@ const themes = {
         },
     }),
 };
-function MyApp({ Component, pageProps }: AppPropsWithLayoutOverride) {
-    let [themeMode, setThemeMode] = useState<ThemeMode>("light");
-    return (
-        <ThemeProvider theme={themes[themeMode]}>
-            <CssBaseline />
-            <Navbar setTheme={setThemeMode}>
-                <Grid item>
-                    {Component.NavbarExtraButtons}
-                </Grid>
-            </Navbar>
-            <main>
-                <Component {...pageProps} />
-            </main>
-        </ThemeProvider>
-    );
-}
 
-export default MyApp;
+const lsThemeKey = "colortheme";
+const themeValues: ColorTheme[] = ["light", "dark", "system"];
+
+export default class MyApp extends App<
+    AppPropsWithLayoutOverride,
+    {},
+    { themeMode: ColorTheme }
+> {
+    state: Readonly<{ themeMode: ColorTheme }> = {
+        themeMode: "light",
+    };
+
+    componentDidMount() {
+        let lsState = localStorage.getItem(lsThemeKey) as ColorTheme;
+        if (!lsState || !themeValues.includes(lsState)) {
+            lsState = "light";
+        }
+        this.setState({
+            themeMode: lsState,
+        });
+    }
+
+    componentDidUpdate() {
+        localStorage.setItem(lsThemeKey, this.state.themeMode);
+    }
+
+    updateTheme(theme: ColorTheme) {
+        this.setState({ themeMode: theme });
+    }
+    render() {
+        const { Component, pageProps } = this.props;
+
+        return (
+            <ThemeProvider theme={themes[this.state.themeMode]}>
+                <CssBaseline />
+                <Navbar setTheme={this.updateTheme.bind(this)}>
+                    <Grid item>{Component.NavbarExtraButtons}</Grid>
+                </Navbar>
+                <main>
+                    <Component {...pageProps} />
+                </main>
+            </ThemeProvider>
+        );
+    }
+}

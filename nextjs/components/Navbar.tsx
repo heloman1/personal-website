@@ -2,15 +2,15 @@ import Button from "@mui/material/Button";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Link from "next/link";
-import { Dispatch, PropsWithChildren, SetStateAction } from "react";
+import { PropsWithChildren } from "react";
 import { ButtonGroup, Grid, IconButton } from "@mui/material";
 import { Computer, DarkMode, LightMode } from "@mui/icons-material";
-import { ThemeMode } from "../additional";
+import { ColorTheme } from "../additional";
 
 export default function Navbar({
     setTheme,
     children,
-}: PropsWithChildren<{ setTheme: Dispatch<SetStateAction<ThemeMode>> }>) {
+}: PropsWithChildren<{ setTheme: (theme: ColorTheme) => void }>) {
     return (
         <AppBar>
             <Toolbar>
