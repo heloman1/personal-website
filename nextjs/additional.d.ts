@@ -3,22 +3,33 @@ import type { ReactElement, ReactNode, Dispatch, SetStateAction } from "react";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 
-type ColorTheme = "light" | "dark" | "system";
+/**
+ * An object containing a single server's data.
+ *
+ * Expected to be used as an ExpectedJSONData[]
+ */
+export type ShellQueryData = {
+    gameFolderName: string;
+    server: string;
+    details_string: string;
+};
 
-type NextPageWithLayoutOverride<P = {}, IP = P> = NextPage<P, IP> & {
+export type ColorTheme = "light" | "dark" | "system";
+
+export type NextPageWithLayoutOverride<P = {}, IP = P> = NextPage<P, IP> & {
     NavbarExtraButtons?: JSX.Element;
 };
-type AppPropsWithLayoutOverride = AppProps & {
+export type AppPropsWithLayoutOverride = AppProps & {
     Component: NextPageWithLayoutOverride;
 };
 
-type ButtonActions = (
+export type ButtonActions = (
     game: string,
     server: string,
     action: "start" | "stop" | "restart"
 ) => void;
 
-type ServerStatuses = {
+export type ServerStatuses = {
     [game: string]: {
         [server: string]: {
             is_online: boolean;
@@ -27,10 +38,23 @@ type ServerStatuses = {
     };
 };
 
-type ServerStatusesWithDisabled = ServerStatuses & {
+export type ServerStatusesWithDisabled = ServerStatuses & {
     [game: string]: {
         [server: string]: {
             disabled: boolean;
         };
     };
 };
+
+declare global {
+    namespace NodeJS {
+        interface ProcessEnv {
+            NEXT_PUBLIC_FIREBASE_PROJ_ID: string;
+            FIREBASE_ADMIN_CLIENT_EMAIL: string;
+            FIREBASE_ADMIN_PRIVATE_KEY: string;
+            NEXT_PUBLIC_FIREBASE_CLIENT_API_KEY: string;
+            NEXT_PUBLIC_FIREBASE_CLIENT_AUTH_DOMAIN: string;
+            SSH_HOST: string;
+        }
+    }
+}

@@ -3,6 +3,10 @@ import Navbar from "../components/Navbar";
 import { AppPropsWithLayoutOverride, ColorTheme } from "../additional";
 import { ThemeProvider, createTheme, CssBaseline, Grid } from "@mui/material";
 import App from "next/app";
+import initAuth from "./initAuth";
+
+
+initAuth();
 
 const themes = {
     dark: createTheme({

@@ -9,31 +9,45 @@ import {
 } from "../../additional";
 import { GameServerCard } from "../../components/GameServerCard";
 
-async function fetchData(
-    setServerData: Dispatch<SetStateAction<ServerStatusesWithDisabled>>
-) {
-    // serverData doesn't actually have disabled keys on it
-    // This is done so Typescript doesn't get in the way...
-    const serverData: ServerStatusesWithDisabled = await (
-        await fetch("/api/gameQuery")
-    ).json();
-
-    // ...when I add them here
+function enforceUsedPorts(serverData: ServerStatusesWithDisabled) {
     const usedPorts = new Set<number>();
     Object.keys(serverData).map((game) => {
         Object.keys(serverData[game]).map((server) => {
             if (serverData[game][server].is_online) {
                 // If the server is online, remember the used port
                 usedPorts.add(serverData[game][server].port);
-            } else if (usedPorts.has(serverData[game][server].port)) {
-                // If offline, disable the button if the port is in use
+                serverData[game][server].disabled = false;
+            }
+        });
+    });
+
+    // ...when I add them here, alongside enforcing used ports
+    Object.keys(serverData).map((game) => {
+        Object.keys(serverData[game]).map((server) => {
+            if (
+                !serverData[game][server].is_online &&
+                usedPorts.has(serverData[game][server].port)
+            ) {
                 serverData[game][server].disabled = true;
             } else {
                 serverData[game][server].disabled = false;
             }
         });
     });
-    setServerData(serverData);
+}
+
+async function fetchData(
+    setServerData: Dispatch<SetStateAction<ServerStatusesWithDisabled>>
+) {
+    // serverData doesn't actually have disabled keys on it yet
+    // This is done so Typescript doesn't get in the way...
+    const serverData: ServerStatusesWithDisabled = await (
+        await fetch("/api/gameData")
+    ).json();
+
+    enforceUsedPorts(serverData);
+
+    setServerData({ ...serverData });
 }
 
 function makeButtonActions(
@@ -56,6 +70,7 @@ function makeButtonActions(
             default:
                 throw `Recieved unexpected action ${action}`;
         }
+        enforceUsedPorts(serverData);
         setServerData({ ...serverData });
     };
 }
