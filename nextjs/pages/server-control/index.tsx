@@ -1,13 +1,16 @@
-import { Button, Grid } from "@mui/material";
-
+import { Cached } from "@mui/icons-material";
+import { Button, ButtonGroup, Grid } from "@mui/material";
+import styles from "../../styles/ServerControl.module.css";
 import Link from "next/link";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
     ButtonActions,
-    NextPageWithLayoutOverride,
+    ColorTheme,
+    NextPageWithNavbarOverride,
     ServerStatusesWithDisabled,
 } from "../../additional";
 import { GameServerCard } from "../../components/GameServerCard";
+import Navbar from "../../components/Navbar";
 
 function enforceUsedPorts(serverData: ServerStatusesWithDisabled) {
     const usedPorts = new Set<number>();
@@ -75,50 +78,75 @@ function makeButtonActions(
     };
 }
 
-const ServerControl: NextPageWithLayoutOverride<{ data: number }> = () => {
+// let loadingButtonState: [boolean, Dispatch<SetStateAction<boolean>>];
+type ServerControlProps = {
+    setTheme: (theme: ColorTheme) => void;
+};
+const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = ({
+    setTheme,
+}) => {
     let [serverData, setServerData] = useState<ServerStatusesWithDisabled>({});
+    let [loading, setLoading] = useState<boolean>(false);
     const buttonActions = makeButtonActions(serverData, setServerData);
     useEffect(() => {
         fetchData(setServerData);
     }, []);
     return (
-        <Grid container>
-            {Object.keys(serverData).map((game, id) => {
-                return (
-                    <Grid container item key={id} spacing={2}>
-                        <Grid item xs={12}>
-                            <p>{game}</p>
-                        </Grid>
-
-                        {Object.keys(serverData[game]).map((server, id) => {
-                            const { is_online, port, disabled } =
-                                serverData[game][server];
-                            return (
-                                <Grid item key={id} xs={2}>
-                                    <GameServerCard
-                                        setServerData={buttonActions}
-                                        serverProps={{
-                                            disabled,
-                                            game,
-                                            server,
-                                            is_online,
-                                            port,
-                                        }}
-                                    />
+        <>
+            <Navbar setTheme={setTheme}>
+                <ButtonGroup>
+                    <Button
+                        onClick={() => setLoading(!loading)}
+                        color="inherit"
+                        variant="outlined"
+                    >
+                        <Cached className={loading ? styles.spin : ""} />
+                    </Button>
+                    <Button color="inherit" variant="outlined">
+                        <Link href="/server-control/login">Login</Link>
+                    </Button>
+                </ButtonGroup>
+            </Navbar>
+            <main>
+                <Grid container>
+                    {Object.keys(serverData).map((game, id) => {
+                        return (
+                            <Grid container item key={id} spacing={2}>
+                                <Grid item xs={12}>
+                                    <p>{game}</p>
                                 </Grid>
-                            );
-                        })}
-                    </Grid>
-                );
-            })}
-        </Grid>
+
+                                {Object.keys(serverData[game]).map(
+                                    (server, id) => {
+                                        const { is_online, port, disabled } =
+                                            serverData[game][server];
+                                        return (
+                                            <Grid item key={id} xs={2}>
+                                                <GameServerCard
+                                                    setServerData={
+                                                        buttonActions
+                                                    }
+                                                    serverProps={{
+                                                        disabled,
+                                                        game,
+                                                        server,
+                                                        is_online,
+                                                        port,
+                                                    }}
+                                                />
+                                            </Grid>
+                                        );
+                                    }
+                                )}
+                            </Grid>
+                        );
+                    })}
+                </Grid>
+            </main>
+        </>
     );
 };
 
-ServerControl.NavbarExtraButtons = (
-    <Button color="inherit" variant="outlined">
-        <Link href="/server-control/login">Login</Link>
-    </Button>
-);
+ServerControl.isOverridingNavbar = true;
 
 export default ServerControl;

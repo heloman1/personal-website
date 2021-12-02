@@ -16,11 +16,11 @@ export type ShellQueryData = {
 
 export type ColorTheme = "light" | "dark" | "system";
 
-export type NextPageWithLayoutOverride<P = {}, IP = P> = NextPage<P, IP> & {
-    NavbarExtraButtons?: JSX.Element;
+export type NextPageWithNavbarOverride<P = {}, IP = P> = NextPage<P, IP> & {
+    isOverridingNavbar?: boolean;
 };
-export type AppPropsWithLayoutOverride = AppProps & {
-    Component: NextPageWithLayoutOverride;
+export type AppPropsWithNavbarOverride = AppProps & {
+    Component: NextPageWithNavbarOverride;
 };
 
 export type ButtonActions = (
