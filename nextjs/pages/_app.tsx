@@ -77,15 +77,14 @@ export default class MyApp extends App<
         if (!this.systemThemeMediaQuery.onchange) {
             this.systemThemeMediaQuery.onchange = ({ matches: isDark }) => {
                 themes.system = isDark ? themes.dark : themes.light;
-                this.setState({ themeMode: "system" });
             };
+            this.setState({ watchSystemTheme: true });
         }
 
         // Do a manual check to make sure it system theme is set correctly
         if (this.systemThemeMediaQuery.matches) {
             if (themes.system !== themes.dark) {
                 themes.system = themes.dark;
-                // Just used to force a rerender
                 this.setState({ themeMode: "system" });
             }
         } else {
@@ -97,7 +96,12 @@ export default class MyApp extends App<
     }
 
     disableSystemTheme() {
-        this.systemThemeMediaQuery.onchange = null;
+        // Remove event listener
+        if (this.systemThemeMediaQuery.onchange) {
+            this.systemThemeMediaQuery.onchange = null;
+            this.setState({ watchSystemTheme: false });
+            console.log("Theme watching disabled");
+        }
     }
 
     render() {
