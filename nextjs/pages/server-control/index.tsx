@@ -2,11 +2,10 @@ import { Cached } from "@mui/icons-material";
 import { Button, ButtonGroup, Grid } from "@mui/material";
 import styles from "../../styles/ServerControl.module.css";
 import Link from "next/link";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Component } from "react";
 import {
     ButtonActions,
     ColorTheme,
-    NextPageWithNavbarOverride,
     ServerStatusesWithDisabled,
 } from "../../additional";
 import { GameServerCard } from "../../components/GameServerCard";
@@ -24,7 +23,9 @@ function enforceUsedPorts(serverData: ServerStatusesWithDisabled) {
         });
     });
 
-    // ...when I add them here, alongside enforcing used ports
+    // It is important that disabled keys are set on every entry
+    // Since due to Typescript shenanigans, they're not actually guaranteed to
+    // be here...
     Object.keys(serverData).map((game) => {
         Object.keys(serverData[game]).map((server) => {
             if (
@@ -37,25 +38,12 @@ function enforceUsedPorts(serverData: ServerStatusesWithDisabled) {
             }
         });
     });
-}
-
-async function fetchData(
-    setServerData: Dispatch<SetStateAction<ServerStatusesWithDisabled>>
-) {
-    // serverData doesn't actually have disabled keys on it yet
-    // This is done so Typescript doesn't get in the way...
-    const serverData: ServerStatusesWithDisabled = await (
-        await fetch("/api/gameData")
-    ).json();
-
-    enforceUsedPorts(serverData);
-
-    setServerData({ ...serverData });
+    // ... until now
 }
 
 function makeButtonActions(
     serverData: ServerStatusesWithDisabled,
-    setServerData: Dispatch<SetStateAction<ServerStatusesWithDisabled>>
+    setServerData: (serverData: ServerStatusesWithDisabled) => void
 ): ButtonActions {
     return (
         game: string,
@@ -74,60 +62,125 @@ function makeButtonActions(
                 throw `Recieved unexpected action ${action}`;
         }
         enforceUsedPorts(serverData);
+
         setServerData({ ...serverData });
     };
 }
 
-// let loadingButtonState: [boolean, Dispatch<SetStateAction<boolean>>];
 type ServerControlProps = {
     setTheme: (theme: ColorTheme) => void;
+    theme: ColorTheme;
 };
-const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = ({
-    setTheme,
-}) => {
-    let [serverData, setServerData] = useState<ServerStatusesWithDisabled>({});
-    let [loading, setLoading] = useState<boolean>(false);
-    const buttonActions = makeButtonActions(serverData, setServerData);
-    useEffect(() => {
-        fetchData(setServerData);
-    }, []);
-    return (
-        <>
-            <Navbar setTheme={setTheme}>
-                <ButtonGroup>
-                    <Button
-                        onClick={() => setLoading(!loading)}
-                        color="inherit"
-                        variant="outlined"
-                    >
-                        <Cached className={loading ? styles.spin : ""} />
-                    </Button>
-                    <Button color="inherit" variant="outlined">
-                        <Link href="/server-control/login">Login</Link>
-                    </Button>
-                </ButtonGroup>
-            </Navbar>
-            <main>
-                <Grid container>
-                    {Object.keys(serverData).map((game, id) => {
-                        return (
+
+type ServerControlState = {
+    serverData: ServerStatusesWithDisabled;
+    loading: boolean;
+};
+
+export default class ServerControl extends Component<
+    ServerControlProps,
+    ServerControlState
+> {
+    // So _app.tsx doesnt create a navbar, etc...
+    static isOverridingNavbar: Readonly<boolean> = true;
+    state: Readonly<ServerControlState> = {
+        serverData: {},
+        loading: false,
+    };
+
+    async fetchData(
+        setServerData: (serverData: ServerStatusesWithDisabled) => void,
+        signal: AbortSignal
+    ) {
+        // serverData doesn't actually have disabled keys on it yet
+        // This is done so Typescript doesn't get in the way...
+        this.setState({ loading: true });
+        const serverData: ServerStatusesWithDisabled = await (
+            await fetch("/api/gameData", { signal })
+        ).json();
+        this.setState({ loading: false });
+
+        // serverData doesn't actually have disabled keys on it yet
+        // This is done so Typescript doesn't get in the way
+        // When enforceUsedPorts coincidentally adds them
+        enforceUsedPorts(serverData);
+        setServerData({ ...serverData });
+    }
+    fetchAborter = new AbortController();
+    componentDidMount() {
+        this.fetchData(
+            (serverData) => this.setState({ serverData }),
+            this.fetchAborter.signal
+        );
+    }
+    componentWillUnmount() {
+        return () => {
+            try {
+                this.fetchAborter.abort();
+            } catch (e) {
+                // console.log("Fetch Aborted");
+            }
+        };
+    }
+    render() {
+        const buttonActions = makeButtonActions(
+            this.state.serverData,
+            (serverData) => this.setState({ serverData })
+        );
+        return (
+            <>
+                <Navbar theme={this.props.theme} setTheme={this.props.setTheme}>
+                    <ButtonGroup>
+                        {/* Refresh Button */}
+                        <Button
+                            onClick={() =>
+                                this.fetchData(
+                                    (serverData) =>
+                                        this.setState({ serverData }),
+                                    this.fetchAborter.signal
+                                )
+                            }
+                            color="inherit"
+                            variant="outlined"
+                        >
+                            <Cached
+                                className={
+                                    this.state.loading ? styles.spin : ""
+                                }
+                            />
+                        </Button>
+
+                        <Button color="inherit" variant="outlined">
+                            <Link href="/server-control/login">Login</Link>
+                        </Button>
+                    </ButtonGroup>
+                </Navbar>
+                <main>
+                    {/* Server Data Display Grid */}
+                    <Grid container>
+                        {Object.keys(this.state.serverData).map((game, id) => (
                             <Grid container item key={id} spacing={2}>
+                                {/* Title (uses 12 to take up entire line) */}
                                 <Grid item xs={12}>
                                     <p>{game}</p>
                                 </Grid>
 
-                                {Object.keys(serverData[game]).map(
+                                {Object.keys(this.state.serverData[game]).map(
                                     (server, id) => {
                                         const { is_online, port, disabled } =
-                                            serverData[game][server];
+                                            this.state.serverData[game][server];
                                         return (
+                                            // Server Card
                                             <Grid item key={id} xs={2}>
                                                 <GameServerCard
                                                     setServerData={
                                                         buttonActions
                                                     }
                                                     serverProps={{
-                                                        disabled,
+                                                        disabled:
+                                                            this.state
+                                                                .loading ||
+                                                            disabled,
                                                         game,
                                                         server,
                                                         is_online,
@@ -139,14 +192,10 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = ({
                                     }
                                 )}
                             </Grid>
-                        );
-                    })}
-                </Grid>
-            </main>
-        </>
-    );
-};
-
-ServerControl.isOverridingNavbar = true;
-
-export default ServerControl;
+                        ))}
+                    </Grid>
+                </main>
+            </>
+        );
+    }
+}

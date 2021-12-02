@@ -27,7 +27,7 @@ const lsWatchSystemKey = "WatchSystemThemeBoolean";
 const themeValues: ColorTheme[] = ["light", "dark", "system"];
 
 type AppState = {
-    themeMode: ColorTheme;
+    theme: ColorTheme;
     watchSystemTheme: boolean;
 };
 
@@ -37,7 +37,7 @@ export default class MyApp extends App<
     AppState
 > {
     state: Readonly<AppState> = {
-        themeMode: "light",
+        theme: "light",
         watchSystemTheme: false,
     };
 
@@ -55,18 +55,18 @@ export default class MyApp extends App<
         const lsSystem = lsSystemS == "true" ? true : false;
 
         this.setState({
-            themeMode: lsTheme,
+            theme: lsTheme,
             watchSystemTheme: lsSystem,
         });
     }
 
     componentDidUpdate() {
-        localStorage.setItem(lsThemeKey, this.state.themeMode);
+        localStorage.setItem(lsThemeKey, this.state.theme);
         localStorage.setItem(
             lsWatchSystemKey,
             String(this.state.watchSystemTheme)
         );
-        this.state.themeMode === "system"
+        this.state.theme === "system"
             ? this.enableSystemTheme()
             : this.disableSystemTheme();
     }
@@ -85,12 +85,12 @@ export default class MyApp extends App<
         if (this.systemThemeMediaQuery.matches) {
             if (themes.system !== themes.dark) {
                 themes.system = themes.dark;
-                this.setState({ themeMode: "system" });
+                this.setState({ theme: "system" });
             }
         } else {
             if (themes.system !== themes.light) {
                 themes.system = themes.light;
-                this.setState({ themeMode: "system" });
+                this.setState({ theme: "system" });
             }
         }
     }
@@ -100,21 +100,20 @@ export default class MyApp extends App<
         if (this.systemThemeMediaQuery.onchange) {
             this.systemThemeMediaQuery.onchange = null;
             this.setState({ watchSystemTheme: false });
-            console.log("Theme watching disabled");
         }
     }
 
     render() {
         const { Component, pageProps } = this.props;
         const setTheme = (theme: ColorTheme) => {
-            this.setState({ themeMode: theme });
+            this.setState({ theme: theme });
         };
 
         if (!Component.isOverridingNavbar) {
             return (
-                <ThemeProvider theme={themes[this.state.themeMode]}>
+                <ThemeProvider theme={themes[this.state.theme]}>
                     <CssBaseline />
-                    <Navbar setTheme={setTheme} />
+                    <Navbar theme={this.state.theme} setTheme={setTheme} />
                     <main>
                         <Component {...pageProps} />
                     </main>
@@ -122,8 +121,9 @@ export default class MyApp extends App<
             );
         } else {
             pageProps.setTheme = setTheme;
+            pageProps.theme = this.state.theme;
             return (
-                <ThemeProvider theme={themes[this.state.themeMode]}>
+                <ThemeProvider theme={themes[this.state.theme]}>
                     <CssBaseline />
                     <Component {...pageProps} />
                 </ThemeProvider>
