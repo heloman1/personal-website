@@ -5,6 +5,7 @@ import fs from "fs";
 import { exec } from "child_process";
 import { promisify } from "util";
 const shell = promisify(exec);
+import serverDataCache from "./dataCache";
 
 type PrettyName = string;
 const gameList: {
@@ -75,17 +76,48 @@ function shellDataToServerStatuses(
     return out;
 }
 
+let queue: (() => void)[] = [];
+let isQuerying = false;
+let fiveMinutesAgo = new Date(0).getTime();
+const fiveMinutes = 5 * 60 * 1000;
+
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<ServerStatuses>
 ) {
-    const serverData = shellDataToServerStatuses(
-        await getServerData(Object.keys(gameList))
-    );
-    res.status(200).json(serverData);
-}
+    try {
+        if (req.method == "GET") {
+            // Cache the server statuses for 5 minutes
+            if (new Date().getTime() - fiveMinutesAgo > fiveMinutes) {
+                // If we're already querying, defer until later...
+                // (Don't run multiple redundant queries)
+                if (isQuerying) {
+                    queue.push(() => {
+                        res.status(200).json(serverDataCache);
+                    });
+                    return;
+                } else {
+                    isQuerying = true;
+                    const serverData = shellDataToServerStatuses(
+                        await getServerData(Object.keys(gameList))
+                    );
+                    Object.assign(serverDataCache, serverData);
+                    fiveMinutesAgo = new Date().getTime();
+                    isQuerying = false;
+                    // ...this is later
+                    queue.forEach((fn) => fn());
+                    queue = [];
+                }
+            }
+            res.status(200).json(serverDataCache);
+        } else {
+            // Method not allowed
+            res.status(405).send({});
+        }
+    } catch (e) {
+        console.error("Error when fetching game data");
+        console.error(e);
 
-// Static Gen - no
-// Dynamic Gen - would work, but long tts
-// API - low tts, but csr
-// Nested Routes
+        res.status(500).send({});
+    }
+}

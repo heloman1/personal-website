@@ -3,11 +3,7 @@ import { Button, ButtonGroup, Grid } from "@mui/material";
 import styles from "../../styles/ServerControl.module.css";
 import Link from "next/link";
 import { Component } from "react";
-import {
-    ButtonActions,
-    ColorTheme,
-    ServerStatusesWithDisabled,
-} from "../../additional";
+import type { ColorTheme, ServerStatusesWithDisabled } from "../../additional";
 import { GameServerCard } from "../../components/GameServerCard";
 import Navbar from "../../components/Navbar";
 
@@ -41,32 +37,6 @@ function enforceUsedPorts(serverData: ServerStatusesWithDisabled) {
     // ... until now
 }
 
-function makeButtonActions(
-    serverData: ServerStatusesWithDisabled,
-    setServerData: (serverData: ServerStatusesWithDisabled) => void
-): ButtonActions {
-    return (
-        game: string,
-        server: string,
-        action: "start" | "stop" | "restart"
-    ) => {
-        switch (action) {
-            case "start":
-            case "restart":
-                serverData[game][server].is_online = true;
-                break;
-            case "stop":
-                serverData[game][server].is_online = false;
-                break;
-            default:
-                throw `Recieved unexpected action ${action}`;
-        }
-        enforceUsedPorts(serverData);
-
-        setServerData({ ...serverData });
-    };
-}
-
 type ServerControlProps = {
     setTheme: (theme: ColorTheme) => void;
     theme: ColorTheme;
@@ -81,65 +51,150 @@ export default class ServerControl extends Component<
     ServerControlProps,
     ServerControlState
 > {
-    // So _app.tsx doesnt create a navbar, etc...
+    // So _app.tsx doesnt create a navbar
     static isOverridingNavbar: Readonly<boolean> = true;
     state: Readonly<ServerControlState> = {
         serverData: {},
         loading: false,
     };
 
-    async fetchData(
-        setServerData: (serverData: ServerStatusesWithDisabled) => void,
-        signal: AbortSignal
+    doButtonAction(
+        game: string,
+        server: string,
+        action: "start" | "stop" | "restart"
+    ): void {
+        const serverData = this.state.serverData;
+        this.sendCommand(game, server, action);
+        switch (action) {
+            case "start":
+            case "restart":
+                serverData[game][server].is_online = true;
+                break;
+            case "stop":
+                serverData[game][server].is_online = false;
+                break;
+            default:
+                throw `Recieved unexpected action ${action}`;
+        }
+        enforceUsedPorts(serverData);
+
+        this.setState({ serverData });
+    }
+
+    async sendCommand(
+        game: string,
+        server: string,
+        action: "start" | "stop" | "restart"
     ) {
         // serverData doesn't actually have disabled keys on it yet
         // This is done so Typescript doesn't get in the way...
         this.setState({ loading: true });
-        const serverData: ServerStatusesWithDisabled = await (
-            await fetch("/api/gameData", { signal })
-        ).json();
-        this.setState({ loading: false });
+        // : ServerStatusesWithDisabled
+        let res: Response;
+        try {
+            res = await fetch(
+                "/api/gameCommand?" +
+                    new URLSearchParams({ game, server, action }).toString(),
+                {
+                    method: "GET",
+                    signal: this.fetchAborter.signal,
+                }
+            );
+        } catch (e) {
+            console.log("Fetch was aborted. Did you navigate away?");
+            return;
+        }
 
+        let errorText = "";
+        switch (res.status) {
+            case 200:
+                const serverData: ServerStatusesWithDisabled = await res.json();
+                // serverData doesn't actually have disabled keys on it yet
+                // This is done so Typescript doesn't get in the way
+                // When enforceUsedPorts coincidentally adds them
+                enforceUsedPorts(serverData);
+                this.setState({ serverData, loading: false });
+                return;
+            case 405:
+                errorText = `refreshData sent a GET request and recieved ${res.status} - ${res.statusText}`;
+                break;
+            case 500:
+                errorText = "Server error when doing refreshData";
+                break;
+            case 503:
+                errorText =
+                    "Too fast! The server is currently handling a command";
+                break;
+            default:
+                errorText = `Unexpected error ${res.status} - ${res.statusText}`;
+                break;
+        }
+        this.setState({ loading: false });
+        throw errorText;
+    }
+    async refreshData() {
         // serverData doesn't actually have disabled keys on it yet
-        // This is done so Typescript doesn't get in the way
-        // When enforceUsedPorts coincidentally adds them
-        enforceUsedPorts(serverData);
-        setServerData({ ...serverData });
+        // This is done so Typescript doesn't get in the way...
+        this.setState({ loading: true });
+        // : ServerStatusesWithDisabled
+        let res: Response;
+        try {
+            res = await fetch("/api/gameData", {
+                signal: this.fetchAborter.signal,
+            });
+        } catch (e) {
+            console.log("Fetch was aborted. Did you navigate away?");
+            return;
+        }
+
+        let errorText = "";
+        switch (res.status) {
+            case 200:
+                const serverData: ServerStatusesWithDisabled = await res.json();
+                // serverData doesn't actually have disabled keys on it yet
+                // This is done so Typescript doesn't get in the way
+                // When enforceUsedPorts coincidentally adds them
+                enforceUsedPorts(serverData);
+                this.setState({ serverData, loading: false });
+                return;
+            case 405:
+                errorText = `refreshData sent a GET request and recieved ${res.status} - ${res.statusText}`;
+                break;
+            case 500:
+                errorText = "Server error when doing refreshData";
+                break;
+            default:
+                errorText = `Unexpected error ${res.status} - ${res.statusText}`;
+                break;
+        }
+        this.setState({ loading: false });
+        throw errorText;
     }
-    fetchAborter = new AbortController();
+
+    // Will abort on unmount
+    private fetchAborter = new AbortController();
     componentDidMount() {
-        this.fetchData(
-            (serverData) => this.setState({ serverData }),
-            this.fetchAborter.signal
-        );
+        // On mount, automatically grab data
+        this.refreshData();
     }
+
     componentWillUnmount() {
-        return () => {
-            try {
-                this.fetchAborter.abort();
-            } catch (e) {
-                // console.log("Fetch Aborted");
-            }
-        };
+        try {
+            this.fetchAborter.abort();
+        } catch (e) {
+            // console.log("Fetch Aborted");
+        }
     }
+
     render() {
-        const buttonActions = makeButtonActions(
-            this.state.serverData,
-            (serverData) => this.setState({ serverData })
-        );
         return (
             <>
                 <Navbar theme={this.props.theme} setTheme={this.props.setTheme}>
                     <ButtonGroup>
                         {/* Refresh Button */}
                         <Button
-                            onClick={() =>
-                                this.fetchData(
-                                    (serverData) =>
-                                        this.setState({ serverData }),
-                                    this.fetchAborter.signal
-                                )
-                            }
+                            disabled={this.state.loading}
+                            onClick={this.refreshData.bind(this)}
                             color="inherit"
                             variant="outlined"
                         >
@@ -173,9 +228,9 @@ export default class ServerControl extends Component<
                                             // Server Card
                                             <Grid item key={id} xs={2}>
                                                 <GameServerCard
-                                                    setServerData={
-                                                        buttonActions
-                                                    }
+                                                    setServerData={this.doButtonAction.bind(
+                                                        this
+                                                    )}
                                                     serverProps={{
                                                         disabled:
                                                             this.state
