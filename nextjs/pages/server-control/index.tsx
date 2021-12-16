@@ -63,22 +63,7 @@ export default class ServerControl extends Component<
         server: string,
         action: "start" | "stop" | "restart"
     ): void {
-        const serverData = this.state.serverData;
         this.sendCommand(game, server, action);
-        switch (action) {
-            case "start":
-            case "restart":
-                serverData[game][server].is_online = true;
-                break;
-            case "stop":
-                serverData[game][server].is_online = false;
-                break;
-            default:
-                throw `Recieved unexpected action ${action}`;
-        }
-        enforceUsedPorts(serverData);
-
-        this.setState({ serverData });
     }
 
     async sendCommand(
@@ -86,17 +71,13 @@ export default class ServerControl extends Component<
         server: string,
         action: "start" | "stop" | "restart"
     ) {
-        // serverData doesn't actually have disabled keys on it yet
-        // This is done so Typescript doesn't get in the way...
         this.setState({ loading: true });
-        // : ServerStatusesWithDisabled
         let res: Response;
         try {
             res = await fetch(
-                "/api/gameCommand?" +
-                    new URLSearchParams({ game, server, action }).toString(),
+                `api/server-control/servers/${game}/${server}/${action}`,
                 {
-                    method: "GET",
+                    method: "POST",
                     signal: this.fetchAborter.signal,
                 }
             );
@@ -116,10 +97,10 @@ export default class ServerControl extends Component<
                 this.setState({ serverData, loading: false });
                 return;
             case 405:
-                errorText = `refreshData sent a GET request and recieved ${res.status} - ${res.statusText}`;
+                errorText = `sendCommand sent a POST request and recieved ${res.status} - ${res.statusText}`;
                 break;
             case 500:
-                errorText = "Server error when doing refreshData";
+                errorText = "Server error when doing sendCommand";
                 break;
             case 503:
                 errorText =
@@ -139,7 +120,7 @@ export default class ServerControl extends Component<
         // : ServerStatusesWithDisabled
         let res: Response;
         try {
-            res = await fetch("/api/gameData", {
+            res = await fetch("/api/server-control/servers", {
                 signal: this.fetchAborter.signal,
             });
         } catch (e) {
