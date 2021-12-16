@@ -1,9 +1,9 @@
 import "../styles/globals.css";
 import Navbar from "../components/Navbar";
 import { AppPropsWithNavbarOverride, ColorTheme } from "../additional";
-import { ThemeProvider, createTheme, CssBaseline, Grid } from "@mui/material";
+import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import App from "next/app";
-import initAuth from "./initAuth";
+import initAuth from "utils/initAuth";
 
 initAuth();
 
