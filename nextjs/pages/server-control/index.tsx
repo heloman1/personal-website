@@ -1,5 +1,5 @@
 import { Cached } from "@mui/icons-material";
-import { Button, ButtonGroup, Grid } from "@mui/material";
+import { Button, ButtonGroup, Grid, Typography } from "@mui/material";
 import styles from "../../styles/ServerControl.module.css";
 import Link from "next/link";
 import { Component } from "react";
@@ -193,14 +193,13 @@ export default class ServerControl extends Component<
                 </Navbar>
                 <main>
                     {/* Server Data Display Grid */}
-                    <Grid container>
+                    <Grid container paddingLeft=".5rem" paddingRight=".5rem">
                         {Object.keys(this.state.serverData).map((game, id) => (
                             <Grid container item key={id} spacing={2}>
                                 {/* Title (uses 12 to take up entire line) */}
-                                <Grid item xs={12}>
-                                    <p>{game}</p>
+                                <Grid item xs={12} marginTop="1rem">
+                                    <Typography variant="h4">{game}</Typography>
                                 </Grid>
-
                                 {Object.keys(this.state.serverData[game]).map(
                                     (server, id) => {
                                         const { is_online, port, disabled } =

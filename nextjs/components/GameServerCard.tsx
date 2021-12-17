@@ -1,4 +1,11 @@
-import { Card, CardContent, CardActions, Button } from "@mui/material";
+import { Circle } from "@mui/icons-material";
+import {
+    Card,
+    CardContent,
+    CardActions,
+    Button,
+    Typography,
+} from "@mui/material";
 import { NextPage } from "next";
 import { ButtonActions } from "../additional";
 
@@ -16,9 +23,19 @@ export const GameServerCard: NextPage<{
     return (
         <Card>
             <CardContent>
-                <p>{server}</p>
-                <p>Port: {port}</p>
-                <p>Online: {is_online ? "true" : "false"}</p>
+                <Typography
+                    variant="h5"
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                >
+                    <span>{server}</span>
+                    <Circle
+                        htmlColor={
+                            disabled ? "grey" : is_online ? "green" : "red"
+                        }
+                    />
+                </Typography>
+
+                <Typography variant="body1">Port: {port}</Typography>
             </CardContent>
             <CardActions>
                 <Button
