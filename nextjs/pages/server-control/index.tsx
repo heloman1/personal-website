@@ -52,7 +52,7 @@ export default class ServerControl extends Component<
     ServerControlState
 > {
     // So _app.tsx doesnt create a navbar
-    static isOverridingNavbar: Readonly<boolean> = true;
+    static readonly isOverridingNavbar: Readonly<boolean> = true;
     state: Readonly<ServerControlState> = {
         serverData: {},
         loading: false,
@@ -206,7 +206,7 @@ export default class ServerControl extends Component<
                                             this.state.serverData[game][server];
                                         return (
                                             // Server Card
-                                            <Grid item key={id} xs={2}>
+                                            <Grid item key={id} xs={12} sm={6} md={3} lg={2}>
                                                 <GameServerCard
                                                     setServerData={this.doButtonAction.bind(
                                                         this
