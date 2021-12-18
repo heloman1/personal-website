@@ -21,7 +21,7 @@ type NavbarProps = PropsWithChildren<{
 
 export default function Navbar({ theme, setTheme, children }: NavbarProps) {
     return (
-        <AppBar>
+        <AppBar position="sticky">
             <Toolbar>
                 <Grid container>
                     <Grid container item xs={6} spacing={2}>

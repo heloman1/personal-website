@@ -12,10 +12,6 @@ main {
     min-height: 100vh;
 }
 
-main {
-    margin-top: 4rem;
-}
-
 a {
     color: inherit;
     text-decoration: none;
