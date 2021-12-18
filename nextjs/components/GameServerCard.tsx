@@ -29,8 +29,12 @@ export const GameServerCard: NextPage<{
                 >
                     <span>{server}</span>
                     <Circle
-                        htmlColor={
-                            disabled ? "grey" : is_online ? "green" : "red"
+                        color={
+                            disabled
+                                ? "disabled"
+                                : is_online
+                                ? "success"
+                                : "error"
                         }
                     />
                 </Typography>

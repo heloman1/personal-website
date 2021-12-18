@@ -206,7 +206,14 @@ export default class ServerControl extends Component<
                                             this.state.serverData[game][server];
                                         return (
                                             // Server Card
-                                            <Grid item key={id} xs={12} sm={6} md={3} lg={2}>
+                                            <Grid
+                                                item
+                                                key={id}
+                                                xs={12}
+                                                sm={6}
+                                                md={3}
+                                                lg={2}
+                                            >
                                                 <GameServerCard
                                                     setServerData={this.doButtonAction.bind(
                                                         this
