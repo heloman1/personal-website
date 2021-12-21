@@ -58,6 +58,13 @@ export default class ServerControl extends Component<
         loading: false,
     };
 
+    constructor(props: ServerControlProps) {
+        super(props);
+        this.refreshData = this.refreshData.bind(this);
+        this.doButtonAction = this.doButtonAction.bind(this);
+        this.showSnackbar = this.showSnackbar.bind(this);
+        this.hideSnackbar = this.hideSnackbar.bind(this);
+    }
     doButtonAction(
         game: string,
         server: string,
@@ -175,7 +182,7 @@ export default class ServerControl extends Component<
                         {/* Refresh Button */}
                         <Button
                             disabled={this.state.loading}
-                            onClick={this.refreshData.bind(this)}
+                            onClick={this.refreshData}
                             color="inherit"
                             variant="outlined"
                         >
@@ -215,9 +222,9 @@ export default class ServerControl extends Component<
                                                 lg={2}
                                             >
                                                 <GameServerCard
-                                                    setServerData={this.doButtonAction.bind(
-                                                        this
-                                                    )}
+                                                    setServerData={
+                                                        this.doButtonAction
+                                                    }
                                                     serverProps={{
                                                         disabled:
                                                             this.state
