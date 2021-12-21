@@ -1,5 +1,14 @@
-import { Cached } from "@mui/icons-material";
-import { Button, ButtonGroup, Grid, Typography } from "@mui/material";
+import { Cached, Close } from "@mui/icons-material";
+import {
+    Alert,
+    AlertColor,
+    Button,
+    ButtonGroup,
+    Grid,
+    IconButton,
+    Snackbar,
+    Typography,
+} from "@mui/material";
 import styles from "../../styles/ServerControl.module.css";
 import Link from "next/link";
 import { Component } from "react";
@@ -45,6 +54,9 @@ type ServerControlProps = {
 type ServerControlState = {
     serverData: ServerStatusesWithDisabled;
     loading: boolean;
+    snackbarIsOpen: boolean;
+    snackbarMessage: string;
+    snackbarSeverity: AlertColor;
 };
 
 export default class ServerControl extends Component<
@@ -56,6 +68,9 @@ export default class ServerControl extends Component<
     state: Readonly<ServerControlState> = {
         serverData: {},
         loading: false,
+        snackbarIsOpen: false,
+        snackbarMessage: "Yep",
+        snackbarSeverity: "info",
     };
 
     constructor(props: ServerControlProps) {
@@ -102,6 +117,7 @@ export default class ServerControl extends Component<
                 // When enforceUsedPorts coincidentally adds them
                 enforceUsedPorts(serverData);
                 this.setState({ serverData, loading: false });
+                this.showSnackbar("Command Successful", "success");
                 return;
             case 405:
                 errorText = `sendCommand sent a POST request and recieved ${res.status} - ${res.statusText}`;
@@ -117,6 +133,7 @@ export default class ServerControl extends Component<
                 errorText = `Unexpected error ${res.status} - ${res.statusText}`;
                 break;
         }
+        this.showSnackbar(errorText, "error");
         this.setState({ loading: false });
         throw errorText;
     }
@@ -174,6 +191,18 @@ export default class ServerControl extends Component<
         }
     }
 
+    showSnackbar(message: string, severity?: AlertColor) {
+        this.setState({
+            snackbarIsOpen: true,
+            snackbarMessage: message,
+            snackbarSeverity: severity || "info",
+        });
+    }
+
+    hideSnackbar() {
+        this.setState({ snackbarIsOpen: false });
+    }
+
     render() {
         return (
             <>
@@ -199,6 +228,34 @@ export default class ServerControl extends Component<
                     </ButtonGroup>
                 </Navbar>
                 <main>
+                    <Snackbar
+                        autoHideDuration={5000}
+                        anchorOrigin={{
+                            vertical: "bottom",
+                            horizontal: "center",
+                        }}
+                        open={this.state.snackbarIsOpen}
+                        onClose={(_e, r) => {
+                            if (r == "timeout") {
+                                this.hideSnackbar();
+                            }
+                        }}
+                    >
+                        <Alert
+                            sx={{ alignItems: "center" }}
+                            severity={this.state.snackbarSeverity}
+                            action={
+                                <IconButton
+                                    color="inherit"
+                                    onClick={this.hideSnackbar}
+                                >
+                                    <Close color="inherit" />
+                                </IconButton>
+                            }
+                        >
+                            {this.state.snackbarMessage}
+                        </Alert>
+                    </Snackbar>
                     {/* Server Data Display Grid */}
                     <Grid container paddingLeft=".5rem" paddingRight=".5rem">
                         {Object.keys(this.state.serverData).map((game, id) => (
