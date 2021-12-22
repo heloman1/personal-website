@@ -1,7 +1,4 @@
-// ./initAuth.js
 import { init } from "next-firebase-auth";
-
-// console.log(process.env.FIREBASE_CLIENT_API_KEY);
 
 const initAuth = () => {
     init({
@@ -11,8 +8,8 @@ const initAuth = () => {
             authDomain: process.env.NEXT_PUBLIC_FIREBASE_CLIENT_AUTH_DOMAIN,
         },
         appPageURL: "/server-control",
-        loginAPIEndpoint: "/api/login",
-        logoutAPIEndpoint: "/api/logout",
+        loginAPIEndpoint: "/api/auth/login",
+        logoutAPIEndpoint: "/api/auth/logout",
         // firebaseAuthEmulatorHost: 'localhost:9099',
         // Required in most cases.
         firebaseAdminInitConfig: {
