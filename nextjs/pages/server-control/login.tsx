@@ -6,12 +6,44 @@ import {
     Grid,
     TextField,
 } from "@mui/material";
-import { useState } from "react";
-import EmailValidator from "email-validator";
+import { FormEvent, useEffect, useState } from "react";
+
+// import { GetServerSideProps } from "next";
+// export const getServerSideProps: GetServerSideProps = async (context) => {
+//     console.log(context.req.headers.referer);
+//     return { props: {} };
+// };
+
+function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    // Implement Firebase
+}
 
 export default function Login() {
-    let [isEmailInvalid, setInvalidEmail] = useState(false);
-    let [helperText, setHelperText] = useState("");
+    let [fieldError, setFieldError] = useState(false);
+
+    const handleEmailValidity = () => {
+        const validityState = (
+            document.getElementById("email-input") as HTMLTextAreaElement
+        ).validity;
+        console.log(validityState);
+
+        setFieldError(validityState.valueMissing || validityState.typeMismatch);
+    };
+
+    useEffect(() => {
+        // onSubmit ONLY triggers if the email is valid
+        // (Without this useEffect, it would allow a successful submit
+        // while the TextField is still red,
+        // which looks pretty bad)
+        const element = document.getElementById(
+            "email-input"
+        ) as HTMLTextAreaElement;
+        element.addEventListener("invalid", handleEmailValidity);
+        return () => {
+            element.removeEventListener("invalid", handleEmailValidity);
+        };
+    }, []);
     return (
         <Grid
             container
@@ -21,43 +53,28 @@ export default function Login() {
             style={{ minHeight: "100vh" }}
         >
             <Card sx={{ width: 300 }}>
-                <CardContent>
-                    <h2>Login</h2>
-                    <TextField
-                        color="primary"
-                        id="email-input"
-                        error={isEmailInvalid}
-                        required
-                        type="email"
-                        variant="outlined"
-                        label="Email"
-                        onBlur={(e) => {
-                            const email = e.target.value;
-                            const isInvalidEmail =
-                                !EmailValidator.validate(email);
-                            let helperText = "";
-
-                            if (email === "") {
-                                helperText = "Please enter an email";
-                            } else if (isInvalidEmail) {
-                                helperText = "Email is not valid";
-                            }
-
-                            setHelperText(helperText);
-                            setInvalidEmail(isInvalidEmail);
-                        }}
-                        onChange={(e) => {
-                            if (isEmailInvalid) {
-                                setInvalidEmail(false);
-                                setHelperText("");
-                            }
-                        }}
-                        helperText={helperText}
-                    ></TextField>
-                </CardContent>
-                <CardActions>
-                    <Button>Send Sign-In Link</Button>
-                </CardActions>
+                <form onSubmit={handleSubmit}>
+                    <CardContent>
+                        <h2>Login</h2>
+                        <TextField
+                            color="primary"
+                            id="email-input"
+                            error={fieldError}
+                            required
+                            type="email"
+                            variant="outlined"
+                            label="Email"
+                            onBlur={handleEmailValidity}
+                            onSubmit={handleEmailValidity}
+                            onChange={() => {
+                                setFieldError(false);
+                            }}
+                        />
+                    </CardContent>
+                    <CardActions>
+                        <Button type="submit">Send Sign-In Link</Button>
+                    </CardActions>
+                </form>
             </Card>
         </Grid>
     );
