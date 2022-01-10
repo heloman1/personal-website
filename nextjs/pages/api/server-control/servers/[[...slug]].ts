@@ -225,7 +225,10 @@ async function serverCommandHandler(req: NextApiRequest, res: NextApiResponse) {
 }
 
 // Because the 2 endpoints share data, I need them in the same file (???)
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+    req: NextApiRequest,
+    res: NextApiResponse
+) {
     const { slug } = req.query;
 
     if (typeof slug === "string") {
@@ -238,12 +241,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
     if (!slug) {
         // /server-control/servers
-        serverDataPuller(req, res);
+        await serverDataPuller(req, res);
     } else {
         const [game, server, action] = slug;
         if (game && server && action) {
             // /server-control/servers/game/server
-            serverCommandHandler(req, res);
+            await serverCommandHandler(req, res);
         } else {
             res.status(404).end();
         }
