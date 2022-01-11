@@ -46,7 +46,7 @@ export const GameServerCard: NextPage<{
                     disabled={disabled}
                     variant="contained"
                     color={is_online ? "error" : "success"}
-                    onClick={(e) => {
+                    onClick={() => {
                         setServerData(
                             game,
                             server,
@@ -60,7 +60,7 @@ export const GameServerCard: NextPage<{
                     disabled={disabled || !is_online}
                     variant="outlined"
                     color="warning"
-                    onClick={(e) => {
+                    onClick={() => {
                         setServerData(game, server, "restart");
                     }}
                 >
