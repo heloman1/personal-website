@@ -45,7 +45,7 @@ export default class MyApp extends App<
 
         let lsTheme = localStorage.getItem(lsThemeKey) as ColorTheme;
         if (!lsTheme || !themeValues.includes(lsTheme)) {
-            lsTheme = "light";
+            lsTheme = "system";
         }
 
         const lsSystemS = localStorage.getItem(lsWatchSystemKey);
