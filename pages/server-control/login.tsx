@@ -17,18 +17,14 @@ import {
 import { useRouter } from "next/router";
 import { getApps, initializeApp } from "firebase/app";
 
-const firebaseSettings = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_CLIENT_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_CLIENT_AUTH_DOMAIN,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJ_ID,
-};
+import { firebaseClientConfig } from "../_app";
 
 type LoginState = {
     fieldError: boolean;
     askForEmailAgain: boolean;
 };
 export default function Login() {
-    if (getApps().length === 0) initializeApp(firebaseSettings);
+    if (getApps().length === 0) initializeApp(firebaseClientConfig);
     const router = useRouter();
     const emailLocalStorageKey = "emailForSignIn";
     let [state, setState] = useState<LoginState>({

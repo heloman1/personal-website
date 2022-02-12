@@ -128,3 +128,10 @@ export default class MyApp extends App<
         }
     }
 }
+
+const firebaseClientConfig = {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_CLIENT_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_CLIENT_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJ_ID,
+};
+export { MyApp, firebaseClientConfig };

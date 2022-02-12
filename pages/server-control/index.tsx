@@ -23,11 +23,7 @@ import { getAuth } from "firebase/auth";
 import { getApps, initializeApp } from "firebase/app";
 import { useRouter } from "next/router";
 
-const firebaseSettings = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_CLIENT_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_CLIENT_AUTH_DOMAIN,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJ_ID,
-};
+import { firebaseClientConfig } from "../_app";
 
 function enforceUsedPorts(serverData: ServerStatusesWithDisabled) {
     const usedPorts = new Set<number>();
@@ -76,7 +72,7 @@ type ServerControlState = {
 const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
     props
 ) => {
-    if (getApps().length === 0) initializeApp(firebaseSettings);
+    if (getApps().length === 0) initializeApp(firebaseClientConfig);
 
     const router = useRouter();
 
