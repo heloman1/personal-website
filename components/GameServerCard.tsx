@@ -7,7 +7,7 @@ import {
     Typography,
 } from "@mui/material";
 import { NextPage } from "next";
-import { ButtonActions } from "../additional";
+import { ButtonActions } from "../utils/types";
 
 export const GameServerCard: NextPage<{
     setServerData: ButtonActions;

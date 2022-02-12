@@ -58,3 +58,17 @@ declare global {
         }
     }
 }
+
+type Milliseconds = number;
+type ServerHandlerState = {
+    serverDataCache: ServerStatuses;
+    commandState: {
+        isCommanding: boolean;
+    };
+    dataQueryState: {
+        deferredResList: (() => any)[];
+        isQuerying: boolean;
+        lastRevalidate: number;
+        waitTime: Milliseconds;
+    };
+};

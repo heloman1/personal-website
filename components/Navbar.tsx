@@ -20,7 +20,7 @@ import {
     LightModeOutlined,
     Menu,
 } from "@mui/icons-material";
-import { ColorTheme } from "../additional";
+import { ColorTheme } from "../utils/types";
 
 type NavbarProps = PropsWithChildren<{
     setTheme: (theme: ColorTheme) => void;

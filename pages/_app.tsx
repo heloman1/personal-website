@@ -1,6 +1,6 @@
 import "../styles/globals.css";
 import Navbar from "../components/Navbar";
-import { AppPropsWithNavbarOverride, ColorTheme } from "../additional";
+import { AppPropsWithNavbarOverride, ColorTheme } from "../utils/types";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import App from "next/app";
 

@@ -16,7 +16,7 @@ import type {
     ColorTheme,
     NextPageWithNavbarOverride,
     ServerStatusesWithDisabled,
-} from "../../additional";
+} from "../../utils/types";
 import { GameServerCard } from "../../components/GameServerCard";
 import Navbar from "../../components/Navbar";
 import { getAuth } from "firebase/auth";
