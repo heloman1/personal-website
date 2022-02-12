@@ -15,12 +15,20 @@ import {
     sendSignInLinkToEmail,
 } from "firebase/auth";
 import { useRouter } from "next/router";
+import { getApps, initializeApp } from "firebase/app";
+
+const firebaseSettings = {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_CLIENT_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_CLIENT_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJ_ID,
+};
 
 type LoginState = {
     fieldError: boolean;
     askForEmailAgain: boolean;
 };
 export default function Login() {
+    if (getApps().length === 0) initializeApp(firebaseSettings);
     const router = useRouter();
     const emailLocalStorageKey = "emailForSignIn";
     let [state, setState] = useState<LoginState>({
@@ -68,9 +76,12 @@ export default function Login() {
             finishSignIn(email);
         } else {
             const auth = getAuth();
-            sendSignInLinkToEmail(auth, "", {
+
+            sendSignInLinkToEmail(auth, email, {
                 url: "https://edwardgomez.dev/server-control/login",
                 handleCodeInApp: true,
+            }).catch((e) => {
+                console.log(e);
             });
         }
     };
@@ -137,8 +148,10 @@ export default function Login() {
                         <Typography variant="h5">
                             <span>Login</span>
                         </Typography>
-                        <Typography variant="body1">
-                            {/* I could explain that this has to done because
+
+                        {state.askForEmailAgain ? (
+                            <Typography variant="body1">
+                                {/* I could explain that this has to done because
                             a different browser was used (fixation attacks).
                             But the most common place where this could happen
                             is on a phone, and there's a non-zero chance that
@@ -148,11 +161,14 @@ export default function Login() {
                             app's integrated web browser )
                             And a 100% chance an armchair expert will think
                             they can code around such a "limitation". */}
-                            <span>
-                                Something weird happened, please enter your
-                                email one last time.
-                            </span>
-                        </Typography>
+                                <span>
+                                    Something weird happened, please enter your
+                                    email one last time.
+                                </span>
+                            </Typography>
+                        ) : (
+                            ""
+                        )}
                         <TextField
                             color="primary"
                             id="email-input"

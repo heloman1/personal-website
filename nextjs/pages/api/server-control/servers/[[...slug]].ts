@@ -3,6 +3,10 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { readFileSync } from "fs";
+
+import initAuth from "utils/initAuth";
+import firebaseAdmin from "firebase-admin";
+
 const shell = promisify(exec);
 
 type gameFolder = string;
@@ -223,12 +227,29 @@ async function serverCommandHandler(req: NextApiRequest, res: NextApiResponse) {
         res.status(500).send({});
     }
 }
+if (firebaseAdmin.apps.length === 0) initAuth();
+const firebaseAuth = firebaseAdmin.auth();
 
+const emails: string[] = JSON.parse(
+    readFileSync("private/emails.json").toString()
+);
 // Because the 2 endpoints share data, I need them in the same file (???)
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
+    try {
+        const token = req.headers.authorization?.split(" ")[1];
+        if (!token) throw "Auth header missing";
+        const user = await firebaseAuth.verifyIdToken(token);
+        if (!emails.includes(user.email!)) {
+            throw `"${user.email} is not in the email list, and is unauthorized"`;
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(401).end();
+        return;
+    }
     const { slug } = req.query;
 
     if (typeof slug === "string") {

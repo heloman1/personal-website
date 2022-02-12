@@ -19,6 +19,15 @@ import type {
 } from "../../additional";
 import { GameServerCard } from "../../components/GameServerCard";
 import Navbar from "../../components/Navbar";
+import { getAuth } from "firebase/auth";
+import { getApps, initializeApp } from "firebase/app";
+import { useRouter } from "next/router";
+
+const firebaseSettings = {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_CLIENT_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_CLIENT_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJ_ID,
+};
 
 function enforceUsedPorts(serverData: ServerStatusesWithDisabled) {
     const usedPorts = new Set<number>();
@@ -61,17 +70,23 @@ type ServerControlState = {
     snackbarIsOpen: boolean;
     snackbarMessage: string;
     snackbarSeverity: AlertColor;
+    isSignedIn: boolean;
 };
 
 const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
     props
 ) => {
+    if (getApps().length === 0) initializeApp(firebaseSettings);
+
+    const router = useRouter();
+
     const [state, setState] = useState<ServerControlState>({
         loading: false,
         serverData: {},
         snackbarIsOpen: false,
         snackbarMessage: "",
         snackbarSeverity: "info",
+        isSignedIn: false,
     });
     const fetchAborter = useMemo(() => new AbortController(), []);
 
@@ -110,6 +125,9 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
                 {
                     method: "POST",
                     signal: fetchAborter.signal,
+                    headers: {
+                        authorization: `Bearer ${await getAuth().currentUser?.getIdToken()}`,
+                    },
                 }
             );
         } catch (e) {
@@ -133,6 +151,10 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
                 return;
             case 405:
                 errorText = `sendCommand sent a POST request and recieved ${res.status} - ${res.statusText}`;
+                break;
+            case 401:
+                errorText =
+                    "Unauthorized when sending command, are you signed in?";
                 break;
             case 500:
                 errorText = "Server error when doing sendCommand";
@@ -163,6 +185,9 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
         try {
             res = await fetch("/api/server-control/servers", {
                 signal: fetchAborter.signal,
+                headers: {
+                    authorization: `Bearer ${await getAuth().currentUser?.getIdToken()}`,
+                },
             });
         } catch (e) {
             console.log("Fetch was aborted. Did you navigate away?");
@@ -188,6 +213,10 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
             case 405:
                 errorText = `refreshData sent a GET request and recieved ${res.status} - ${res.statusText}`;
                 break;
+            case 401:
+                errorText =
+                    "Unauthorized when refreshing data, are you signed in?";
+                break;
             case 500:
                 errorText = "Server error when doing refreshData";
                 break;
@@ -201,11 +230,7 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
         throw errorText;
     }, [fetchAborter.signal, setState]);
 
-    useEffect(() => {
-        refreshData();
-        // vvv Because onMount only vvv
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    // Stop ongoing fetches when leaving the page
     useEffect(
         () => () => {
             try {
@@ -216,13 +241,30 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
         },
         [fetchAborter]
     );
+    // One-time
+    useEffect(() => {
+        const auth = getAuth();
+        const unsub = auth.onAuthStateChanged((user) => {
+            if (user) {
+                setState((s) => {
+                    return { ...s, isSignedIn: true };
+                });
+                refreshData();
+                unsub();
+            } else {
+                setState((s) => {
+                    return { ...s, isSignedIn: false };
+                });
+            }
+        });
+    }, [refreshData]);
     return (
         <>
             <Navbar theme={props.theme} setTheme={props.setTheme}>
                 <ButtonGroup>
                     {/* Refresh Button */}
                     <Button
-                        disabled={state.loading}
+                        disabled={state.loading || !state.isSignedIn}
                         onClick={refreshData}
                         color="inherit"
                         variant="outlined"
@@ -230,9 +272,22 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
                         <Cached className={state.loading ? styles.spin : ""} />
                     </Button>
 
-                    <Button color="inherit" variant="outlined">
-                        <Link href="/server-control/login">Login</Link>
-                    </Button>
+                    {getAuth()?.currentUser ? (
+                        <Button
+                            color="inherit"
+                            variant="outlined"
+                            onClick={() => {
+                                getAuth().signOut();
+                                router.reload();
+                            }}
+                        >
+                            {"Logout"}
+                        </Button>
+                    ) : (
+                        <Button color="inherit" variant="outlined">
+                            <Link href="/server-control/login">Login</Link>
+                        </Button>
+                    )}
                 </ButtonGroup>
             </Navbar>
             <main>
@@ -307,6 +362,9 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
     );
 };
 
-ServerControl.isOverridingNavbar = true;
+// ServerControl.isOverridingNavbar = true;
 
+ServerControl.isOverridingNavbar = true;
 export default ServerControl;
+// export default withAuthUser()(DemoPage)
+// export default ServerControl;
