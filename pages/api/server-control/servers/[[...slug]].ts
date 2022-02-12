@@ -1,35 +1,22 @@
 import { ServerHandlerState } from "utils/types";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { readFileSync } from "fs";
-
 import initAuth from "utils/initAuth";
 import firebaseAdmin from "firebase-admin";
 import { dataQueryHandler } from "utils/api/server-control/servers/servers";
 import { commandHandler } from "utils/api/server-control/servers/command";
+import { GameFolderToPrettyName, PrettyNameToGameFolder } from "utils/fileData";
+import { emailsList, gamesList } from "utils/fileData";
 
-type gameFolder = string;
-type PrettyName = string;
+let emails: string[] = [];
+let folderMapping: {
+    folderToPrettyName: GameFolderToPrettyName;
+    PrettyNameToFolder: PrettyNameToGameFolder;
+} = {
+    folderToPrettyName: {},
+    PrettyNameToFolder: {},
+};
 
-const gameFolderToPrettyName: {
-    [game: gameFolder]: PrettyName;
-} = JSON.parse(readFileSync(`${process.cwd()}/private/games.json`).toString());
-
-const prettyNameToGameFolder: {
-    [prettyName: PrettyName]: gameFolder;
-} = {};
-Object.entries<string>(gameFolderToPrettyName).forEach(
-    ([gameFolderName, prettyName]) => {
-        if (prettyNameToGameFolder[prettyName]) {
-            throw `The pretty name ${prettyName} is being used twice`;
-        }
-        prettyNameToGameFolder[prettyName] = gameFolderName;
-    }
-);
-
-const emails: string[] = JSON.parse(
-    readFileSync("private/emails.json").toString()
-);
-
+// Persistant state
 const state: ServerHandlerState = {
     commandState: {
         isCommanding: false,
@@ -43,10 +30,26 @@ const state: ServerHandlerState = {
     serverDataCache: {},
 };
 
+// Automatically reload file if they change
+(async () => {
+    for await (const newMapping of gamesList()) {
+        console.log("games.json was modified, invalidating cached game data");
+        state.dataQueryState.lastRevalidate = new Date(0).getTime();
+        folderMapping = newMapping;
+    }
+})();
+(async () => {
+    for await (const newList of emailsList()) {
+        console.log("emails.json was modified");
+        emails = newList;
+    }
+})();
+
+// Init firebase (only once)
 if (firebaseAdmin.apps.length === 0) initAuth();
 const firebaseAuth = firebaseAdmin.auth();
 
-// Because the 2 endpoints share data, I need them in the same file (???)
+// Because the 2 endpoints share data, they need to be in the same file
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
@@ -76,12 +79,22 @@ export default async function handler(
 
     if (!slug) {
         // /server-control/servers
-        await dataQueryHandler(req, res, state, gameFolderToPrettyName);
+        await dataQueryHandler(
+            req,
+            res,
+            state,
+            folderMapping.folderToPrettyName
+        );
     } else {
         const [game, server, action] = slug;
         if (game && server && action) {
             // /server-control/servers/game/server
-            await commandHandler(req, res, state, prettyNameToGameFolder);
+            await commandHandler(
+                req,
+                res,
+                state,
+                folderMapping.PrettyNameToFolder
+            );
         } else {
             res.status(404).end();
         }
