@@ -1,29 +1,31 @@
-import { Cached, Close } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 import {
     Alert,
     AlertColor,
-    Button,
     ButtonGroup,
     Grid,
     IconButton,
     Snackbar,
     Typography,
 } from "@mui/material";
-import styles from "../../styles/ServerControl.module.css";
-import Link from "next/link";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
     ColorTheme,
     NextPageWithNavbarOverride,
     ServerStatusesWithDisabled,
 } from "../../utils/types";
-import { GameServerCard } from "../../components/GameServerCard";
+import { GameServerCard } from "../../components/server-control/GameServerCard";
 import Navbar from "../../components/Navbar";
 import { getAuth } from "firebase/auth";
 import { getApps, initializeApp } from "firebase/app";
 import { useRouter } from "next/router";
 
 import { firebaseClientConfig } from "../_app";
+import LoginButton from "components/server-control/LoginButton";
+import RefreshButton from "components/server-control/RefreshButton";
+import NotifSnackBar from "components/server-control/NotifSnackbar";
+import DisplayGrid from "components/server-control/DisplayGrid";
 
 function enforceUsedPorts(serverData: ServerStatusesWithDisabled) {
     const usedPorts = new Set<number>();
@@ -73,8 +75,6 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
     props
 ) => {
     if (getApps().length === 0) initializeApp(firebaseClientConfig);
-
-    const router = useRouter();
 
     const [state, setState] = useState<ServerControlState>({
         loading: false,
@@ -258,109 +258,18 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
         <>
             <Navbar theme={props.theme} setTheme={props.setTheme}>
                 <ButtonGroup>
-                    {/* Refresh Button */}
-                    <Button
-                        disabled={state.loading || !state.isSignedIn}
-                        onClick={refreshData}
-                        color="inherit"
-                        variant="outlined"
-                    >
-                        <Cached className={state.loading ? styles.spin : ""} />
-                    </Button>
-
-                    {getAuth()?.currentUser ? (
-                        <Button
-                            color="inherit"
-                            variant="outlined"
-                            onClick={() => {
-                                getAuth().signOut();
-                                router.reload();
-                            }}
-                        >
-                            {"Logout"}
-                        </Button>
-                    ) : (
-                        <Button color="inherit" variant="outlined">
-                            <Link href="/server-control/login">Login</Link>
-                        </Button>
-                    )}
+                    <RefreshButton state={{ ...state, refreshData }} />
+                    <LoginButton firebaseAuth={getAuth()} />
                 </ButtonGroup>
             </Navbar>
             <main>
-                <Snackbar
-                    autoHideDuration={5000}
-                    anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "center",
-                    }}
-                    open={state.snackbarIsOpen}
-                    onClose={(_e, r) => {
-                        if (r == "timeout") {
-                            hideSnackbar();
-                        }
-                    }}
-                >
-                    <Alert
-                        sx={{ alignItems: "center" }}
-                        severity={state.snackbarSeverity}
-                        action={
-                            <IconButton color="inherit" onClick={hideSnackbar}>
-                                <Close color="inherit" />
-                            </IconButton>
-                        }
-                    >
-                        {state.snackbarMessage}
-                    </Alert>
-                </Snackbar>
-                {/* Server Data Display Grid */}
-                <Grid container paddingLeft=".5rem" paddingRight=".5rem">
-                    {Object.keys(state.serverData).map((game, id) => (
-                        <Grid container item key={id} spacing={2}>
-                            {/* Title (uses 12 to take up entire line) */}
-                            <Grid item xs={12} marginTop="1rem">
-                                <Typography variant="h4">{game}</Typography>
-                            </Grid>
-                            {Object.keys(state.serverData[game]).map(
-                                (server, id) => {
-                                    const { is_online, port, disabled } =
-                                        state.serverData[game][server];
-                                    return (
-                                        // Server Card
-                                        <Grid
-                                            item
-                                            key={id}
-                                            xs={12}
-                                            sm={6}
-                                            md={3}
-                                            lg={2}
-                                        >
-                                            <GameServerCard
-                                                setServerData={sendCommand}
-                                                serverProps={{
-                                                    disabled:
-                                                        state.loading ||
-                                                        disabled,
-                                                    game,
-                                                    server,
-                                                    is_online,
-                                                    port,
-                                                }}
-                                            />
-                                        </Grid>
-                                    );
-                                }
-                            )}
-                        </Grid>
-                    ))}
-                </Grid>
+                <NotifSnackBar hideSnackbar={hideSnackbar} state={state} />
+
+                <DisplayGrid sendCommand={sendCommand} state={state} />
             </main>
         </>
     );
 };
 
-// ServerControl.isOverridingNavbar = true;
-
 ServerControl.isOverridingNavbar = true;
 export default ServerControl;
-// export default withAuthUser()(DemoPage)
-// export default ServerControl;
