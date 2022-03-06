@@ -4,24 +4,24 @@ import { Button } from "@mui/material";
 import { Cached } from "@mui/icons-material";
 
 type RefreshButtonProps = {
-    state: {
-        loading: boolean;
-        isSignedIn: boolean;
-        refreshData: () => Promise<void>;
-    };
+    disabled: boolean;
+    spinning: boolean;
+    refreshData: () => Promise<void>;
 };
 
 const RefreshButton: NextPage<RefreshButtonProps> = ({
-    state: { isSignedIn, loading, refreshData },
+    disabled,
+    spinning,
+    refreshData,
 }) => {
     return (
         <Button
-            disabled={loading || !isSignedIn}
+            disabled={disabled}
             onClick={refreshData}
             color="inherit"
             variant="outlined"
         >
-            <Cached className={loading ? styles.spin : ""} />
+            <Cached className={spinning ? styles.spin : ""} />
         </Button>
     );
 };

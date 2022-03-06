@@ -1,25 +1,14 @@
-import { Close } from "@mui/icons-material";
-import {
-    Alert,
-    AlertColor,
-    ButtonGroup,
-    Grid,
-    IconButton,
-    Snackbar,
-    Typography,
-} from "@mui/material";
-
+import { AlertColor, ButtonGroup } from "@mui/material";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
     ColorTheme,
     NextPageWithNavbarOverride,
     ServerStatusesWithDisabled,
 } from "../../utils/types";
-import { GameServerCard } from "../../components/server-control/GameServerCard";
+
 import Navbar from "../../components/Navbar";
 import { getAuth } from "firebase/auth";
 import { getApps, initializeApp } from "firebase/app";
-import { useRouter } from "next/router";
 
 import { firebaseClientConfig } from "../_app";
 import LoginButton from "components/server-control/LoginButton";
@@ -258,7 +247,11 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
         <>
             <Navbar theme={props.theme} setTheme={props.setTheme}>
                 <ButtonGroup>
-                    <RefreshButton state={{ ...state, refreshData }} />
+                    <RefreshButton
+                        disabled={state.loading || !state.isSignedIn}
+                        spinning={state.loading}
+                        refreshData={refreshData}
+                    />
                     <LoginButton firebaseAuth={getAuth()} />
                 </ButtonGroup>
             </Navbar>
