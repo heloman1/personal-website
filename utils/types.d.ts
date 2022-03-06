@@ -55,6 +55,7 @@ declare global {
             NEXT_PUBLIC_FIREBASE_CLIENT_API_KEY: string;
             NEXT_PUBLIC_FIREBASE_CLIENT_AUTH_DOMAIN: string;
             SSH_HOST: string;
+            DOMAIN_NAME: string;
         }
     }
 }
