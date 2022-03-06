@@ -3,7 +3,7 @@ import type { ServerHandlerState } from "utils/types";
 
 import { doSsh } from "utils/doSsh";
 
-export async function commandHandler(
+export async function sendServerCommand(
     req: NextApiRequest,
     res: NextApiResponse,
     state: ServerHandlerState,

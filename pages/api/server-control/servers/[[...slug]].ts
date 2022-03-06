@@ -2,8 +2,8 @@ import { ServerHandlerState } from "utils/types";
 import type { NextApiRequest, NextApiResponse } from "next";
 import initAuth from "utils/initAuth";
 import firebaseAdmin from "firebase-admin";
-import { dataQueryHandler } from "utils/api/server-control/servers/servers";
-import { commandHandler } from "utils/api/server-control/servers/command";
+import { getServersStatuses } from "utils/api/server-control/servers/servers";
+import { sendServerCommand } from "utils/api/server-control/servers/command";
 import { GameFolderToPrettyName, PrettyNameToGameFolder } from "utils/fileData";
 import { emailsList, gamesList } from "utils/fileData";
 
@@ -71,7 +71,7 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    // Auth
+    // Auth //
     try {
         const token = req.headers.authorization?.split(" ")[1];
         if (!token) throw "Auth header missing";
@@ -84,6 +84,7 @@ export default async function handler(
         res.status(401).end();
         return;
     }
+    // //
 
     const { slug } = req.query;
     if (typeof slug === "string") {
@@ -96,7 +97,7 @@ export default async function handler(
 
     if (!slug) {
         // /server-control/servers
-        await dataQueryHandler(
+        await getServersStatuses(
             req,
             res,
             state,
@@ -105,8 +106,8 @@ export default async function handler(
     } else {
         const [game, server, action] = slug;
         if (game && server && action) {
-            // /server-control/servers/game/server
-            await commandHandler(
+            // /server-control/servers/game/server/action
+            await sendServerCommand(
                 req,
                 res,
                 state,

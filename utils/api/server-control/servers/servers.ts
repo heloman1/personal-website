@@ -6,7 +6,7 @@ import type {
 } from "utils/types";
 import { doSsh } from "utils/doSsh";
 
-export async function dataQueryHandler(
+export async function getServersStatuses(
     req: NextApiRequest,
     res: NextApiResponse,
     state: ServerHandlerState,
