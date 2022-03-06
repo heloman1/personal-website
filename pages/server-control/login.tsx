@@ -23,6 +23,12 @@ type LoginState = {
     fieldError: boolean;
     askForEmailAgain: boolean;
 };
+
+const URL =
+    process.env.NODE_ENV === "development"
+        ? "http://localhost:3000/server-control/login"
+        : `https://${process.env.DOMAIN_NAME}/server-control/login`;
+
 export default function Login() {
     if (getApps().length === 0) initializeApp(firebaseClientConfig);
     const router = useRouter();
@@ -74,7 +80,7 @@ export default function Login() {
             const auth = getAuth();
 
             sendSignInLinkToEmail(auth, email, {
-                url: "https://edwardgomez.dev/server-control/login",
+                url: URL,
                 handleCodeInApp: true,
             }).catch((e) => {
                 console.log(e);
