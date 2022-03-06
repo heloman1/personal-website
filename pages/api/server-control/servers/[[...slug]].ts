@@ -32,14 +32,31 @@ const state: ServerHandlerState = {
 
 // Automatically reload file if they change
 (async () => {
-    for await (const newMapping of gamesList()) {
+    const gamesWatcher = gamesList();
+    {
+        const first = await gamesWatcher.next();
+        if (!first.done) {
+            console.log("Games loaded from games.json");
+            state.dataQueryState.lastRevalidate = new Date(0).getTime();
+            folderMapping = first.value;
+        }
+    }
+    for await (const newMapping of gamesWatcher) {
         console.log("games.json was modified, invalidating cached game data");
         state.dataQueryState.lastRevalidate = new Date(0).getTime();
         folderMapping = newMapping;
     }
 })();
 (async () => {
-    for await (const newList of emailsList()) {
+    const emailsWatcher = emailsList();
+    {
+        const first = await emailsWatcher.next();
+        if (!first.done) {
+            console.log("Emails loaded from emails.json");
+            emails = first.value;
+        }
+    }
+    for await (const newList of emailsWatcher) {
         console.log("emails.json was modified");
         emails = newList;
     }
