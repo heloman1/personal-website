@@ -84,37 +84,41 @@ export default async function handler(
         res.status(401).end();
         return;
     }
-    // //
 
-    const { slug } = req.query;
-    if (typeof slug === "string") {
-        // slug should always be an array (or undefined)
-        // (Unless somebody thinks they're slick
-        // and tries /server-control/servers?slug=something)
-        res.status(400).end();
-        return;
-    }
-
-    if (!slug) {
-        // /server-control/servers
-        await getServersStatuses(
-            req,
-            res,
-            state,
-            folderMapping.folderToPrettyName
-        );
-    } else {
-        const [game, server, action] = slug;
-        if (game && server && action) {
-            // /server-control/servers/game/server/action
-            await sendServerCommand(
+    switch (req.method) {
+        case "GET":
+            // /server-control/servers
+            await getServersStatuses(
                 req,
                 res,
                 state,
-                folderMapping.PrettyNameToFolder
+                folderMapping.folderToPrettyName
             );
-        } else {
-            res.status(404).end();
-        }
+            break;
+        case "POST":
+            const { slug } = req.query;
+            if (typeof slug === "string") {
+                // slug should always be an array (or undefined)
+                // (Unless somebody thinks they're slick
+                // and tries /server-control/servers?slug=something)
+                res.status(400).end();
+                return;
+            }
+            const [game, server, action] = slug;
+            if (game && server && action) {
+                // /server-control/servers/game/server/action
+                await sendServerCommand(
+                    req,
+                    res,
+                    state,
+                    folderMapping.PrettyNameToFolder
+                );
+            } else {
+                res.status(404).end();
+            }
+
+            break;
+        default:
+            break;
     }
 }
