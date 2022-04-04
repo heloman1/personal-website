@@ -43,7 +43,14 @@ export default function Navbar({ theme, setTheme, children }: NavbarProps) {
         ["Home", "/"],
         ["Server Control", "/server-control"],
         ["About", "/about"],
-    ];
+    ].map(([name, link], i) => (
+        <Grid item key={i}>
+            <Link href={link} passHref>
+                <Button color="inherit">{name}</Button>
+            </Link>
+        </Grid>
+    ));
+    
     useEffect(() => {
         const checkWidth = () => {
             window.innerWidth < 700
@@ -73,16 +80,9 @@ export default function Navbar({ theme, setTheme, children }: NavbarProps) {
                                 onClose={closeDrawer}
                             >
                                 <List>
-                                    {links.map(([name, link], i) => (
-                                        <ListItem key={i}>
-                                            <Link href={link} passHref>
-                                                <Button
-                                                    onClick={closeDrawer}
-                                                    color="inherit"
-                                                >
-                                                    {name}
-                                                </Button>
-                                            </Link>
+                                    {links.map((butElem, i) => (
+                                        <ListItem key={i} onClick={closeDrawer}>
+                                            {butElem}
                                         </ListItem>
                                     ))}
                                 </List>
@@ -94,15 +94,7 @@ export default function Navbar({ theme, setTheme, children }: NavbarProps) {
                             </Grid>
                         </>
                     ) : (
-                        <>
-                            {links.map(([name, link], i) => (
-                                <Grid item key={i}>
-                                    <Link href={link} passHref>
-                                        <Button color="inherit">{name}</Button>
-                                    </Link>
-                                </Grid>
-                            ))}
-                        </>
+                        links
                     )}
                 </Grid>
 
