@@ -1,15 +1,15 @@
-import Button from "@mui/material/Button";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
 import Link from "next/link";
 import { PropsWithChildren, useEffect, useState } from "react";
 import {
+    Toolbar,
+    AppBar,
     ButtonGroup,
     Drawer,
     Grid,
     IconButton,
     List,
     ListItem,
+    Button,
 } from "@mui/material";
 import {
     Computer,
@@ -63,99 +63,96 @@ export default function Navbar({ theme, setTheme, children }: NavbarProps) {
 
     return (
         <AppBar position="sticky">
-            <Toolbar>
-                <Grid container>
-                    <Grid container item xs={state.mobile ? 1 : 6} spacing={2}>
-                        {state.mobile ? (
-                            <>
-                                <Drawer
-                                    anchor="top"
-                                    open={state.drawerOpen}
-                                    onClose={closeDrawer}
-                                >
-                                    <List>
-                                        {links.map(([name, link], i) => (
-                                            <ListItem key={i}>
+            <Toolbar component={Grid} container>
+                <Grid container item xs spacing={2}>
+                    {state.mobile ? (
+                        <>
+                            <Drawer
+                                anchor="top"
+                                open={state.drawerOpen}
+                                onClose={closeDrawer}
+                            >
+                                <List>
+                                    {links.map(([name, link], i) => (
+                                        <ListItem key={i}>
+                                            <Link href={link} passHref>
                                                 <Button
                                                     onClick={closeDrawer}
                                                     color="inherit"
                                                 >
-                                                    <Link href={link}>
-                                                        {name}
-                                                    </Link>
+                                                    {name}
                                                 </Button>
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                </Drawer>
-                                <Grid item>
-                                    <IconButton onClick={openDrawer}>
-                                        <Menu />
-                                    </IconButton>
+                                            </Link>
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </Drawer>
+                            <Grid item>
+                                <IconButton onClick={openDrawer}>
+                                    <Menu />
+                                </IconButton>
+                            </Grid>
+                        </>
+                    ) : (
+                        <>
+                            {links.map(([name, link], i) => (
+                                <Grid item key={i}>
+                                    <Link href={link} passHref>
+                                        <Button color="inherit">{name}</Button>
+                                    </Link>
                                 </Grid>
-                            </>
-                        ) : (
-                            <>
-                                {links.map(([name, link], i) => (
-                                    <Grid item key={i}>
-                                        <Button color="inherit">
-                                            <Link href={link}>{name}</Link>
-                                        </Button>
-                                    </Grid>
-                                ))}
-                            </>
-                        )}
-                    </Grid>
+                            ))}
+                        </>
+                    )}
+                </Grid>
 
-                    <Grid
-                        container
-                        item
-                        xs={state.mobile ? 11 : 6}
-                        justifyContent="flex-end"
-                        alignContent="center"
-                        spacing={2}
-                    >
-                        {/* Extra Buttons */}
-                        {children ? <Grid item>{children}</Grid> : ""}
+                <Grid
+                    container
+                    item
+                    xs
+                    justifyContent="flex-end"
+                    // spacing={2}
+                >
+                    {/* Extra Buttons */}
+                    {children ? <Grid item>{children}</Grid> : ""}
 
-                        {/* Theme Buttons */}
-                        <Grid item>
-                            <ButtonGroup variant="contained">
-                                <IconButton
-                                    onClick={() => {
-                                        setTheme("dark");
-                                    }}
-                                >
-                                    {theme === "dark" ? (
-                                        <DarkMode />
-                                    ) : (
-                                        <DarkModeOutlined />
-                                    )}
-                                </IconButton>
-                                <IconButton
-                                    onClick={() => {
-                                        setTheme("system");
-                                    }}
-                                >
-                                    {theme === "system" ? (
-                                        <ComputerTwoTone />
-                                    ) : (
-                                        <Computer />
-                                    )}
-                                </IconButton>
-                                <IconButton
-                                    onClick={() => {
-                                        setTheme("light");
-                                    }}
-                                >
-                                    {theme === "light" ? (
-                                        <LightMode />
-                                    ) : (
-                                        <LightModeOutlined />
-                                    )}
-                                </IconButton>
-                            </ButtonGroup>
-                        </Grid>
+                    {/* Theme Buttons */}
+                    <Grid item>
+                        <ButtonGroup variant="contained">
+                            <IconButton
+                                onClick={() => {
+                                    setTheme("dark");
+                                }}
+                            >
+                                {theme === "dark" ? (
+                                    <DarkMode />
+                                ) : (
+                                    <DarkModeOutlined />
+                                )}
+                            </IconButton>
+                            <IconButton
+                                onClick={() => {
+                                    setTheme("system");
+                                }}
+                            >
+                                {theme === "system" ? (
+                                    <ComputerTwoTone />
+                                ) : (
+                                    <Computer />
+                                )}
+                            </IconButton>
+                            <IconButton
+                                onClick={() => {
+                                    setTheme("light");
+                                }}
+                            >
+                                {theme === "light" ? (
+                                    <LightMode />
+                                ) : (
+                                    <LightModeOutlined />
+                                )}
+                            </IconButton>
+                        </ButtonGroup>
                     </Grid>
                 </Grid>
             </Toolbar>
