@@ -2,8 +2,8 @@ import "../styles/globals.css";
 import Navbar from "../components/Navbar";
 import { AppPropsWithNavbarOverride, ColorTheme } from "../utils/types";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
-import App from "next/app";
 import { ThemeControlContext } from "components/ThemeControlContext";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const defaultTheme = createTheme({
     palette: {
@@ -20,121 +20,145 @@ const themes = {
     system: defaultTheme,
 };
 
-const lsThemeKey = "ColorThemeString";
-const lsWatchSystemKey = "WatchSystemThemeBoolean";
-const themeValues: ColorTheme[] = ["light", "dark", "system"];
+const lStorageThemeKey = "ColorThemeString";
+const lStorageRespectSystemKey = "WatchSystemThemeBoolean";
 
-type AppState = {
+type ThemeState = {
     theme: ColorTheme;
-    watchSystemTheme: boolean;
+    respectSystem: boolean;
 };
 
-export default class MyApp extends App<
-    AppPropsWithNavbarOverride,
-    {},
-    AppState
-> {
-    state: Readonly<AppState> = {
-        theme: "light",
-        watchSystemTheme: false,
-    };
+export default function MyApp({
+    Component,
+    pageProps,
+}: AppPropsWithNavbarOverride) {
+    // theme tells React what the current theme is
+    // respectSystem tells React whether to automatically switch
 
-    componentDidMount() {
-        this.systemThemeMediaQuery = window.matchMedia(
+    // Both are neccesary, without respectSystem:
+    // if daytime && theme == "system", then user switches from system to light,
+    // it would trigger an uneccesary rerender
+    // Also, if extra themes were to be added later
+    // (i.e. "purple-light", "purple-dark", etc.), respectSystem would
+    // legitimately be required
+    const [themeState, setThemeState] = useState<ThemeState>({
+        theme: "light",
+        respectSystem: false,
+    });
+
+    const systemThemeMediaQuery = useRef<MediaQueryList>();
+
+    const matchSystem = useCallback((bool: boolean) => {
+        if (!systemThemeMediaQuery.current) {
+            throw "You managed to enableSystemTheme before the window was loaded. How???";
+        }
+        if (bool) {
+            // Set up event listener
+            if (!systemThemeMediaQuery.current.onchange) {
+                systemThemeMediaQuery.current.onchange = ({
+                    matches: isDark,
+                }) => {
+                    themes.system = isDark ? themes.dark : themes.light;
+                };
+                setThemeState((s) => {
+                    return { ...s, respectSystem: true };
+                });
+            }
+
+            // Do a manual check to make sure it system theme is set correctly
+            if (systemThemeMediaQuery.current.matches) {
+                if (themes.system !== themes.dark) {
+                    themes.system = themes.dark;
+                    setThemeState((s) => {
+                        return { ...s, theme: "system" };
+                    });
+                }
+            } else {
+                if (themes.system !== themes.light) {
+                    themes.system = themes.light;
+                    setThemeState((s) => {
+                        return { ...s, theme: "system" };
+                    });
+                }
+            }
+        } else {
+            // Remove event listener
+            if (systemThemeMediaQuery.current.onchange) {
+                systemThemeMediaQuery.current.onchange = null;
+                setThemeState((s) => {
+                    return { ...s, respectSystem: false };
+                });
+            }
+        }
+    }, []);
+
+    // on mount
+    useEffect(() => {
+        systemThemeMediaQuery.current = window.matchMedia(
             "(prefers-color-scheme: dark)"
         );
-
-        let lsTheme = localStorage.getItem(lsThemeKey) as ColorTheme;
-        if (!lsTheme || !themeValues.includes(lsTheme)) {
-            lsTheme = "system";
+        let lStorageTheme = localStorage.getItem(
+            lStorageThemeKey
+        ) as ColorTheme;
+        if (!lStorageTheme /*|| !themeValues.includes(lStorageTheme)*/) {
+            lStorageTheme = "system";
         }
 
-        const lsSystemS = localStorage.getItem(lsWatchSystemKey);
-        const lsSystem = lsSystemS == "true" ? true : false;
+        const lStorageRespectSystem =
+            localStorage.getItem(lStorageRespectSystemKey) == "true"
+                ? true
+                : false;
 
-        this.setState({
-            theme: lsTheme,
-            watchSystemTheme: lsSystem,
+        setThemeState({
+            theme: lStorageTheme,
+            respectSystem: lStorageRespectSystem,
         });
-    }
+    }, []);
 
-    componentDidUpdate() {
-        localStorage.setItem(lsThemeKey, this.state.theme);
+    // on themeState changed
+    useEffect(() => {
+        console.log("Theme Changed!");
+        console.log("Writing to local storage!");
+
+        localStorage.setItem(lStorageThemeKey, themeState.theme);
         localStorage.setItem(
-            lsWatchSystemKey,
-            String(this.state.watchSystemTheme)
+            lStorageRespectSystemKey,
+            String(themeState.respectSystem)
         );
-        this.state.theme === "system"
-            ? this.enableSystemTheme()
-            : this.disableSystemTheme();
-    }
+        matchSystem(themeState.theme === "system");
+    }, [matchSystem, themeState]);
 
-    systemThemeMediaQuery!: MediaQueryList;
-    enableSystemTheme() {
-        // Set up event listener
-        if (!this.systemThemeMediaQuery.onchange) {
-            this.systemThemeMediaQuery.onchange = ({ matches: isDark }) => {
-                themes.system = isDark ? themes.dark : themes.light;
-            };
-            this.setState({ watchSystemTheme: true });
-        }
+    const setTheme = useCallback((theme: ColorTheme) => {
+        setThemeState((s) => {
+            return { ...s, theme: theme };
+        });
+    }, []);
 
-        // Do a manual check to make sure it system theme is set correctly
-        if (this.systemThemeMediaQuery.matches) {
-            if (themes.system !== themes.dark) {
-                themes.system = themes.dark;
-                this.setState({ theme: "system" });
-            }
-        } else {
-            if (themes.system !== themes.light) {
-                themes.system = themes.light;
-                this.setState({ theme: "system" });
-            }
-        }
-    }
-
-    disableSystemTheme() {
-        // Remove event listener
-        if (this.systemThemeMediaQuery.onchange) {
-            this.systemThemeMediaQuery.onchange = null;
-            this.setState({ watchSystemTheme: false });
-        }
-    }
-
-    render() {
-        const { Component, pageProps } = this.props;
-        const setTheme = (theme: ColorTheme) => {
-            this.setState({ theme: theme });
-        };
-
-        if (!Component.isOverridingNavbar) {
-            return (
-                <ThemeControlContext.Provider
-                    value={{ theme: this.state.theme, setTheme }}
-                >
-                    <ThemeProvider theme={themes[this.state.theme]}>
-                        <CssBaseline />
-                        <Navbar theme={this.state.theme} setTheme={setTheme} />
-                        <main>
-                            <Component {...pageProps} />
-                        </main>
-                    </ThemeProvider>
-                </ThemeControlContext.Provider>
-            );
-        } else {
-            pageProps.setTheme = setTheme;
-            pageProps.theme = this.state.theme;
-            return (
-                <ThemeControlContext.Provider
-                    value={{ theme: this.state.theme, setTheme }}
-                >
-                    <ThemeProvider theme={themes[this.state.theme]}>
-                        <CssBaseline />
+    if (!Component.isOverridingNavbar) {
+        return (
+            <ThemeControlContext.Provider
+                value={{ theme: themeState.theme, setTheme }}
+            >
+                <ThemeProvider theme={themes[themeState.theme]}>
+                    <CssBaseline />
+                    <Navbar />
+                    <main>
                         <Component {...pageProps} />
-                    </ThemeProvider>
-                </ThemeControlContext.Provider>
-            );
-        }
+                    </main>
+                </ThemeProvider>
+            </ThemeControlContext.Provider>
+        );
+    } else {
+        return (
+            <ThemeControlContext.Provider
+                value={{ theme: themeState.theme, setTheme }}
+            >
+                <ThemeProvider theme={themes[themeState.theme]}>
+                    <CssBaseline />
+                    <Component {...pageProps} />
+                </ThemeProvider>
+            </ThemeControlContext.Provider>
+        );
     }
 }
 

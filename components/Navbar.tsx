@@ -14,12 +14,7 @@ import { Menu } from "@mui/icons-material";
 import { ColorTheme } from "../utils/types";
 import ThemeControl from "./ThemeControl";
 
-type NavbarProps = PropsWithChildren<{
-    setTheme: (theme: ColorTheme) => void;
-    theme: ColorTheme;
-}>;
-
-export default function Navbar({ theme, setTheme, children }: NavbarProps) {
+export default function Navbar({ children }: PropsWithChildren<{}>) {
     const [state, setState] = useState({
         mobile: false,
         drawerOpen: false,
