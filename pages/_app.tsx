@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import { AppPropsWithNavbarOverride, ColorTheme } from "../utils/types";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import App from "next/app";
+import { ThemeControlContext } from "components/ThemeControlContext";
 
 const defaultTheme = createTheme({
     palette: {
@@ -108,22 +109,30 @@ export default class MyApp extends App<
 
         if (!Component.isOverridingNavbar) {
             return (
-                <ThemeProvider theme={themes[this.state.theme]}>
-                    <CssBaseline />
-                    <Navbar theme={this.state.theme} setTheme={setTheme} />
-                    <main>
-                        <Component {...pageProps} />
-                    </main>
-                </ThemeProvider>
+                <ThemeControlContext.Provider
+                    value={{ theme: this.state.theme, setTheme }}
+                >
+                    <ThemeProvider theme={themes[this.state.theme]}>
+                        <CssBaseline />
+                        <Navbar theme={this.state.theme} setTheme={setTheme} />
+                        <main>
+                            <Component {...pageProps} />
+                        </main>
+                    </ThemeProvider>
+                </ThemeControlContext.Provider>
             );
         } else {
             pageProps.setTheme = setTheme;
             pageProps.theme = this.state.theme;
             return (
-                <ThemeProvider theme={themes[this.state.theme]}>
-                    <CssBaseline />
-                    <Component {...pageProps} />
-                </ThemeProvider>
+                <ThemeControlContext.Provider
+                    value={{ theme: this.state.theme, setTheme }}
+                >
+                    <ThemeProvider theme={themes[this.state.theme]}>
+                        <CssBaseline />
+                        <Component {...pageProps} />
+                    </ThemeProvider>
+                </ThemeControlContext.Provider>
             );
         }
     }

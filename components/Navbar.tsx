@@ -95,7 +95,7 @@ export default function Navbar({ theme, setTheme, children }: NavbarProps) {
                     {children ? <Grid item>{children}</Grid> : ""}
 
                     <Grid item>
-                        <ThemeControl setTheme={setTheme} theme={theme} />
+                        <ThemeControl />
                     </Grid>
                 </Grid>
             </Toolbar>

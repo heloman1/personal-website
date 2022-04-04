@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react";
+import { useContext } from "react";
 import { ButtonGroup, IconButton } from "@mui/material";
 import {
     Computer,
@@ -8,14 +8,11 @@ import {
     LightMode,
     LightModeOutlined,
 } from "@mui/icons-material";
-import { ColorTheme } from "../utils/types";
+import { ThemeControlContext } from "./ThemeControlContext";
 
-type NavbarProps = PropsWithChildren<{
-    setTheme: (theme: ColorTheme) => void;
-    theme: ColorTheme;
-}>;
+export default function ThemeControl() {
+    const { theme, setTheme } = useContext(ThemeControlContext);
 
-export default function ThemeControl({ theme, setTheme }: NavbarProps) {
     return (
         <ButtonGroup variant="contained">
             <IconButton
