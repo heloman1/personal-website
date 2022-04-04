@@ -1,12 +1,7 @@
 import { AlertColor, ButtonGroup } from "@mui/material";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type {
-    ColorTheme,
-    NextPageWithNavbarOverride,
-    ServerStatusesWithDisabled,
-} from "../../utils/types";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import type { ColorTheme, ServerStatusesWithDisabled } from "../../utils/types";
 
-import Navbar from "../../components/Navbar";
 import { getAuth } from "firebase/auth";
 import { getApps, initializeApp } from "firebase/app";
 
@@ -15,6 +10,8 @@ import LoginButton from "components/server-control/LoginButton";
 import RefreshButton from "components/server-control/RefreshButton";
 import NotifSnackBar from "components/server-control/NotifSnackbar";
 import DisplayGrid from "components/server-control/DisplayGrid";
+import { NextPage } from "next";
+import { NavbarContext } from "components/NavbarContext";
 
 function enforceUsedPorts(serverData: ServerStatusesWithDisabled) {
     const usedPorts = new Set<number>();
@@ -60,9 +57,7 @@ type ServerControlState = {
     isSignedIn: boolean;
 };
 
-const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
-    props
-) => {
+const ServerControl: NextPage<ServerControlProps> = (props) => {
     if (getApps().length === 0) initializeApp(firebaseClientConfig);
 
     const [state, setState] = useState<ServerControlState>({
@@ -73,6 +68,8 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
         snackbarSeverity: "info",
         isSignedIn: false,
     });
+
+    const { setNavbarButtons: setButtons } = useContext(NavbarContext);
     const fetchAborter = useMemo(() => new AbortController(), []);
 
     const showSnackbar = useCallback(
@@ -243,26 +240,31 @@ const ServerControl: NextPageWithNavbarOverride<ServerControlProps> = (
             }
         });
     }, [refreshData]);
-    return (
-        <>
-            <Navbar theme={props.theme} setTheme={props.setTheme}>
-                <ButtonGroup>
-                    <RefreshButton
-                        disabled={state.loading || !state.isSignedIn}
-                        spinning={state.loading}
-                        refreshData={refreshData}
-                    />
-                    <LoginButton firebaseAuth={getAuth()} />
-                </ButtonGroup>
-            </Navbar>
-            <main>
-                <NotifSnackBar hideSnackbar={hideSnackbar} state={state} />
 
-                <DisplayGrid sendCommand={sendCommand} state={state} />
-            </main>
-        </>
+    // on mount
+    useEffect(() => {
+        setButtons(
+            <ButtonGroup>
+                <RefreshButton
+                    disabled={state.loading || !state.isSignedIn}
+                    spinning={state.loading}
+                    refreshData={refreshData}
+                />
+                <LoginButton firebaseAuth={getAuth()} />
+            </ButtonGroup>
+        );
+        return () => {
+            setButtons(<></>);
+        };
+    }, [refreshData, setButtons, state.isSignedIn, state.loading]);
+
+    return (
+        <main>
+            <NotifSnackBar hideSnackbar={hideSnackbar} state={state} />
+
+            <DisplayGrid sendCommand={sendCommand} state={state} />
+        </main>
     );
 };
 
-ServerControl.isOverridingNavbar = true;
 export default ServerControl;

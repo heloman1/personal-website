@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PropsWithChildren, useEffect, useState } from "react";
+import { PropsWithChildren, useCallback, useEffect, useState } from "react";
 import {
     Toolbar,
     AppBar,
@@ -11,14 +11,19 @@ import {
     Button,
 } from "@mui/material";
 import { Menu } from "@mui/icons-material";
-import { ColorTheme } from "../utils/types";
 import ThemeControl from "./ThemeControl";
+import { NavbarContext } from "./NavbarContext";
 
 export default function Navbar({ children }: PropsWithChildren<{}>) {
     const [state, setState] = useState({
         mobile: false,
         drawerOpen: false,
     });
+
+    const [navbarButtons, setNavbarButtons] = useState<JSX.Element>(<></>);
+    const setNavbarButtonsCallback = useCallback(setNavbarButtons, [
+        setNavbarButtons,
+    ]);
     const openDrawer = () => {
         setState({ ...state, drawerOpen: true });
     };
@@ -56,44 +61,58 @@ export default function Navbar({ children }: PropsWithChildren<{}>) {
     }, []);
 
     return (
-        <AppBar position="sticky">
-            <Toolbar component={Grid} container>
-                <Grid container item xs spacing={2}>
-                    {state.mobile ? (
-                        <>
-                            <Drawer
-                                anchor="top"
-                                open={state.drawerOpen}
-                                onClose={closeDrawer}
-                            >
-                                <List>
-                                    {links.map((butElem, i) => (
-                                        <ListItem key={i} onClick={closeDrawer}>
-                                            {butElem}
-                                        </ListItem>
-                                    ))}
-                                </List>
-                            </Drawer>
-                            <Grid item>
-                                <IconButton onClick={openDrawer}>
-                                    <Menu />
-                                </IconButton>
-                            </Grid>
-                        </>
-                    ) : (
-                        links
-                    )}
-                </Grid>
-
-                <Grid container item xs justifyContent="flex-end" spacing={2}>
-                    {/* Extra Buttons */}
-                    {children ? <Grid item>{children}</Grid> : ""}
-
-                    <Grid item>
-                        <ThemeControl />
+        <>
+            <AppBar position="sticky">
+                <Toolbar component={Grid} container>
+                    <Grid container item xs spacing={2}>
+                        {state.mobile ? (
+                            <>
+                                <Drawer
+                                    anchor="top"
+                                    open={state.drawerOpen}
+                                    onClose={closeDrawer}
+                                >
+                                    <List>
+                                        {links.map((butElem, i) => (
+                                            <ListItem
+                                                key={i}
+                                                onClick={closeDrawer}
+                                            >
+                                                {butElem}
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </Drawer>
+                                <Grid item>
+                                    <IconButton onClick={openDrawer}>
+                                        <Menu />
+                                    </IconButton>
+                                </Grid>
+                            </>
+                        ) : (
+                            links
+                        )}
                     </Grid>
-                </Grid>
-            </Toolbar>
-        </AppBar>
+
+                    <Grid
+                        container
+                        item
+                        xs
+                        justifyContent="flex-end"
+                        spacing={2}
+                    >
+                        {/* Extra Buttons */}
+                        <Grid item>{navbarButtons}</Grid>
+
+                        <Grid item>
+                            <ThemeControl />
+                        </Grid>
+                    </Grid>
+                </Toolbar>
+            </AppBar>
+            <NavbarContext.Provider value={{ setNavbarButtons }}>
+                {children}
+            </NavbarContext.Provider>
+        </>
     );
 }

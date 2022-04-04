@@ -16,12 +16,6 @@ export type ShellQueryData = {
 
 export type ColorTheme = "light" | "dark" | "system";
 
-export type NextPageWithNavbarOverride<P = {}, IP = P> = NextPage<P, IP> & {
-    isOverridingNavbar?: boolean;
-};
-export type AppPropsWithNavbarOverride = AppProps & {
-    Component: NextPageWithNavbarOverride;
-};
 
 export type ButtonActions = (
     game: string,

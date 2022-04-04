@@ -1,9 +1,10 @@
 import "../styles/globals.css";
 import Navbar from "../components/Navbar";
-import { AppPropsWithNavbarOverride, ColorTheme } from "../utils/types";
+import { ColorTheme } from "../utils/types";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import { ThemeControlContext } from "components/ThemeControlContext";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AppProps } from "next/app";
 
 const defaultTheme = createTheme({
     palette: {
@@ -28,10 +29,7 @@ type ThemeState = {
     respectSystem: boolean;
 };
 
-export default function MyApp({
-    Component,
-    pageProps,
-}: AppPropsWithNavbarOverride) {
+export default function MyApp({ Component, pageProps }: AppProps) {
     // theme tells React what the current theme is
     // respectSystem tells React whether to automatically switch
 
@@ -134,32 +132,20 @@ export default function MyApp({
         });
     }, []);
 
-    if (!Component.isOverridingNavbar) {
-        return (
-            <ThemeControlContext.Provider
-                value={{ theme: themeState.theme, setTheme }}
-            >
-                <ThemeProvider theme={themes[themeState.theme]}>
-                    <CssBaseline />
-                    <Navbar />
+    return (
+        <ThemeControlContext.Provider
+            value={{ theme: themeState.theme, setTheme }}
+        >
+            <ThemeProvider theme={themes[themeState.theme]}>
+                <CssBaseline />
+                <Navbar>
                     <main>
                         <Component {...pageProps} />
                     </main>
-                </ThemeProvider>
-            </ThemeControlContext.Provider>
-        );
-    } else {
-        return (
-            <ThemeControlContext.Provider
-                value={{ theme: themeState.theme, setTheme }}
-            >
-                <ThemeProvider theme={themes[themeState.theme]}>
-                    <CssBaseline />
-                    <Component {...pageProps} />
-                </ThemeProvider>
-            </ThemeControlContext.Provider>
-        );
-    }
+                </Navbar>
+            </ThemeProvider>
+        </ThemeControlContext.Provider>
+    );
 }
 
 const firebaseClientConfig = {
