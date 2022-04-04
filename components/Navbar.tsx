@@ -3,7 +3,6 @@ import { PropsWithChildren, useEffect, useState } from "react";
 import {
     Toolbar,
     AppBar,
-    ButtonGroup,
     Drawer,
     Grid,
     IconButton,
@@ -11,16 +10,9 @@ import {
     ListItem,
     Button,
 } from "@mui/material";
-import {
-    Computer,
-    ComputerTwoTone,
-    DarkMode,
-    DarkModeOutlined,
-    LightMode,
-    LightModeOutlined,
-    Menu,
-} from "@mui/icons-material";
+import { Menu } from "@mui/icons-material";
 import { ColorTheme } from "../utils/types";
+import ThemeControl from "./ThemeControl";
 
 type NavbarProps = PropsWithChildren<{
     setTheme: (theme: ColorTheme) => void;
@@ -50,7 +42,7 @@ export default function Navbar({ theme, setTheme, children }: NavbarProps) {
             </Link>
         </Grid>
     ));
-    
+
     useEffect(() => {
         const checkWidth = () => {
             window.innerWidth < 700
@@ -98,53 +90,12 @@ export default function Navbar({ theme, setTheme, children }: NavbarProps) {
                     )}
                 </Grid>
 
-                <Grid
-                    container
-                    item
-                    xs
-                    justifyContent="flex-end"
-                    // spacing={2}
-                >
+                <Grid container item xs justifyContent="flex-end" spacing={2}>
                     {/* Extra Buttons */}
                     {children ? <Grid item>{children}</Grid> : ""}
 
-                    {/* Theme Buttons */}
                     <Grid item>
-                        <ButtonGroup variant="contained">
-                            <IconButton
-                                onClick={() => {
-                                    setTheme("dark");
-                                }}
-                            >
-                                {theme === "dark" ? (
-                                    <DarkMode />
-                                ) : (
-                                    <DarkModeOutlined />
-                                )}
-                            </IconButton>
-                            <IconButton
-                                onClick={() => {
-                                    setTheme("system");
-                                }}
-                            >
-                                {theme === "system" ? (
-                                    <ComputerTwoTone />
-                                ) : (
-                                    <Computer />
-                                )}
-                            </IconButton>
-                            <IconButton
-                                onClick={() => {
-                                    setTheme("light");
-                                }}
-                            >
-                                {theme === "light" ? (
-                                    <LightMode />
-                                ) : (
-                                    <LightModeOutlined />
-                                )}
-                            </IconButton>
-                        </ButtonGroup>
+                        <ThemeControl setTheme={setTheme} theme={theme} />
                     </Grid>
                 </Grid>
             </Toolbar>
