@@ -1,9 +1,8 @@
 import { AlertColor, ButtonGroup } from "@mui/material";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type {
     ColorTheme,
-    NextPageWithNavbarOverride,
     ServerStatusesWithDisabled,
 } from "../../../utils/types";
 import Navbar from "../../../components/Navbar";
@@ -11,6 +10,8 @@ import Navbar from "../../../components/Navbar";
 import RefreshButton from "components/server-control/RefreshButton";
 import NotifSnackBar from "components/server-control/NotifSnackbar";
 import DisplayGrid from "components/server-control/DisplayGrid";
+import { NextPage } from "next";
+import { NavbarContext } from "components/NavbarContext";
 
 async function wait(ms: number) {
     return new Promise<void>((res) => {
@@ -63,9 +64,8 @@ type ServerControlDemoState = {
     snackbarSeverity: AlertColor;
 };
 
-const ServerControlDemo: NextPageWithNavbarOverride<ServerControlProps> = (
-    props
-) => {
+const ServerControlDemo: NextPage<ServerControlProps> = (props) => {
+    const { setNavbarButtons: setButtons } = useContext(NavbarContext);
     const [state, setState] = useState<ServerControlDemoState>({
         loading: false,
         serverData: {
@@ -159,7 +159,7 @@ const ServerControlDemo: NextPageWithNavbarOverride<ServerControlProps> = (
         });
     };
 
-    const refreshData = async () => {
+    const refreshData = useCallback(async () => {
         setState((s) => {
             return { ...s, loading: true };
         });
@@ -167,7 +167,7 @@ const ServerControlDemo: NextPageWithNavbarOverride<ServerControlProps> = (
         setState((s) => {
             return { ...s, loading: false };
         });
-    };
+    }, []);
 
     // Stop ongoing fetches when leaving the page
     useEffect(
@@ -181,9 +181,25 @@ const ServerControlDemo: NextPageWithNavbarOverride<ServerControlProps> = (
         [fetchAborter]
     );
 
+    // on mount
+    useEffect(() => {
+        setButtons(
+            <ButtonGroup>
+                <RefreshButton
+                    disabled={state.loading}
+                    spinning={state.loading}
+                    refreshData={refreshData}
+                />
+            </ButtonGroup>
+        );
+        return () => {
+            setButtons(<></>);
+        };
+    }, [refreshData, setButtons, state.loading]);
+
     return (
         <>
-            <Navbar theme={props.theme} setTheme={props.setTheme}>
+            <Navbar>
                 <ButtonGroup>
                     <RefreshButton
                         disabled={state.loading}
@@ -201,5 +217,4 @@ const ServerControlDemo: NextPageWithNavbarOverride<ServerControlProps> = (
     );
 };
 
-ServerControlDemo.isOverridingNavbar = true;
 export default ServerControlDemo;
