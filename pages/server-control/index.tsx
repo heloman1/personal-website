@@ -1,5 +1,12 @@
 import { AlertColor, ButtonGroup } from "@mui/material";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import type { ColorTheme, ServerStatusesWithDisabled } from "../../utils/types";
 
 import { getAuth } from "firebase/auth";
@@ -59,7 +66,7 @@ type ServerControlState = {
 
 const ServerControl: NextPage<ServerControlProps> = (props) => {
     if (getApps().length === 0) initializeApp(firebaseClientConfig);
-
+    const auth = useRef(getAuth());
     const [state, setState] = useState<ServerControlState>({
         loading: false,
         serverData: {},
@@ -108,7 +115,7 @@ const ServerControl: NextPage<ServerControlProps> = (props) => {
                     method: "POST",
                     signal: fetchAborter.signal,
                     headers: {
-                        authorization: `Bearer ${await getAuth().currentUser?.getIdToken()}`,
+                        authorization: `Bearer ${await auth.current.currentUser?.getIdToken()}`,
                     },
                 }
             );
@@ -168,7 +175,7 @@ const ServerControl: NextPage<ServerControlProps> = (props) => {
             res = await fetch("/api/server-control/servers", {
                 signal: fetchAborter.signal,
                 headers: {
-                    authorization: `Bearer ${await getAuth().currentUser?.getIdToken()}`,
+                    authorization: `Bearer ${await auth.current.currentUser?.getIdToken()}`,
                 },
             });
         } catch (e) {
@@ -225,8 +232,7 @@ const ServerControl: NextPage<ServerControlProps> = (props) => {
     );
     // One-time
     useEffect(() => {
-        const auth = getAuth();
-        const unsub = auth.onAuthStateChanged((user) => {
+        const unsub = auth.current.onAuthStateChanged((user) => {
             if (user) {
                 setState((s) => {
                     return { ...s, isSignedIn: true };
@@ -250,7 +256,7 @@ const ServerControl: NextPage<ServerControlProps> = (props) => {
                     spinning={state.loading}
                     refreshData={refreshData}
                 />
-                <LoginButton firebaseAuth={getAuth()} />
+                <LoginButton firebaseAuth={auth.current} />
             </ButtonGroup>
         );
         return () => {

@@ -1,5 +1,5 @@
 import { readFile, watch } from "fs/promises";
-
+import { readFileSync } from "fs";
 type gameFolder = string;
 type PrettyName = string;
 
@@ -21,6 +21,10 @@ function invertObject(obj: { [key: string]: string }) {
     return out;
 }
 
+function parseFileSync(file: string) {
+    return JSON.parse(readFileSync(file).toString());
+}
+
 async function parseFile(file: string) {
     return JSON.parse((await readFile(file)).toString());
 }
@@ -29,7 +33,7 @@ const emailsFile = `${process.cwd()}/private/emails.json`;
 
 // TODO: Do typechecking
 async function* gamesList() {
-    const obj = (await parseFile(gamesFile)) as GameFolderToPrettyName;
+    const obj = parseFileSync(gamesFile) as GameFolderToPrettyName;
     yield {
         folderToPrettyName: obj,
         PrettyNameToFolder: invertObject(obj) as PrettyNameToGameFolder,
@@ -46,7 +50,7 @@ async function* gamesList() {
 
 // TODO: Do typechecking
 async function* emailsList() {
-    yield (await parseFile(emailsFile)) as string[];
+    yield parseFileSync(emailsFile) as string[];
     const watcher = watch(emailsFile);
     for await (const _ of watcher) {
         yield (await parseFile(emailsFile)) as string[];
