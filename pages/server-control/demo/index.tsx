@@ -198,22 +198,11 @@ const ServerControlDemo: NextPage<ServerControlProps> = (props) => {
     }, [refreshData, setButtons, state.loading]);
 
     return (
-        <>
-            <Navbar>
-                <ButtonGroup>
-                    <RefreshButton
-                        disabled={state.loading}
-                        spinning={state.loading}
-                        refreshData={refreshData}
-                    />
-                </ButtonGroup>
-            </Navbar>
-            <main>
-                <NotifSnackBar hideSnackbar={hideSnackbar} state={state} />
+        <main>
+            <NotifSnackBar hideSnackbar={hideSnackbar} state={state} />
 
-                <DisplayGrid sendCommand={sendCommand} state={state} />
-            </main>
-        </>
+            <DisplayGrid sendCommand={sendCommand} state={state} />
+        </main>
     );
 };
 

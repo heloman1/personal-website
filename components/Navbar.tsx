@@ -34,6 +34,7 @@ export default function Navbar({ children }: PropsWithChildren<{}>) {
     const links = [
         ["Home", "/"],
         ["Server Control", "/server-control"],
+        ["Server Control Demo", "/server-control/demo"],
         ["About", "/about"],
     ].map(([name, link], i) => (
         <Grid item key={i}>
