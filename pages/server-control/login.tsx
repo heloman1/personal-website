@@ -18,18 +18,25 @@ import { useRouter } from "next/router";
 import { getApps, initializeApp } from "firebase/app";
 
 import { firebaseClientConfig } from "../_app";
+import { NextPage } from "next";
 
 type LoginState = {
     fieldError: boolean;
     askForEmailAgain: boolean;
 };
 
-const URL =
-    process.env.NODE_ENV === "development"
-        ? "http://localhost:3000/server-control/login"
-        : `https://${process.env.DOMAIN_NAME}/server-control/login`;
+export async function getStaticProps() {
+    return {
+        props: {
+            url:
+                process.env.NODE_ENV === "development"
+                    ? "http://localhost:3000/server-control/login"
+                    : `https://${process.env.DOMAIN_NAME}/server-control/login`,
+        },
+    };
+}
 
-export default function Login() {
+const Login: NextPage<{ url: string }> = (props) => {
     if (getApps().length === 0) initializeApp(firebaseClientConfig);
     const router = useRouter();
     const emailLocalStorageKey = "emailForSignIn";
@@ -78,9 +85,8 @@ export default function Login() {
             finishSignIn(email);
         } else {
             const auth = getAuth();
-
             sendSignInLinkToEmail(auth, email, {
-                url: URL,
+                url: props.url,
                 handleCodeInApp: true,
             }).catch((e) => {
                 console.log(e);
@@ -197,4 +203,5 @@ export default function Login() {
             </Card>
         </Grid>
     );
-}
+};
+export default Login;
