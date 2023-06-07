@@ -12,12 +12,14 @@ interface GameServer {
 }
 
 const command = promisify(exec);
+
+
 async function getGameServerData() {
     if (env.NODE_ENV === "development") {
         const example: GameServer[] = [
-            { game: "a", server: "b", port: 4568 },
-            { game: "a", server: "c", port: 4569 },
-            { game: "adsf", server: "piou", port: 4567 },
+            { game: "minecraft", server: "vanilla", port: 25565 },
+            { game: "minecraft", server: "modded", port: 25565 },
+            { game: "terraria", server: "vanilla", port: 7777 },
         ];
         return example;
     } else {
@@ -26,8 +28,9 @@ async function getGameServerData() {
     }
 }
 
-export const load: PageServerLoad = ({ params }) => {
+export const load: PageServerLoad = async ({ params }) => {
+    console.log("Is this even running?");
     return {
-        placeholder: getGameServerData(),
+        streamed: {gameServerData: getGameServerData()},
     };
 };

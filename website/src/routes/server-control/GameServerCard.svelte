@@ -15,5 +15,7 @@
         border: solid blue;
         display: flex;
         flex-direction: column;
+        gap: .5rem;
+        padding: 1rem;
     }
 </style>
