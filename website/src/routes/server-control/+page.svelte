@@ -3,6 +3,7 @@
     import type { PageData } from "./$types";
     import { onMount } from "svelte";
 
+    // data is an important name for Svelte, do not rename
     export let data: PageData;
 
 </script>
@@ -12,7 +13,7 @@
         <span>Loading</span>
     {:then data}
         {#each data as d}
-            <GameServerCard gameServerData={d} />
+            <GameServerCard gameServerData={d} startStopAction={(game, server) => console.log(`${game} : ${server}`)}/>
         {/each}
     {/await}
 </div>
