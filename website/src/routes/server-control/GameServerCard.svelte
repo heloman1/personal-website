@@ -12,8 +12,9 @@
     <span>Card Disabled: {disabled}</span>
     <button
         {disabled}
-        on:click={() => startStopAction(gameServerData.game, gameServerData.server)}
-        >Start/Stop</button
+        on:click={() =>
+            startStopAction(gameServerData.game, gameServerData.server)}
+        >{gameServerData.online ? "Stop" : "Start"}</button
     >
 </div>
 
@@ -25,7 +26,16 @@
         gap: 0.5rem;
         padding: 1rem;
         border-radius: 10px;
-        background: white;
-        box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.15);
+        background: var(--bg);
+        box-shadow: 0px 0px 30px 0px var(--shadow-color);
+        color: var(--fg);
+    }
+
+    button {
+        color: var(--fg);
+        gap: 0.5rem;
+        padding: 1rem;
+        border-radius: 10px;
+        background-color: var(--bg);
     }
 </style>
