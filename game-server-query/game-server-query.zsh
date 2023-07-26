@@ -7,30 +7,29 @@ buffered_output() {
     game=$1
     server=$2
     server_details=$(./$game/$server/*server details | # get details
-        sed 's/\x1b\[[0-9;]*m//g' )                    # strip colors
+        sed 's/\x1b\[[0-9;]*m//g')                     # strip colors
 
     # STARTED | STOPPED
     # $status is apparently read-only for some reason
     # -m 1 == get the first match
     # Delete tabs, newline, and spaces (should only be spaces)
-    status_="$(echo "$server_details" \
-    | egrep -o 'STOPPED|STARTED' -m 1 \
-    | tr -d '\n\t ')"
+    status_="$(echo "$server_details" |
+        egrep -o 'STOPPED|STARTED' -m 1 |
+        tr -d '\n\t ')"
 
     # 127.0.0.1:123456
     # Just the port
-    port="$(echo $server_details \
-    | egrep '[0-9]\.[0-9]\.[0-9]\.[0-9]:[0-9]+$' -m 1 \
-    | egrep -o '[0-9]+$' \
-    | tr -d '\n\t ')"
+    port="$(echo $server_details |
+        egrep '[0-9]\.[0-9]\.[0-9]\.[0-9]:[0-9]+$' -m 1 |
+        egrep -o '[0-9]+$' |
+        tr -d '\n\t ')"
 
     printf '{"game":"%s","server":"%s","status":"%s","port":"%s"}\n' \
-    "$game" \
-    "$(basename $server)" \
-    "$status_" \
-    "$port"
+        "$game" \
+        "$(basename $server)" \
+        "$status_" \
+        "$port"
 }
-
 
 if [ $# -eq 1 ]; then
     games=($(echo $1 | jq -r '.[]'))
@@ -69,6 +68,7 @@ else
     echo 'Invalid arguments'
     echo 'Expected:'
     echo $0 '<game> <JSON array of server>'
+    echo 'Or:'
     echo $0 '<JSON array of games>'
     exit 1
 fi

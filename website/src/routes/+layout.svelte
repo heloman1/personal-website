@@ -1,10 +1,21 @@
 <script lang="ts">
+    // let brightness_mode: "light" | "dark" | "auto" = "auto";
+
+    let links = [
+        { name: "Home", href: "/" },
+        { name: "Server Control", href: "/server-control" },
+        { name: "Account", href: "/account" },
+    ];
+
+    // function set_light_mode() {}
+    // function set_dark_mode() {}
+    // function set_auto_mode() {}
 </script>
 
 <nav>
-    <a href="/"> Home </a>
-    <a href="/server-control">Server Control</a>
-    <a href="/account">Account</a>
+    {#each links as link}
+        <a class="button" href={link.href}>{link.name}</a>
+    {/each}
 </nav>
 
 <slot />
@@ -12,20 +23,21 @@
 <style>
     :global(:root) {
         /* Light Mode */
-        /* --fg: black;
+        --fg: black;
         --bg: white;
-        --shadow-color: rgba(0, 0, 0, 0.15); */
+        --shadow-color: rgba(0, 0, 0, 0.15);
 
         /* Dark Mode */
-        --fg: white;
-        --bg: rgb(59, 59, 59);
-        --shadow-color: rgba(255, 255, 255, 0.15);
+        /* --fg: white;
+         --bg: rgb(59, 59, 59);
+         --shadow-color: rgba(255, 255, 255, 0.15); */
 
         --bg-highlight: gray;
     }
     :global(body) {
         background-color: var(--bg);
     }
+
     nav {
         /* border: solid blue; */
         margin-bottom: 1rem;
@@ -38,22 +50,26 @@
         box-shadow: 0px 0px 30px 0px var(--shadow-color);
     }
 
-    a {
-        color: var(--fg);
+    .button {
         gap: 0.5rem;
         padding: 1rem;
         border-radius: 10px;
         border-style: outset;
         background-color: var(--bg);
-
+        border-width: 2px;
+        border-color: grey;
         text-decoration: none;
+        color: var(--fg);
     }
 
-    a:active {
+    .button:disabled {
+        background-color: var(--bg-highlight);
+    }
+    .button:active:not(:disabled) {
         border-style: inset;
     }
-    
-    a:hover {
+
+    .button:hover:not(:disabled) {
         background-color: var(--bg-highlight);
     }
 </style>
