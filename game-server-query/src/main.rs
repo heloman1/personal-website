@@ -76,7 +76,6 @@ fn main() {
 
 fn add_paths(args: &Args, root_path: &str, path_set: &mut HashSet<String>) {
     if let Some(paths) = args.paths.as_ref() {
-        let path_set: &mut HashSet<String> = path_set;
         for rel_path in paths {
             let split: Vec<_> = rel_path.split("/").collect();
             if split.len() != 2 {
@@ -96,44 +95,47 @@ fn add_paths(args: &Args, root_path: &str, path_set: &mut HashSet<String>) {
 }
 
 fn add_games(args: &Args, root_path: &str, path_set: &mut HashSet<String>) {
-    if let Some(games) = args.games.as_ref() {
-        let path_set: &mut HashSet<String> = path_set;
+    let Some(games) = args.games.as_ref() else { return };
 
-        for game in games {
-            // println!("{}", game);
-            let split: Vec<_> = game.split("/").collect();
-            if split.len() != 1 {
-                panic!(
-                    "Expected game (a string with no slashes), instead got {}",
-                    game
-                );
-            }
-            let game_folder = std::fs::read_dir(std::path::Path::new(&root_path).join(game))
-                .expect("Error when reading directory");
+    games.into_iter().for_each(|game| {
+        if game.find(std::path::MAIN_SEPARATOR_STR).is_some() {
+            panic!(
+                "Expected game (a string with no slashes), instead got {}",
+                game
+            );
+        };
 
-            for entry in game_folder {
-                match entry {
-                    Ok(e) if e.path().is_dir() => {
-                        let rel_path = e
-                            .path()
-                            .components()
-                            .last()
-                            .expect("Error getting server name")
-                            .as_os_str()
-                            .to_str()
-                            .expect("server name somehow wasn't valid unicode")
-                            .to_owned();
-                        let path = Path::new(root_path)
-                            .join(rel_path)
-                            .to_str()
-                            .expect("String wasn't Unicode")
-                            .to_owned();
-                        path_set.insert(format!("{}/{}", game, path).to_owned());
-                    }
-                    Ok(_) => {}
-                    Err(e) => eprintln!("Error reading directory: {}", e),
-                };
+        let servers = match std::fs::read_dir(std::path::Path::new(&root_path).join(game)) {
+            Ok(contents) => contents,
+            Err(e) => {
+                eprintln!("Error reading directory: {}", e);
+                return;
             }
-        }
-    }
+        };
+
+        servers.for_each(|entry| {
+            match entry {
+                Ok(e) if e.path().is_dir() => {
+                    let rel_path = e
+                        .path()
+                        .components()
+                        .last()
+                        .expect("Error getting server name")
+                        .as_os_str()
+                        .to_str()
+                        .expect("server name somehow wasn't valid unicode")
+                        .to_owned();
+                    let path = Path::new(root_path)
+                        .join(game)
+                        .join(rel_path)
+                        .to_str()
+                        .expect("String wasn't Unicode")
+                        .to_owned();
+                    path_set.insert(path);
+                }
+                Ok(_) => {}
+                Err(e) => eprintln!("Error reading directory: {}", e),
+            };
+        });
+    });
 }
