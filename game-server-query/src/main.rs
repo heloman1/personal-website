@@ -1,5 +1,6 @@
 use clap::Parser;
 use dotenvy;
+use glob::glob;
 use shellexpand;
 use std::{collections::HashSet, env, io::Write, path::Path};
 // Get list of <game>...server execs
@@ -65,13 +66,42 @@ fn main() {
 
     add_games(&args, root_path, &mut path_set);
 
-    if path_set.len() > 0 {
-        for path in path_set {
-            println!("{}", path);
+    retrieve_data(&args, &path_set);
+}
+
+fn retrieve_data(_args: &Args, path_set: &HashSet<String>) {
+    path_set.iter().for_each(|path| {
+        let path = std::path::Path::new(path);
+        // println!("{:?}", path);
+
+        let server = glob(path.join("*server").to_str().expect("Failed to join paths"))
+            .expect("Failed to read glob pattern")
+            .filter_map(|entry| {
+                if entry.is_ok() {
+                    Some(entry.unwrap())
+                } else {
+                    None
+                }
+            })
+            .find(|entry| {
+                if entry.is_file() && entry.to_str().expect("wasn't utf8").ends_with("server") {
+                    return true;
+                }
+                return false;
+            });
+
+        if server.is_none() {
+            return;
         }
-    }
-    // paths.iter().for_each(|path| println!("{}", path));
-    // println!("Hello, world!");
+
+        println!(
+            "TODO: re-impl regex of ./*server details: {:?}",
+            server.unwrap()
+        );
+        // let server_executable = read_dir(path).expect("Error when reading dir".find(|entry| {
+        //     entry.expect("Error when reading file/dir").file_name().to_str().expect("String wasn't utf8").
+        // });
+    })
 }
 
 fn add_paths(args: &Args, root_path: &str, path_set: &mut HashSet<String>) {
